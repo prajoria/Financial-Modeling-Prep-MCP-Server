@@ -15,6 +15,9 @@ import { EconomicsClient } from "./api/economics/EconomicsClient.js";
 import { DCFClient } from "./api/dcf/DCFClient.js";
 import { FundClient } from "./api/fund/FundClient.js";
 import { CommodityClient } from "./api/commodity/CommodityClient.js";
+import { FundraisersClient } from "./api/fundraisers/FundraisersClient.js";
+import { CryptoClient } from "./api/crypto/CryptoClient.js";
+import { ForexClient } from "./api/forex/ForexClient.js";
 import minimist from "minimist";
 
 // Import manually specified version instead of from package.json
@@ -55,7 +58,7 @@ const chartClient = new ChartClient(accessToken);
 // Initialize the company client
 const companyClient = new CompanyClient(accessToken);
 
-// Initialize the COT client
+// Initialize the COT(Commitment Of Traders) client
 const cotClient = new COTClient(accessToken);
 
 // Initialize the ESG client
@@ -64,14 +67,23 @@ const esgClient = new ESGClient(accessToken);
 // Initialize the economics client
 const economicsClient = new EconomicsClient(accessToken);
 
-// Initialize the DCF client
+// Initialize the DCF(Discounted Cash Flow) client
 const dcfClient = new DCFClient(accessToken);
 
-// Initialize the fund client
+// Initialize the fund(ETF and Mutual Funds) client
 const fundClient = new FundClient(accessToken);
 
 // Initialize the commodity client
 const commodityClient = new CommodityClient(accessToken);
+
+// Initialize the fundraisers client
+const fundraiserClient = new FundraisersClient(accessToken);
+
+// Initialize the crypto client
+const cryptoClient = new CryptoClient(accessToken);
+
+// Initialize the forex client
+const forexClient = new ForexClient(accessToken);
 
 // Register search tools
 server.tool(
@@ -2746,6 +2758,687 @@ server.tool(
   async ({ symbol }) => {
     try {
       const results = await commodityClient.getSupplyDemand(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register Fundraisers tools
+server.tool(
+  "getLatestCrowdfundingCampaigns",
+  {
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 100, max: 1000)"),
+  },
+  async ({ page, limit }) => {
+    try {
+      const results = await fundraiserClient.getLatestCrowdfundingCampaigns(
+        page,
+        limit
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "searchCrowdfundingCampaigns",
+  {
+    name: z
+      .string()
+      .describe("Company name, campaign name, or platform to search for"),
+  },
+  async ({ name }) => {
+    try {
+      const results = await fundraiserClient.searchCrowdfundingCampaigns(name);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCrowdfundingCampaignsByCIK",
+  {
+    cik: z.string().describe("CIK number to search for"),
+  },
+  async ({ cik }) => {
+    try {
+      const results = await fundraiserClient.getCrowdfundingCampaignsByCIK(cik);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getLatestEquityOfferings",
+  {
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 100, max: 1000)"),
+    cik: z.string().optional().describe("Optional CIK number to filter by"),
+  },
+  async ({ page, limit, cik }) => {
+    try {
+      const results = await fundraiserClient.getLatestEquityOfferings(
+        page,
+        limit,
+        cik
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "searchEquityOfferings",
+  {
+    name: z.string().describe("Company name or stock symbol to search for"),
+  },
+  async ({ name }) => {
+    try {
+      const results = await fundraiserClient.searchEquityOfferings(name);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getEquityOfferingsByCIK",
+  {
+    cik: z.string().describe("CIK number to search for"),
+  },
+  async ({ cik }) => {
+    try {
+      const results = await fundraiserClient.getEquityOfferingsByCIK(cik);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register Crypto tools
+server.tool("getCryptocurrencyList", {}, async () => {
+  try {
+    const results = await cryptoClient.getList();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool(
+  "getCryptocurrencyQuote",
+  {
+    symbol: z.string().describe("Cryptocurrency symbol (e.g., BTCUSD)"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await cryptoClient.getQuote(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCryptocurrencyShortQuote",
+  {
+    symbol: z.string().describe("Cryptocurrency symbol (e.g., BTCUSD)"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await cryptoClient.getShortQuote(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool("getCryptocurrencyBatchQuotes", {}, async () => {
+  try {
+    const results = await cryptoClient.getBatchQuotes();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool(
+  "getCryptocurrencyHistoricalLightChart",
+  {
+    symbol: z.string().describe("Cryptocurrency symbol (e.g., BTCUSD)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await cryptoClient.getHistoricalLightChart(
+        symbol,
+        from,
+        to
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCryptocurrencyHistoricalFullChart",
+  {
+    symbol: z.string().describe("Cryptocurrency symbol (e.g., BTCUSD)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await cryptoClient.getHistoricalFullChart(
+        symbol,
+        from,
+        to
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCryptocurrency1MinuteData",
+  {
+    symbol: z.string().describe("Cryptocurrency symbol (e.g., BTCUSD)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await cryptoClient.get1MinuteData(symbol, from, to);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCryptocurrency5MinuteData",
+  {
+    symbol: z.string().describe("Cryptocurrency symbol (e.g., BTCUSD)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await cryptoClient.get5MinuteData(symbol, from, to);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCryptocurrency1HourData",
+  {
+    symbol: z.string().describe("Cryptocurrency symbol (e.g., BTCUSD)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await cryptoClient.get1HourData(symbol, from, to);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register Forex tools
+server.tool("getForexList", {}, async () => {
+  try {
+    const results = await forexClient.getList();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool(
+  "getForexQuote",
+  {
+    symbol: z.string().describe("Forex pair symbol (e.g., EURUSD)"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await forexClient.getQuote(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getForexShortQuote",
+  {
+    symbol: z.string().describe("Forex pair symbol (e.g., EURUSD)"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await forexClient.getShortQuote(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool("getForexBatchQuotes", {}, async () => {
+  try {
+    const results = await forexClient.getBatchQuotes();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool(
+  "getForexHistoricalLightChart",
+  {
+    symbol: z.string().describe("Forex pair symbol (e.g., EURUSD)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await forexClient.getHistoricalLightChart(
+        symbol,
+        from,
+        to
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getForexHistoricalFullChart",
+  {
+    symbol: z.string().describe("Forex pair symbol (e.g., EURUSD)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await forexClient.getHistoricalFullChart(
+        symbol,
+        from,
+        to
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getForex1MinuteData",
+  {
+    symbol: z.string().describe("Forex pair symbol (e.g., EURUSD)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await forexClient.get1MinuteData(symbol, from, to);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getForex5MinuteData",
+  {
+    symbol: z.string().describe("Forex pair symbol (e.g., EURUSD)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await forexClient.get5MinuteData(symbol, from, to);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getForex1HourData",
+  {
+    symbol: z.string().describe("Forex pair symbol (e.g., EURUSD)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await forexClient.get1HourData(symbol, from, to);
       return {
         content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
       };

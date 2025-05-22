@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError } from "axios";
+import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from "axios";
 
 interface FMPErrorResponse {
   message: string;
@@ -22,10 +22,15 @@ export class FMPClient {
 
   protected async get<T>(
     endpoint: string,
-    params: Record<string, any> = {}
+    params: Record<string, any> = {},
+    options?: { signal?: AbortSignal }
   ): Promise<T> {
     try {
-      const response = await this.client.get<T>(endpoint, { params });
+      const config: AxiosRequestConfig = { params };
+      if (options?.signal) {
+        config.signal = options.signal;
+      }
+      const response = await this.client.get<T>(endpoint, config);
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -47,10 +52,15 @@ export class FMPClient {
   protected async post<T>(
     endpoint: string,
     data: any,
-    params: Record<string, any> = {}
+    params: Record<string, any> = {},
+    options?: { signal?: AbortSignal }
   ): Promise<T> {
     try {
-      const response = await this.client.post<T>(endpoint, data, { params });
+      const config: AxiosRequestConfig = { params };
+      if (options?.signal) {
+        config.signal = options.signal;
+      }
+      const response = await this.client.post<T>(endpoint, data, config);
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
