@@ -1,0 +1,82 @@
+{
+  "name": "fmp-mcp-server",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "fmp-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "prePublishOnly": "npm run build",
+    "dev": "tsx watch src/index.ts",
+    "setup": "npm install"
+  },
+  "author": "imbenrabi",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "minimist": "^1.2.8",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^20.11.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TODO"
+  },
+  "bugs": {
+    "url": "https://github.com/TODO"
+  },
+  "homepage": "https://github.com/TODO",
+  "keywords": [
+    "mcp",
+    "ai",
+    "assistant",
+    "fmp",
+    "financial modeling prep",
+    "financial data",
+    "financial analysis",
+    "financial planning",
+    "financial reporting",
+    "quotes",
+    "symbols",
+    "ticker",
+    "ticker symbols",
+    "stock symbols",
+    "stock quotes",
+    "stock",
+    "stocks",
+    "stock prices",
+    "stock market",
+    "stock data",
+    "stock analysis",
+    "stock planning",
+    "stock reporting",
+    "exchange",
+    "exchanges",
+    "financial news",
+    "stock news",
+    "stock market data",
+    "stock market",
+    "stock market news",
+    "stock market analysis",
+    "stock market planning",
+    "stock market reporting",
+    "stock market quotes",
+    "stock market symbols"
+  ]
+}
