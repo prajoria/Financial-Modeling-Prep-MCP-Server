@@ -19,6 +19,13 @@ import { FundraisersClient } from "./api/fundraisers/FundraisersClient.js";
 import { CryptoClient } from "./api/crypto/CryptoClient.js";
 import { ForexClient } from "./api/forex/ForexClient.js";
 import { StatementsClient } from "./api/statements/StatementsClient.js";
+import { Form13FClient } from "./api/form-13f/Form13FClient.js";
+import { IndexesClient } from "./api/indexes/IndexesClient.js";
+import { InsiderTradesClient } from "./api/insider-trades/InsiderTradesClient.js";
+import { MarketPerformanceClient } from "./api/market-performance/MarketPerformanceClient.js";
+import { MarketHoursClient } from "./api/market-hours/MarketHoursClient.js";
+import { NewsClient } from "./api/news/NewsClient.js";
+import { TechnicalIndicatorsClient } from "./api/technical-indicators/TechnicalIndicatorsClient.js";
 import { Period } from "./api/statements/types.js";
 import minimist from "minimist";
 
@@ -89,6 +96,27 @@ const forexClient = new ForexClient(accessToken);
 
 // Initialize the statements client
 const statementsClient = new StatementsClient(process.env.FMP_API_KEY || "");
+
+// Initialize the form13f client
+const form13fClient = new Form13FClient(accessToken);
+
+// Initialize the indexes client
+const indexesClient = new IndexesClient(accessToken);
+
+// Initialize the insider trades client
+const insiderTradesClient = new InsiderTradesClient(accessToken);
+
+// Initialize the market performance client
+const marketPerformanceClient = new MarketPerformanceClient(accessToken);
+
+// Initialize the market hours client
+const marketHoursClient = new MarketHoursClient(accessToken);
+
+// Initialize the news client
+const newsClient = new NewsClient(accessToken);
+
+// Initialize the technical indicators client
+const technicalIndicatorsClient = new TechnicalIndicatorsClient(accessToken);
 
 // Register search tools
 server.tool(
@@ -4184,6 +4212,1977 @@ server.tool(
         "Error fetching full financial statement as reported:",
         error
       );
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register form13f tools
+server.tool(
+  "getLatestInstitutionalFilings",
+  {
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 100, max: 100)"),
+  },
+  async ({ page, limit }) => {
+    try {
+      const results = await form13fClient.getLatestFilings({ page, limit });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getSecFilingExtract",
+  {
+    cik: z.string().describe("CIK number"),
+    year: z.union([z.string(), z.number()]).describe("Year of filing"),
+    quarter: z
+      .union([z.string(), z.number()])
+      .describe("Quarter of filing (1-4)"),
+  },
+  async ({ cik, year, quarter }) => {
+    try {
+      const results = await form13fClient.getFilingExtract(cik, year, quarter);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getForm13FFilingDates",
+  {
+    cik: z.string().describe("CIK number"),
+  },
+  async ({ cik }) => {
+    try {
+      const results = await form13fClient.getFilingDates(cik);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getFilingExtractAnalyticsByHolder",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    year: z.union([z.string(), z.number()]).describe("Year of filing"),
+    quarter: z
+      .union([z.string(), z.number()])
+      .describe("Quarter of filing (1-4)"),
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 10, max: 100)"),
+  },
+  async ({ symbol, year, quarter, page, limit }) => {
+    try {
+      const results = await form13fClient.getFilingExtractAnalyticsByHolder(
+        symbol,
+        year,
+        quarter,
+        { page, limit }
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getHolderPerformanceSummary",
+  {
+    cik: z.string().describe("CIK number"),
+    page: z.number().optional().describe("Page number (default: 0)"),
+  },
+  async ({ cik, page }) => {
+    try {
+      const results = await form13fClient.getHolderPerformanceSummary(cik, {
+        page,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getHolderIndustryBreakdown",
+  {
+    cik: z.string().describe("CIK number"),
+    year: z.union([z.string(), z.number()]).describe("Year of filing"),
+    quarter: z
+      .union([z.string(), z.number()])
+      .describe("Quarter of filing (1-4)"),
+  },
+  async ({ cik, year, quarter }) => {
+    try {
+      const results = await form13fClient.getHolderIndustryBreakdown(
+        cik,
+        year,
+        quarter
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getPositionsSummary",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    year: z.union([z.string(), z.number()]).describe("Year of filing"),
+    quarter: z
+      .union([z.string(), z.number()])
+      .describe("Quarter of filing (1-4)"),
+  },
+  async ({ symbol, year, quarter }) => {
+    try {
+      const results = await form13fClient.getPositionsSummary(
+        symbol,
+        year,
+        quarter
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIndustryPerformanceSummary",
+  {
+    year: z.union([z.string(), z.number()]).describe("Year of filing"),
+    quarter: z
+      .union([z.string(), z.number()])
+      .describe("Quarter of filing (1-4)"),
+  },
+  async ({ year, quarter }) => {
+    try {
+      const results = await form13fClient.getIndustryPerformanceSummary(
+        year,
+        quarter
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register indexes tools
+server.tool("getIndexList", {}, async () => {
+  try {
+    const results = await indexesClient.getIndexList();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool(
+  "getIndexQuote",
+  {
+    symbol: z.string().describe("Index symbol (e.g., ^GSPC for S&P 500)"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await indexesClient.getIndexQuote(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIndexShortQuote",
+  {
+    symbol: z.string().describe("Index symbol (e.g., ^GSPC for S&P 500)"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await indexesClient.getIndexShortQuote(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getAllIndexQuotes",
+  {
+    short: z
+      .boolean()
+      .optional()
+      .describe("Whether to return short quotes (default: false)"),
+  },
+  async ({ short }) => {
+    try {
+      const results = await indexesClient.getAllIndexQuotes(short);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getHistoricalIndexLightChart",
+  {
+    symbol: z.string().describe("Index symbol (e.g., ^GSPC for S&P 500)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await indexesClient.getHistoricalIndexLightChart(symbol, {
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getHistoricalIndexFullChart",
+  {
+    symbol: z.string().describe("Index symbol (e.g., ^GSPC for S&P 500)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await indexesClient.getHistoricalIndexFullChart(symbol, {
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIndex1MinuteData",
+  {
+    symbol: z.string().describe("Index symbol (e.g., ^GSPC for S&P 500)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await indexesClient.getIndex1MinuteData(symbol, {
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIndex5MinuteData",
+  {
+    symbol: z.string().describe("Index symbol (e.g., ^GSPC for S&P 500)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await indexesClient.getIndex5MinuteData(symbol, {
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIndex1HourData",
+  {
+    symbol: z.string().describe("Index symbol (e.g., ^GSPC for S&P 500)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, from, to }) => {
+    try {
+      const results = await indexesClient.getIndex1HourData(symbol, {
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool("getSP500Constituents", {}, async () => {
+  try {
+    const results = await indexesClient.getSP500Constituents();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool("getNasdaqConstituents", {}, async () => {
+  try {
+    const results = await indexesClient.getNasdaqConstituents();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool("getDowJonesConstituents", {}, async () => {
+  try {
+    const results = await indexesClient.getDowJonesConstituents();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool("getHistoricalSP500Changes", {}, async () => {
+  try {
+    const results = await indexesClient.getHistoricalSP500Changes();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool("getHistoricalNasdaqChanges", {}, async () => {
+  try {
+    const results = await indexesClient.getHistoricalNasdaqChanges();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool("getHistoricalDowJonesChanges", {}, async () => {
+  try {
+    const results = await indexesClient.getHistoricalDowJonesChanges();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+// Register insider trades tools
+server.tool(
+  "getLatestInsiderTrading",
+  {
+    date: z.string().optional().describe("Date of insider trades (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 100, max: 100)"),
+  },
+  async ({ date, page, limit }) => {
+    try {
+      const results = await insiderTradesClient.getLatestInsiderTrading({
+        date,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "searchInsiderTrades",
+  {
+    symbol: z.string().optional().describe("Stock symbol"),
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 100, max: 100)"),
+    reportingCik: z.string().optional().describe("Reporting CIK number"),
+    companyCik: z.string().optional().describe("Company CIK number"),
+    transactionType: z
+      .string()
+      .optional()
+      .describe("Transaction type (e.g., S-Sale)"),
+  },
+  async ({
+    symbol,
+    page,
+    limit,
+    reportingCik,
+    companyCik,
+    transactionType,
+  }) => {
+    try {
+      const results = await insiderTradesClient.searchInsiderTrades({
+        symbol,
+        page,
+        limit,
+        reportingCik,
+        companyCik,
+        transactionType,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "searchInsiderTradesByReportingName",
+  {
+    name: z.string().describe("Reporting person's name to search for"),
+  },
+  async ({ name }) => {
+    try {
+      const results =
+        await insiderTradesClient.searchInsiderTradesByReportingName(name);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool("getInsiderTransactionTypes", {}, async () => {
+  try {
+    const results = await insiderTradesClient.getInsiderTransactionTypes();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool(
+  "getInsiderTradeStatistics",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await insiderTradesClient.getInsiderTradeStatistics(
+        symbol
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getAcquisitionOwnership",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 2000)"),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await insiderTradesClient.getAcquisitionOwnership(
+        symbol,
+        limit
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register market performance tools
+server.tool(
+  "getSectorPerformanceSnapshot",
+  {
+    date: z.string().describe("Date (YYYY-MM-DD)"),
+    exchange: z.string().optional().describe("Exchange (e.g., NASDAQ)"),
+    sector: z.string().optional().describe("Sector (e.g., Energy)"),
+  },
+  async ({ date, exchange, sector }) => {
+    try {
+      const results =
+        await marketPerformanceClient.getSectorPerformanceSnapshot(date, {
+          exchange,
+          sector,
+        });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIndustryPerformanceSnapshot",
+  {
+    date: z.string().describe("Date (YYYY-MM-DD)"),
+    exchange: z.string().optional().describe("Exchange (e.g., NASDAQ)"),
+    industry: z.string().optional().describe("Industry (e.g., Biotechnology)"),
+  },
+  async ({ date, exchange, industry }) => {
+    try {
+      const results =
+        await marketPerformanceClient.getIndustryPerformanceSnapshot(date, {
+          exchange,
+          industry,
+        });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getHistoricalSectorPerformance",
+  {
+    sector: z.string().describe("Sector (e.g., Energy)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+    exchange: z.string().optional().describe("Exchange (e.g., NASDAQ)"),
+  },
+  async ({ sector, from, to, exchange }) => {
+    try {
+      const results =
+        await marketPerformanceClient.getHistoricalSectorPerformance(sector, {
+          from,
+          to,
+          exchange,
+        });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getHistoricalIndustryPerformance",
+  {
+    industry: z.string().describe("Industry (e.g., Biotechnology)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+    exchange: z.string().optional().describe("Exchange (e.g., NASDAQ)"),
+  },
+  async ({ industry, from, to, exchange }) => {
+    try {
+      const results =
+        await marketPerformanceClient.getHistoricalIndustryPerformance(
+          industry,
+          { from, to, exchange }
+        );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getSectorPESnapshot",
+  {
+    date: z.string().describe("Date (YYYY-MM-DD)"),
+    exchange: z.string().optional().describe("Exchange (e.g., NASDAQ)"),
+    sector: z.string().optional().describe("Sector (e.g., Energy)"),
+  },
+  async ({ date, exchange, sector }) => {
+    try {
+      const results = await marketPerformanceClient.getSectorPESnapshot(date, {
+        exchange,
+        sector,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIndustryPESnapshot",
+  {
+    date: z.string().describe("Date (YYYY-MM-DD)"),
+    exchange: z.string().optional().describe("Exchange (e.g., NASDAQ)"),
+    industry: z.string().optional().describe("Industry (e.g., Biotechnology)"),
+  },
+  async ({ date, exchange, industry }) => {
+    try {
+      const results = await marketPerformanceClient.getIndustryPESnapshot(
+        date,
+        { exchange, industry }
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getHistoricalSectorPE",
+  {
+    sector: z.string().describe("Sector (e.g., Energy)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+    exchange: z.string().optional().describe("Exchange (e.g., NASDAQ)"),
+  },
+  async ({ sector, from, to, exchange }) => {
+    try {
+      const results = await marketPerformanceClient.getHistoricalSectorPE(
+        sector,
+        { from, to, exchange }
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getHistoricalIndustryPE",
+  {
+    industry: z.string().describe("Industry (e.g., Biotechnology)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+    exchange: z.string().optional().describe("Exchange (e.g., NASDAQ)"),
+  },
+  async ({ industry, from, to, exchange }) => {
+    try {
+      const results = await marketPerformanceClient.getHistoricalIndustryPE(
+        industry,
+        { from, to, exchange }
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool("getBiggestGainers", {}, async () => {
+  try {
+    const results = await marketPerformanceClient.getBiggestGainers();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool("getBiggestLosers", {}, async () => {
+  try {
+    const results = await marketPerformanceClient.getBiggestLosers();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool("getMostActiveStocks", {}, async () => {
+  try {
+    const results = await marketPerformanceClient.getMostActiveStocks();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+// Register market hours tools
+server.tool(
+  "getExchangeMarketHours",
+  {
+    exchange: z.string().describe("Exchange code (e.g., NASDAQ, NYSE)"),
+  },
+  async ({ exchange }) => {
+    try {
+      const results = await marketHoursClient.getExchangeMarketHours(exchange);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool("getAllExchangeMarketHours", {}, async () => {
+  try {
+    const results = await marketHoursClient.getAllExchangeMarketHours();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+// Register news tools
+server.tool(
+  "getFMPArticles",
+  {
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 20)"),
+  },
+  async ({ page, limit }) => {
+    try {
+      const results = await newsClient.getFMPArticles({ page, limit });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getGeneralNews",
+  {
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 20, max: 250)"),
+  },
+  async ({ from, to, page, limit }) => {
+    try {
+      const results = await newsClient.getGeneralNews({
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getPressReleases",
+  {
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 20, max: 250)"),
+  },
+  async ({ from, to, page, limit }) => {
+    try {
+      const results = await newsClient.getPressReleases({
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getStockNews",
+  {
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 20, max: 250)"),
+  },
+  async ({ from, to, page, limit }) => {
+    try {
+      const results = await newsClient.getStockNews({
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCryptoNews",
+  {
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 20, max: 250)"),
+  },
+  async ({ from, to, page, limit }) => {
+    try {
+      const results = await newsClient.getCryptoNews({
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getForexNews",
+  {
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 20, max: 250)"),
+  },
+  async ({ from, to, page, limit }) => {
+    try {
+      const results = await newsClient.getForexNews({
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "searchPressReleases",
+  {
+    symbols: z.string().describe("Comma-separated list of stock symbols"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 20, max: 250)"),
+  },
+  async ({ symbols, from, to, page, limit }) => {
+    try {
+      const results = await newsClient.searchPressReleases({
+        symbols,
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "searchStockNews",
+  {
+    symbols: z.string().describe("Comma-separated list of stock symbols"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 20, max: 250)"),
+  },
+  async ({ symbols, from, to, page, limit }) => {
+    try {
+      const results = await newsClient.searchStockNews({
+        symbols,
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "searchCryptoNews",
+  {
+    symbols: z
+      .string()
+      .describe("Comma-separated list of cryptocurrency symbols"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 20, max: 250)"),
+  },
+  async ({ symbols, from, to, page, limit }) => {
+    try {
+      const results = await newsClient.searchCryptoNews({
+        symbols,
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "searchForexNews",
+  {
+    symbols: z.string().describe("Comma-separated list of forex pairs"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Limit on number of results (default: 20, max: 250)"),
+  },
+  async ({ symbols, from, to, page, limit }) => {
+    try {
+      const results = await newsClient.searchForexNews({
+        symbols,
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register technical indicators tools
+server.tool(
+  "getSMA",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    periodLength: z.number().describe("Period length for the indicator"),
+    timeframe: z
+      .string()
+      .describe("Timeframe (1min, 5min, 15min, 30min, 1hour, 4hour, 1day)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, periodLength, timeframe, from, to }) => {
+    try {
+      const results = await technicalIndicatorsClient.getSMA({
+        symbol,
+        periodLength,
+        timeframe,
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getEMA",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    periodLength: z.number().describe("Period length for the indicator"),
+    timeframe: z
+      .string()
+      .describe("Timeframe (1min, 5min, 15min, 30min, 1hour, 4hour, 1day)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, periodLength, timeframe, from, to }) => {
+    try {
+      const results = await technicalIndicatorsClient.getEMA({
+        symbol,
+        periodLength,
+        timeframe,
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getWMA",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    periodLength: z.number().describe("Period length for the indicator"),
+    timeframe: z
+      .string()
+      .describe("Timeframe (1min, 5min, 15min, 30min, 1hour, 4hour, 1day)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, periodLength, timeframe, from, to }) => {
+    try {
+      const results = await technicalIndicatorsClient.getWMA({
+        symbol,
+        periodLength,
+        timeframe,
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getDEMA",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    periodLength: z.number().describe("Period length for the indicator"),
+    timeframe: z
+      .string()
+      .describe("Timeframe (1min, 5min, 15min, 30min, 1hour, 4hour, 1day)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, periodLength, timeframe, from, to }) => {
+    try {
+      const results = await technicalIndicatorsClient.getDEMA({
+        symbol,
+        periodLength,
+        timeframe,
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getTEMA",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    periodLength: z.number().describe("Period length for the indicator"),
+    timeframe: z
+      .string()
+      .describe("Timeframe (1min, 5min, 15min, 30min, 1hour, 4hour, 1day)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, periodLength, timeframe, from, to }) => {
+    try {
+      const results = await technicalIndicatorsClient.getTEMA({
+        symbol,
+        periodLength,
+        timeframe,
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getRSI",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    periodLength: z.number().describe("Period length for the indicator"),
+    timeframe: z
+      .string()
+      .describe("Timeframe (1min, 5min, 15min, 30min, 1hour, 4hour, 1day)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, periodLength, timeframe, from, to }) => {
+    try {
+      const results = await technicalIndicatorsClient.getRSI({
+        symbol,
+        periodLength,
+        timeframe,
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getStandardDeviation",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    periodLength: z.number().describe("Period length for the indicator"),
+    timeframe: z
+      .string()
+      .describe("Timeframe (1min, 5min, 15min, 30min, 1hour, 4hour, 1day)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, periodLength, timeframe, from, to }) => {
+    try {
+      const results = await technicalIndicatorsClient.getStandardDeviation({
+        symbol,
+        periodLength,
+        timeframe,
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getWilliams",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    periodLength: z.number().describe("Period length for the indicator"),
+    timeframe: z
+      .string()
+      .describe("Timeframe (1min, 5min, 15min, 30min, 1hour, 4hour, 1day)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, periodLength, timeframe, from, to }) => {
+    try {
+      const results = await technicalIndicatorsClient.getWilliams({
+        symbol,
+        periodLength,
+        timeframe,
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getADX",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    periodLength: z.number().describe("Period length for the indicator"),
+    timeframe: z
+      .string()
+      .describe("Timeframe (1min, 5min, 15min, 30min, 1hour, 4hour, 1day)"),
+    from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ symbol, periodLength, timeframe, from, to }) => {
+    try {
+      const results = await technicalIndicatorsClient.getADX({
+        symbol,
+        periodLength,
+        timeframe,
+        from,
+        to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
       return {
         content: [
           {
