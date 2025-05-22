@@ -6,26 +6,32 @@ A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabl
 
 ## Usage
 
-For JSON configuration (for use with AI assistant frameworks):
+### HTTP Server
 
-```json
-{
-  "command": "npx",
-  "args": ["-y", "fmp-mcp", "--stdio"],
-  "env": {
-    "FMP_ACCESS_TOKEN": "YOUR_FMP_ACCESS_TOKEN"
-  }
-}
+The server now runs as an HTTP server that exposes a Model Context Protocol endpoint. To connect to it:
+
+```bash
+# Install and run the server
+npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN
 ```
 
-Or with arguments instead of environment variables:
+Or with environment variables:
 
-```json
-{
-  "command": "npx",
-  "args": ["-y", "fmp-mcp", "--stdio", "--fmp-token=YOUR_FMP_ACCESS_TOKEN"]
-}
+```bash
+# Set your API token as an environment variable
+export FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
+
+# Run the server
+npx -y fmp-mcp
 ```
+
+The server will start on port 3000 by default. You can change the port with the PORT environment variable:
+
+```bash
+PORT=4000 npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN
+```
+
+To send requests to the server, use the `/mcp` endpoint with JSON-RPC formatted requests.
 
 ## Available Tools
 
@@ -39,6 +45,10 @@ This MCP provides the following tools for AI assistants to access financial data
 - **searchCUSIP**: Search for securities by CUSIP number
 - **searchISIN**: Search for securities by ISIN number
 - **stockScreener**: Screen stocks based on various criteria
+- **searchExchangeVariants**: Search for symbol variants across different exchanges
+- **searchCompaniesByName**: Search for companies by name
+- **searchCompaniesBySymbol**: Search for companies by symbol
+- **searchCompaniesByCIK**: Search for companies by CIK number
 
 ### Directory and Symbol Lists
 
@@ -52,6 +62,10 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getAvailableIndustries**: Get a list of all available industries
 - **getAvailableCountries**: Get a list of all available countries
 - **getAvailableTranscriptSymbols**: Get a list of symbols with available transcripts
+- **getCIKList**: Get a list of all CIK numbers
+- **getSymbolChanges**: Get a list of symbol changes
+- **getAllIndustryClassification**: Get all industry classifications
+- **getIndustryClassificationList**: Get a list of industry classifications
 
 ### Company Information
 
@@ -71,17 +85,46 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getEarningsSurprises**: Get historical earnings surprises
 - **getEarningCallTranscript**: Get specific earnings call transcript
 - **getEarningCallTranscriptsBySymbol**: Get all earnings call transcripts for a symbol
+- **getCompanyNotes**: Get company notes
+- **getCompanyProfileByCIK**: Get company profile by CIK
+- **getCompanySECProfile**: Get company SEC profile
+- **getDelistedCompanies**: Get a list of delisted companies
+- **getEmployeeCount**: Get employee count for a company
+- **getHistoricalEmployeeCount**: Get historical employee count
+- **getBatchMarketCap**: Get batch market cap data
+- **getAllShareFloat**: Get all share float data
+- **getLatestMergersAcquisitions**: Get latest mergers and acquisitions
+- **searchMergersAcquisitions**: Search mergers and acquisitions
+- **getExecutiveCompensation**: Get executive compensation data
+- **getExecutiveCompensationBenchmark**: Get executive compensation benchmark data
+- **getAcquisitionOwnership**: Get acquisition ownership data
 
 ### Financial Statements
 
 - **getIncomeStatement**: Get company income statements
 - **getBalanceSheet**: Get company balance sheet statements
+- **getBalanceSheetStatement**: Get company balance sheet statements
 - **getCashFlowStatement**: Get company cash flow statements
 - **getIncomeStatementAsReported**: Get income statements as reported
 - **getBalanceSheetAsReported**: Get balance sheet statements as reported
+- **getBalanceSheetStatementAsReported**: Get balance sheet statements as reported
 - **getCashFlowStatementAsReported**: Get cash flow statements as reported
 - **getFullFinancialStatementAsReported**: Get full financial statements as reported
+- **getFinancialStatementFullAsReported**: Get full financial statements as reported
 - **getFinancialReportDates**: Get dates of available financial reports
+- **getFinancialReportsDates**: Get dates of available financial reports
+- **getLatestFinancialStatements**: Get latest financial statements
+- **getIncomeStatementTTM**: Get trailing twelve months income statements
+- **getBalanceSheetStatementTTM**: Get trailing twelve months balance sheet statements
+- **getCashFlowStatementTTM**: Get trailing twelve months cash flow statements
+- **getIncomeStatementGrowth**: Get income statement growth
+- **getBalanceSheetStatementGrowth**: Get balance sheet statement growth
+- **getCashFlowStatementGrowth**: Get cash flow statement growth
+- **getFinancialStatementGrowth**: Get financial statement growth
+- **getFinancialReportJSON**: Get financial report in JSON format
+- **getFinancialReportXLSX**: Get financial report in XLSX format
+- **getRevenueProductSegmentation**: Get revenue product segmentation
+- **getRevenueGeographicSegmentation**: Get revenue geographic segmentation
 
 ### Financial Metrics and Analysis
 
@@ -101,21 +144,47 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getFinancialScore**: Get financial score for a company
 - **getOwnerEarnings**: Get owner earnings for a company
 
+### Technical Indicators
+
+- **getSMA**: Get Simple Moving Average (SMA) indicator
+- **getEMA**: Get Exponential Moving Average (EMA) indicator
+- **getWMA**: Get Weighted Moving Average (WMA) indicator
+- **getDEMA**: Get Double Exponential Moving Average (DEMA) indicator
+- **getTEMA**: Get Triple Exponential Moving Average (TEMA) indicator
+- **getWilliams**: Get Williams %R indicator
+- **getADX**: Get Average Directional Index (ADX) indicator
+- **getStandardDeviation**: Get Standard Deviation indicator
+- **getRSI**: Get Relative Strength Index (RSI) indicator
+
 ### Quotes and Price Data
 
 - **getQuote**: Get current stock quote information
 - **getBatchQuotes**: Get quotes for multiple symbols
+- **getQuoteShort**: Get abbreviated stock quote information
+- **getBatchQuotesShort**: Get abbreviated quotes for multiple symbols
 - **getHistoricalPrice**: Get historical price data
 - **getHistoricalPriceChart**: Get historical price chart data
 - **getHistoricalDailyPrice**: Get historical daily price data
 - **getHistoricalStockSplits**: Get historical stock splits
 - **getHistoricalDividends**: Get historical dividends
 - **getTechnicalIndicator**: Get technical indicators for a stock
+- **getLightChart**: Get light version of price chart
+- **getFullChart**: Get full version of price chart
+- **getUnadjustedChart**: Get unadjusted price chart
+- **getDividendAdjustedChart**: Get dividend-adjusted price chart
+- **getIntradayChart**: Get intraday price chart
+- **getAftermarketQuote**: Get aftermarket quote
+- **getAftermarketTrade**: Get aftermarket trade data
+- **getBatchAftermarketQuote**: Get batch aftermarket quotes
+- **getBatchAftermarketTrade**: Get batch aftermarket trade data
+- **getStockPriceChange**: Get stock price change information
 
 ### Market Indexes and Performance
 
 - **getIndexList**: Get a list of all market indexes
 - **getIndexQuotes**: Get quotes for market indexes
+- **getIndexQuote**: Get quote for a specific index
+- **getIndexShortQuote**: Get abbreviated quote for an index
 - **getAllIndexQuotes**: Get quotes for all market indexes
 - **getSP500Constituents**: Get S&P 500 constituent companies
 - **getHistoricalSP500Changes**: Get historical S&P 500 changes
@@ -128,16 +197,32 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getBiggestGainers**: Get biggest gaining stocks
 - **getBiggestLosers**: Get biggest losing stocks
 - **getMostActiveStocks**: Get most active stocks
+- **getHistoricalIndexFullChart**: Get historical index full chart
+- **getHistoricalIndexLightChart**: Get historical index light chart
+- **getIndex1MinuteData**: Get 1-minute index data
+- **getIndex5MinuteData**: Get 5-minute index data
+- **getIndex1HourData**: Get 1-hour index data
+- **getSectorPerformanceSnapshot**: Get sector performance snapshot
+- **getSectorPESnapshot**: Get sector PE ratio snapshot
+- **getIndustryPerformanceSnapshot**: Get industry performance snapshot
+- **getIndustryPerformanceSummary**: Get industry performance summary
+- **getIndustryPESnapshot**: Get industry PE ratio snapshot
+- **getHistoricalIndustryPerformance**: Get historical industry performance
+- **getHistoricalIndustryPE**: Get historical industry PE ratios
+- **getHistoricalSectorPE**: Get historical sector PE ratios
 
 ### Market Data
 
 - **getMarketHours**: Get market hours for a specific exchange
+- **getExchangeMarketHours**: Get market hours for a specific exchange
 - **getAllExchangeMarketHours**: Get market hours for all exchanges
 - **getEarningsCalendar**: Get earnings announcement calendar
 - **getIPOCalendar**: Get initial public offering calendar
 - **getStockSplitCalendar**: Get stock split calendar
 - **getDividendCalendar**: Get dividend calendar
 - **getEconomicCalendar**: Get economic events calendar
+- **getIPODisclosures**: Get IPO disclosures
+- **getIPOProspectuses**: Get IPO prospectuses
 
 ### News and Press Releases
 
@@ -146,6 +231,22 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getStockNews**: Get news for specific stocks
 - **getStockNewsSentiment**: Get news with sentiment analysis
 - **getPressReleases**: Get company press releases
+- **searchStockNews**: Search stock news
+- **searchPressReleases**: Search press releases
+- **getCryptoNews**: Get cryptocurrency news
+- **searchCryptoNews**: Search cryptocurrency news
+- **getForexNews**: Get forex news
+- **searchForexNews**: Search forex news
+
+### SEC Filings
+
+- **getLatestFinancialFilings**: Get latest financial filings
+- **getFilingsBySymbol**: Get filings by symbol
+- **getFilingsByCIK**: Get filings by CIK
+- **getFilingsByFormType**: Get filings by form type
+- **getLatest8KFilings**: Get latest 8-K filings
+- **getSecFilingExtract**: Get SEC filing extract
+- **getFilingExtractAnalyticsByHolder**: Get filing extract analytics by holder
 
 ### Insider and Institutional Trading
 
@@ -160,6 +261,15 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getInstitutionalHolderPortfolioDates**: Get portfolio dates for institutional holders
 - **get13FFilings**: Get 13F filings
 - **get13FDates**: Get dates of 13F filings
+- **getForm13FFilingDates**: Get 13F filing dates
+- **getLatestInsiderTrading**: Get latest insider trading data
+- **searchInsiderTrades**: Search insider trades
+- **searchInsiderTradesByReportingName**: Search insider trades by reporting name
+- **getInsiderTradeStatistics**: Get insider trade statistics
+- **getLatestInstitutionalFilings**: Get latest institutional filings
+- **getHolderPerformanceSummary**: Get holder performance summary
+- **getHolderIndustryBreakdown**: Get holder industry breakdown
+- **getPositionsSummary**: Get positions summary
 
 ### ETFs and Funds
 
@@ -170,22 +280,67 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getFundInfo**: Get fund information
 - **getFundHolder**: Get fund holder information
 - **getFundSectorWeighting**: Get fund sector weightings
+- **getFundHoldings**: Get fund holdings
+- **getFundCountryAllocation**: Get fund country allocation
+- **getFundAssetExposure**: Get fund asset exposure
+- **getFundDisclosure**: Get fund disclosure
+- **searchFundDisclosures**: Search fund disclosures
+- **getFundDisclosureDates**: Get fund disclosure dates
+- **getETFHoldersBulk**: Get ETF holders in bulk
+- **getETFQuotes**: Get ETF quotes
+- **getMutualFundQuotes**: Get mutual fund quotes
+
+### Government Trading
+
+- **getGovernmentTradingList**: Get government trading list
+- **getSenateTrading**: Get senate trading data
+- **getHouseTrading**: Get house trading data
+- **getSenateTrades**: Get senate trades
+- **getSenateTradesByName**: Get senate trades by name
+- **getHouseTrades**: Get house trades
+- **getHouseTradesByName**: Get house trades by name
+- **getLatestSenateDisclosures**: Get latest senate disclosures
+- **getLatestHouseDisclosures**: Get latest house disclosures
 
 ### Cryptocurrency and Forex
 
 - **getCryptocurrencyList**: Get a list of cryptocurrencies
 - **getCryptocurrencyQuote**: Get cryptocurrency quote
+- **getCryptocurrencyShortQuote**: Get abbreviated cryptocurrency quote
 - **getCryptocurrencyBatchQuotes**: Get quotes for multiple cryptocurrencies
 - **getHistoricalCryptocurrencyPrice**: Get historical cryptocurrency price data
+- **getCryptocurrencyHistoricalLightChart**: Get light historical cryptocurrency chart
+- **getCryptocurrencyHistoricalFullChart**: Get full historical cryptocurrency chart
+- **getCryptocurrency1MinuteData**: Get 1-minute cryptocurrency data
+- **getCryptocurrency5MinuteData**: Get 5-minute cryptocurrency data
+- **getCryptocurrency1HourData**: Get 1-hour cryptocurrency data
+- **getCryptoQuotes**: Get cryptocurrency quotes
 - **getForexList**: Get a list of forex pairs
 - **getForexQuote**: Get forex pair quote
+- **getForexShortQuote**: Get abbreviated forex quote
 - **getForexBatchQuotes**: Get quotes for multiple forex pairs
 - **getHistoricalForexPrice**: Get historical forex price data
+- **getForexHistoricalLightChart**: Get light historical forex chart
+- **getForexHistoricalFullChart**: Get full historical forex chart
+- **getForex1MinuteData**: Get 1-minute forex data
+- **getForex5MinuteData**: Get 5-minute forex data
+- **getForex1HourData**: Get 1-hour forex data
+- **getForexQuotes**: Get forex quotes
+- **getExchangeQuotes**: Get exchange quotes
+
+### Earnings
+
+- **getEarningsReports**: Get earnings reports
+- **getEarningsTranscript**: Get earnings transcript
+- **getEarningsTranscriptDates**: Get earnings transcript dates
+- **getLatestEarningsTranscripts**: Get latest earnings transcripts
+- **getEarningsSurprisesBulk**: Get bulk earnings surprises
 
 ### Special Data Sets
 
 - **getCOTList**: Get Commitment of Traders (COT) list
 - **getCOTReport**: Get COT report for a specific symbol
+- **getCOTReports**: Get COT reports for a specific symbol
 - **getCOTAnalysis**: Get COT analysis for a specific symbol
 - **getGovernmentTradingList**: Get government trading list
 - **getSenateTrading**: Get senate trading data
@@ -193,6 +348,35 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getESGData**: Get Environmental, Social, and Governance data
 - **getESGRatings**: Get ESG ratings
 - **getESGBenchmark**: Get ESG benchmark data
+- **getESGDisclosures**: Get ESG disclosures
+- **getESGBenchmarks**: Get ESG benchmarks
+
+### Commodities
+
+- **getCommodityPrice**: Get commodity price
+- **getCommodityHistoricalPrices**: Get historical commodity prices
+- **getCommodityQuote**: Get commodity quote
+- **getCommodityQuotes**: Get commodity quotes
+- **getCommodityContract**: Get commodity contract information
+- **getCommodityMarketData**: Get commodity market data
+- **getCommodityNews**: Get commodity news
+- **getCommodityForecast**: Get commodity forecast
+- **getCommoditySupplyDemand**: Get commodity supply and demand data
+
+### Economics
+
+- **getEconomicIndicators**: Get economic indicators
+- **getTreasuryRates**: Get treasury rates
+- **getMarketRiskPremium**: Get market risk premium
+
+### Fundraisers
+
+- **getLatestCrowdfundingCampaigns**: Get latest crowdfunding campaigns
+- **searchCrowdfundingCampaigns**: Search crowdfunding campaigns
+- **getCrowdfundingCampaignsByCIK**: Get crowdfunding campaigns by CIK
+- **getLatestEquityOfferings**: Get latest equity offerings
+- **searchEquityOfferings**: Search equity offerings
+- **getEquityOfferingsByCIK**: Get equity offerings by CIK
 
 ### Bulk Data Tools
 
@@ -207,8 +391,11 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getStockPeersBulk**: Get bulk stock peers
 - **getEODDataBulk**: Get bulk end-of-day price data
 - **getIncomeStatementsBulk**: Get bulk income statements
-- **getBalanceSheetsBulk**: Get bulk balance sheets
+- **getIncomeStatementGrowthBulk**: Get bulk income statement growth data
+- **getBalanceSheetStatementsBulk**: Get bulk balance sheet statements
+- **getBalanceSheetGrowthBulk**: Get bulk balance sheet growth data
 - **getCashFlowStatementsBulk**: Get bulk cash flow statements
+- **getCashFlowGrowthBulk**: Get bulk cash flow growth data
 - **getFinancialRatiosBulk**: Get bulk financial ratios
 - **getKeyMetricsBulk**: Get bulk key metrics
 - **getFinancialGrowthBulk**: Get bulk financial growth data
@@ -257,8 +444,17 @@ npm install
 # Build the project
 npm run build
 
-# Run in development mode
-npm run dev
+# Run in development mode with your API key
+FMP_ACCESS_TOKEN=your_api_key npm run dev
+
+# Or specify the API key directly
+npm run dev -- --fmp-token=your_api_key
+```
+
+The development server will start on port 3000 by default. You can configure the port using the PORT environment variable:
+
+```bash
+PORT=4000 FMP_ACCESS_TOKEN=your_api_key npm run dev
 ```
 
 ### Release Process
