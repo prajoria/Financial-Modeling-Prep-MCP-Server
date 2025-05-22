@@ -3,7 +3,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import http from "node:http";
 import { SearchClient } from "./api/search/SearchClient.js";
 import { DirectoryClient } from "./api/directory/DirectoryClient.js";
 import { AnalystClient } from "./api/analyst/AnalystClient.js";
@@ -32,6 +31,7 @@ import { EarningsTranscriptClient } from "./api/earnings-transcript/EarningsTran
 import { SECFilingsClient } from "./api/sec-filings/SECFilingsClient.js";
 import { GovernmentTradingClient } from "./api/government-trading/GovernmentTradingClient.js";
 import { BulkClient } from "./api/bulk/BulkClient.js";
+import http from "node:http";
 import minimist from "minimist";
 
 // Import manually specified version instead of from package.json
@@ -7832,8 +7832,20 @@ const transport = new StreamableHTTPServerTransport({
 
 // Create HTTP server
 const httpServer = http.createServer((req, res) => {
+  // Handle healthcheck
+  if (req.url === "/health" || req.url === "/healthcheck") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(
+      JSON.stringify({
+        status: "ok",
+        timestamp: new Date().toISOString(),
+        version: VERSION,
+        message: "Financial Modeling Prep MCP server is running",
+      })
+    );
+  }
   // Handle MCP requests
-  if (req.url === "/mcp") {
+  else if (req.url === "/mcp") {
     let body = "";
     req.on("data", (chunk) => {
       body += chunk.toString();
@@ -7842,7 +7854,35 @@ const httpServer = http.createServer((req, res) => {
       let parsedBody;
       try {
         parsedBody = JSON.parse(body);
+
+        // Convert the request to MCP protocol format if needed
+        if (
+          parsedBody.method &&
+          parsedBody.method !== "invokePlugin" &&
+          !parsedBody.method.startsWith("tools.")
+        ) {
+          // Save the original request for debugging
+          const originalRequest = { ...parsedBody };
+
+          // Convert to invokePlugin format
+          parsedBody = {
+            jsonrpc: "2.0",
+            id: parsedBody.id,
+            method: "invokePlugin",
+            params: {
+              name: parsedBody.method,
+              parameters: parsedBody.params || {},
+            },
+          };
+
+          console.log(
+            "Converted request from:",
+            JSON.stringify(originalRequest)
+          );
+          console.log("To MCP format:", JSON.stringify(parsedBody));
+        }
       } catch (e) {
+        console.error("Error parsing request:", e);
         // If body is empty or invalid JSON, pass undefined
       }
       transport.handleRequest(req, res, parsedBody);
