@@ -26,6 +26,11 @@ import { MarketPerformanceClient } from "./api/market-performance/MarketPerforma
 import { MarketHoursClient } from "./api/market-hours/MarketHoursClient.js";
 import { NewsClient } from "./api/news/NewsClient.js";
 import { TechnicalIndicatorsClient } from "./api/technical-indicators/TechnicalIndicatorsClient.js";
+import { QuotesClient } from "./api/quotes/QuotesClient.js";
+import { EarningsTranscriptClient } from "./api/earnings-transcript/EarningsTranscriptClient.js";
+import { SECFilingsClient } from "./api/sec-filings/SECFilingsClient.js";
+import { GovernmentTradingClient } from "./api/government-trading/GovernmentTradingClient.js";
+import { BulkClient } from "./api/bulk/BulkClient.js";
 import { Period } from "./api/statements/types.js";
 import minimist from "minimist";
 
@@ -117,6 +122,21 @@ const newsClient = new NewsClient(accessToken);
 
 // Initialize the technical indicators client
 const technicalIndicatorsClient = new TechnicalIndicatorsClient(accessToken);
+
+// Initialize the quotes client
+const quotesClient = new QuotesClient(accessToken);
+
+// Initialize the earnings transcript client
+const earningsTranscriptClient = new EarningsTranscriptClient(accessToken);
+
+// Initialize the SEC filings client
+const secFilingsClient = new SECFilingsClient(accessToken);
+
+// Initialize the government trading client
+const governmentTradingClient = new GovernmentTradingClient(accessToken);
+
+// Initialize the bulk data client
+const bulkClient = new BulkClient(accessToken);
 
 // Register search tools
 server.tool(
@@ -6178,6 +6198,1608 @@ server.tool(
         timeframe,
         from,
         to,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register quotes tools
+server.tool(
+  "getQuote",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await quotesClient.getQuote({ symbol });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getQuoteShort",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await quotesClient.getQuoteShort({ symbol });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getAftermarketTrade",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await quotesClient.getAftermarketTrade({ symbol });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getAftermarketQuote",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await quotesClient.getAftermarketQuote({ symbol });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getStockPriceChange",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await quotesClient.getStockPriceChange({ symbol });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getBatchQuotes",
+  {
+    symbols: z.string().describe("Comma-separated list of stock symbols"),
+  },
+  async ({ symbols }) => {
+    try {
+      const results = await quotesClient.getBatchQuotes({ symbols });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getBatchQuotesShort",
+  {
+    symbols: z.string().describe("Comma-separated list of stock symbols"),
+  },
+  async ({ symbols }) => {
+    try {
+      const results = await quotesClient.getBatchQuotesShort({ symbols });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getBatchAftermarketTrade",
+  {
+    symbols: z.string().describe("Comma-separated list of stock symbols"),
+  },
+  async ({ symbols }) => {
+    try {
+      const results = await quotesClient.getBatchAftermarketTrade({ symbols });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getBatchAftermarketQuote",
+  {
+    symbols: z.string().describe("Comma-separated list of stock symbols"),
+  },
+  async ({ symbols }) => {
+    try {
+      const results = await quotesClient.getBatchAftermarketQuote({ symbols });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getExchangeQuotes",
+  {
+    exchange: z.string().describe("Exchange name (e.g., NASDAQ, NYSE)"),
+    short: z.boolean().optional().describe("Whether to use short format"),
+  },
+  async ({ exchange, short }) => {
+    try {
+      const results = await quotesClient.getExchangeQuotes({ exchange, short });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getMutualFundQuotes",
+  {
+    short: z.boolean().optional().describe("Whether to use short format"),
+  },
+  async ({ short }) => {
+    try {
+      const results = await quotesClient.getMutualFundQuotes({ short });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getETFQuotes",
+  {
+    short: z.boolean().optional().describe("Whether to use short format"),
+  },
+  async ({ short }) => {
+    try {
+      const results = await quotesClient.getETFQuotes({ short });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCommodityQuotes",
+  {
+    short: z.boolean().optional().describe("Whether to use short format"),
+  },
+  async ({ short }) => {
+    try {
+      const results = await quotesClient.getCommodityQuotes({ short });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCryptoQuotes",
+  {
+    short: z.boolean().optional().describe("Whether to use short format"),
+  },
+  async ({ short }) => {
+    try {
+      const results = await quotesClient.getCryptoQuotes({ short });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getForexQuotes",
+  {
+    short: z.boolean().optional().describe("Whether to use short format"),
+  },
+  async ({ short }) => {
+    try {
+      const results = await quotesClient.getForexQuotes({ short });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIndexQuotes",
+  {
+    short: z.boolean().optional().describe("Whether to use short format"),
+  },
+  async ({ short }) => {
+    try {
+      const results = await quotesClient.getIndexQuotes({ short });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register earnings transcript tools
+server.tool(
+  "getLatestEarningsTranscripts",
+  {
+    limit: z.number().optional().describe("Limit the number of results"),
+    page: z.number().optional().describe("Page number for pagination"),
+  },
+  async ({ limit, page }) => {
+    try {
+      const results = await earningsTranscriptClient.getLatestTranscripts({
+        limit,
+        page,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getEarningsTranscript",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    year: z.string().describe("Year of the earnings call"),
+    quarter: z
+      .string()
+      .describe("Quarter of the earnings call (e.g., 1, 2, 3, 4)"),
+    limit: z.number().optional().describe("Limit the number of results"),
+  },
+  async ({ symbol, year, quarter, limit }) => {
+    try {
+      const results = await earningsTranscriptClient.getTranscript({
+        symbol,
+        year,
+        quarter,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getEarningsTranscriptDates",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await earningsTranscriptClient.getTranscriptDates({
+        symbol,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool("getAvailableTranscriptSymbols", {}, async () => {
+  try {
+    const results =
+      await earningsTranscriptClient.getAvailableTranscriptSymbols();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+// Register SEC filings tools
+server.tool(
+  "getLatest8KFilings",
+  {
+    from: z.string().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number for pagination"),
+    limit: z.number().optional().describe("Limit the number of results"),
+  },
+  async ({ from, to, page, limit }) => {
+    try {
+      const results = await secFilingsClient.getLatest8KFilings({
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getLatestFinancialFilings",
+  {
+    from: z.string().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number for pagination"),
+    limit: z.number().optional().describe("Limit the number of results"),
+  },
+  async ({ from, to, page, limit }) => {
+    try {
+      const results = await secFilingsClient.getLatestFinancialFilings({
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getFilingsByFormType",
+  {
+    formType: z.string().describe("Form type (e.g., 8-K, 10-K, 10-Q)"),
+    from: z.string().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number for pagination"),
+    limit: z.number().optional().describe("Limit the number of results"),
+  },
+  async ({ formType, from, to, page, limit }) => {
+    try {
+      const results = await secFilingsClient.getFilingsByFormType({
+        formType,
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getFilingsBySymbol",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    from: z.string().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number for pagination"),
+    limit: z.number().optional().describe("Limit the number of results"),
+  },
+  async ({ symbol, from, to, page, limit }) => {
+    try {
+      const results = await secFilingsClient.getFilingsBySymbol({
+        symbol,
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getFilingsByCIK",
+  {
+    cik: z.string().describe("Central Index Key (CIK)"),
+    from: z.string().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().describe("End date (YYYY-MM-DD)"),
+    page: z.number().optional().describe("Page number for pagination"),
+    limit: z.number().optional().describe("Limit the number of results"),
+  },
+  async ({ cik, from, to, page, limit }) => {
+    try {
+      const results = await secFilingsClient.getFilingsByCIK({
+        cik,
+        from,
+        to,
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "searchCompaniesByName",
+  {
+    company: z.string().describe("Company name or partial name"),
+  },
+  async ({ company }) => {
+    try {
+      const results = await secFilingsClient.searchCompaniesByName({
+        company,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "searchCompaniesBySymbol",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await secFilingsClient.searchCompaniesBySymbol({
+        symbol,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "searchCompaniesByCIK",
+  {
+    cik: z.string().describe("Central Index Key (CIK)"),
+  },
+  async ({ cik }) => {
+    try {
+      const results = await secFilingsClient.searchCompaniesByCIK({
+        cik,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCompanyProfile",
+  {
+    symbol: z.string().optional().describe("Stock symbol"),
+    cik: z.string().optional().describe("Central Index Key (CIK)"),
+  },
+  async ({ symbol, cik }) => {
+    try {
+      const results = await secFilingsClient.getCompanyProfile({
+        symbol,
+        cik,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIndustryClassificationList",
+  {
+    industryTitle: z
+      .string()
+      .optional()
+      .describe("Industry title or partial title"),
+    sicCode: z.string().optional().describe("SIC code"),
+  },
+  async ({ industryTitle, sicCode }) => {
+    try {
+      const results = await secFilingsClient.getIndustryClassificationList({
+        industryTitle,
+        sicCode,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "searchIndustryClassification",
+  {
+    symbol: z.string().optional().describe("Stock symbol"),
+    cik: z.string().optional().describe("Central Index Key (CIK)"),
+    sicCode: z.string().optional().describe("SIC code"),
+  },
+  async ({ symbol, cik, sicCode }) => {
+    try {
+      const results = await secFilingsClient.searchIndustryClassification({
+        symbol,
+        cik,
+        sicCode,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getAllIndustryClassification",
+  {
+    page: z.number().optional().describe("Page number for pagination"),
+    limit: z.number().optional().describe("Limit the number of results"),
+  },
+  async ({ page, limit }) => {
+    try {
+      const results = await secFilingsClient.getAllIndustryClassification({
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register government trading tools
+server.tool(
+  "getLatestSenateDisclosures",
+  {
+    page: z.number().optional().describe("Page number for pagination"),
+    limit: z.number().optional().describe("Limit the number of results"),
+  },
+  async ({ page, limit }) => {
+    try {
+      const results = await governmentTradingClient.getLatestSenateDisclosures({
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getLatestHouseDisclosures",
+  {
+    page: z.number().optional().describe("Page number for pagination"),
+    limit: z.number().optional().describe("Limit the number of results"),
+  },
+  async ({ page, limit }) => {
+    try {
+      const results = await governmentTradingClient.getLatestHouseDisclosures({
+        page,
+        limit,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getSenateTrades",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await governmentTradingClient.getSenateTrades({
+        symbol,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getSenateTradesByName",
+  {
+    name: z.string().describe("Senator name (first or last name)"),
+  },
+  async ({ name }) => {
+    try {
+      const results = await governmentTradingClient.getSenateTradesByName({
+        name,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getHouseTrades",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await governmentTradingClient.getHouseTrades({
+        symbol,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getHouseTradesByName",
+  {
+    name: z.string().describe("Representative name (first or last name)"),
+  },
+  async ({ name }) => {
+    try {
+      const results = await governmentTradingClient.getHouseTradesByName({
+        name,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register bulk data tools
+server.tool(
+  "getCompanyProfilesBulk",
+  {
+    part: z.string().describe("Part number (e.g., 0, 1, 2)"),
+  },
+  async ({ part }) => {
+    try {
+      const results = await bulkClient.getCompanyProfilesBulk({
+        part,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool("getStockRatingsBulk", {}, async () => {
+  try {
+    const results = await bulkClient.getStockRatingsBulk();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool("getDCFValuationsBulk", {}, async () => {
+  try {
+    const results = await bulkClient.getDCFValuationsBulk();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool("getFinancialScoresBulk", {}, async () => {
+  try {
+    const results = await bulkClient.getFinancialScoresBulk();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool("getPriceTargetSummariesBulk", {}, async () => {
+  try {
+    const results = await bulkClient.getPriceTargetSummariesBulk();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool(
+  "getETFHoldersBulk",
+  {
+    part: z.string().describe("Part number (e.g., 0, 1, 2)"),
+  },
+  async ({ part }) => {
+    try {
+      const results = await bulkClient.getETFHoldersBulk({
+        part,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool("getUpgradesDowngradesConsensusBulk", {}, async () => {
+  try {
+    const results = await bulkClient.getUpgradesDowngradesConsensusBulk();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool("getKeyMetricsTTMBulk", {}, async () => {
+  try {
+    const results = await bulkClient.getKeyMetricsTTMBulk();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool("getRatiosTTMBulk", {}, async () => {
+  try {
+    const results = await bulkClient.getRatiosTTMBulk();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool("getStockPeersBulk", {}, async () => {
+  try {
+    const results = await bulkClient.getStockPeersBulk();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+server.tool(
+  "getEarningsSurprisesBulk",
+  {
+    year: z.string().describe("Year to get earnings surprises for"),
+  },
+  async ({ year }) => {
+    try {
+      const results = await bulkClient.getEarningsSurprisesBulk({
+        year,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIncomeStatementsBulk",
+  {
+    year: z.string().describe("Year (e.g., 2023)"),
+    period: z.string().describe("Period (Q1, Q2, Q3, Q4, FY)"),
+  },
+  async ({ year, period }) => {
+    try {
+      const results = await bulkClient.getIncomeStatementsBulk({
+        year,
+        period,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIncomeStatementGrowthBulk",
+  {
+    year: z.string().describe("Year (e.g., 2023)"),
+    period: z.string().describe("Period (Q1, Q2, Q3, Q4, FY)"),
+  },
+  async ({ year, period }) => {
+    try {
+      const results = await bulkClient.getIncomeStatementGrowthBulk({
+        year,
+        period,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getBalanceSheetStatementsBulk",
+  {
+    year: z.string().describe("Year (e.g., 2023)"),
+    period: z.string().describe("Period (Q1, Q2, Q3, Q4, FY)"),
+  },
+  async ({ year, period }) => {
+    try {
+      const results = await bulkClient.getBalanceSheetStatementsBulk({
+        year,
+        period,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getBalanceSheetGrowthBulk",
+  {
+    year: z.string().describe("Year (e.g., 2023)"),
+    period: z.string().describe("Period (Q1, Q2, Q3, Q4, FY)"),
+  },
+  async ({ year, period }) => {
+    try {
+      const results = await bulkClient.getBalanceSheetGrowthBulk({
+        year,
+        period,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCashFlowStatementsBulk",
+  {
+    year: z.string().describe("Year (e.g., 2023)"),
+    period: z.string().describe("Period (Q1, Q2, Q3, Q4, FY)"),
+  },
+  async ({ year, period }) => {
+    try {
+      const results = await bulkClient.getCashFlowStatementsBulk({
+        year,
+        period,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCashFlowGrowthBulk",
+  {
+    year: z.string().describe("Year (e.g., 2023)"),
+    period: z.string().describe("Period (Q1, Q2, Q3, Q4, FY)"),
+  },
+  async ({ year, period }) => {
+    try {
+      const results = await bulkClient.getCashFlowGrowthBulk({
+        year,
+        period,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getEODDataBulk",
+  {
+    date: z.string().describe("Date in YYYY-MM-DD format"),
+  },
+  async ({ date }) => {
+    try {
+      const results = await bulkClient.getEODDataBulk({
+        date,
       });
       return {
         content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
