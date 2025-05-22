@@ -9,6 +9,12 @@ import { AnalystClient } from "./api/analyst/AnalystClient.js";
 import { CalendarClient } from "./api/calendar/CalendarClient.js";
 import { ChartClient } from "./api/chart/ChartClient.js";
 import { CompanyClient } from "./api/company/CompanyClient.js";
+import { COTClient } from "./api/cot/COTClient.js";
+import { ESGClient } from "./api/esg/ESGClient.js";
+import { EconomicsClient } from "./api/economics/EconomicsClient.js";
+import { DCFClient } from "./api/dcf/DCFClient.js";
+import { FundClient } from "./api/fund/FundClient.js";
+import { CommodityClient } from "./api/commodity/CommodityClient.js";
 import minimist from "minimist";
 
 // Import manually specified version instead of from package.json
@@ -48,6 +54,24 @@ const chartClient = new ChartClient(accessToken);
 
 // Initialize the company client
 const companyClient = new CompanyClient(accessToken);
+
+// Initialize the COT client
+const cotClient = new COTClient(accessToken);
+
+// Initialize the ESG client
+const esgClient = new ESGClient(accessToken);
+
+// Initialize the economics client
+const economicsClient = new EconomicsClient(accessToken);
+
+// Initialize the DCF client
+const dcfClient = new DCFClient(accessToken);
+
+// Initialize the fund client
+const fundClient = new FundClient(accessToken);
+
+// Initialize the commodity client
+const commodityClient = new CommodityClient(accessToken);
 
 // Register search tools
 server.tool(
@@ -1853,6 +1877,875 @@ server.tool(
       const results = await companyClient.getExecutiveCompensationBenchmark(
         year
       );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register COT(Commitment Of Traders) tools
+server.tool(
+  "getCOTReports",
+  {
+    symbol: z.string().describe("Commodity symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results"),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await cotClient.getReports(symbol, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCOTAnalysis",
+  {
+    symbol: z.string().describe("Commodity symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results"),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await cotClient.getAnalysis(symbol, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool("getCOTList", {}, async () => {
+  try {
+    const results = await cotClient.getList();
+    return {
+      content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+    };
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Error: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+// Register ESG tools
+server.tool(
+  "getESGDisclosures",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results"),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await esgClient.getDisclosures(symbol, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getESGRatings",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await esgClient.getRatings(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getESGBenchmarks",
+  {
+    sector: z.string().describe("Sector to get benchmarks for"),
+    year: z.string().optional().describe("Optional year to get benchmarks for"),
+  },
+  async ({ sector, year }) => {
+    try {
+      const results = await esgClient.getBenchmarks(sector, year);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register Economics tools
+server.tool(
+  "getTreasuryRates",
+  {
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results"),
+  },
+  async ({ limit }) => {
+    try {
+      const results = await economicsClient.getTreasuryRates(limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getEconomicIndicators",
+  {
+    indicator: z
+      .string()
+      .optional()
+      .describe("Optional specific indicator to get"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results"),
+  },
+  async ({ indicator, limit }) => {
+    try {
+      const results = await economicsClient.getEconomicIndicators(
+        indicator,
+        limit
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getEconomicCalendar",
+  {
+    from: z.string().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ from, to }) => {
+    try {
+      const results = await economicsClient.getEconomicCalendar(from, to);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getMarketRiskPremium",
+  {
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results"),
+  },
+  async ({ limit }) => {
+    try {
+      const results = await economicsClient.getMarketRiskPremium(limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register DCF(Discounted Cash Flow) tools
+server.tool(
+  "getDCFValuation",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await dcfClient.getValuation(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getLeveredDCFValuation",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await dcfClient.getLeveredValuation(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "calculateCustomDCF",
+  {
+    input: z
+      .object({
+        symbol: z.string().describe("Stock symbol"),
+        revenueGrowth: z.number().describe("Revenue growth rate"),
+        operatingMargin: z.number().describe("Operating margin"),
+        taxRate: z.number().describe("Tax rate"),
+        capexToRevenue: z
+          .number()
+          .describe("Capital expenditure to revenue ratio"),
+        workingCapitalToRevenue: z
+          .number()
+          .describe("Working capital to revenue ratio"),
+        beta: z.number().describe("Beta"),
+        marketRiskPremium: z.number().describe("Market risk premium"),
+        riskFreeRate: z.number().describe("Risk-free rate"),
+        terminalGrowthRate: z.number().describe("Terminal growth rate"),
+        projectionYears: z.number().describe("Number of projection years"),
+        includeDebt: z
+          .boolean()
+          .describe("Whether to include debt in calculation"),
+        debtToEquity: z.number().describe("Debt to equity ratio"),
+        costOfDebt: z.number().describe("Cost of debt"),
+      })
+      .refine(
+        (data) => {
+          if (data.includeDebt) {
+            return (
+              data.debtToEquity !== undefined && data.costOfDebt !== undefined
+            );
+          }
+          return true;
+        },
+        {
+          message:
+            "debtToEquity and costOfDebt are required when includeDebt is true",
+        }
+      ),
+  },
+  async ({ input }) => {
+    try {
+      const results = await dcfClient.calculateCustomDCF(input);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register Fund(ETF and Mutual Funds) tools
+server.tool(
+  "getFundHoldings",
+  {
+    symbol: z.string().describe("Fund symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results"),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await fundClient.getHoldings(symbol, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getFundInfo",
+  {
+    symbol: z.string().describe("Fund symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await fundClient.getInfo(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getFundCountryAllocation",
+  {
+    symbol: z.string().describe("Fund symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await fundClient.getCountryAllocation(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getFundAssetExposure",
+  {
+    symbol: z.string().describe("Fund symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await fundClient.getAssetExposure(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getFundSectorWeighting",
+  {
+    symbol: z.string().describe("Fund symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await fundClient.getSectorWeighting(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getFundDisclosure",
+  {
+    symbol: z.string().describe("Fund symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results"),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await fundClient.getDisclosure(symbol, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "searchFundDisclosures",
+  {
+    query: z.string().describe("Search query"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results"),
+  },
+  async ({ query, limit }) => {
+    try {
+      const results = await fundClient.searchDisclosures(query, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getFundDisclosureDates",
+  {
+    symbol: z.string().describe("Fund symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await fundClient.getDisclosureDates(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register Commodity tools
+server.tool(
+  "getCommodityPrice",
+  {
+    symbol: z.string().describe("Commodity symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await commodityClient.getPrice(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCommodityHistoricalPrices",
+  {
+    symbol: z.string().describe("Commodity symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results"),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await commodityClient.getHistoricalPrices(symbol, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCommodityQuote",
+  {
+    symbol: z.string().describe("Commodity symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await commodityClient.getQuote(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCommodityContract",
+  {
+    symbol: z.string().describe("Commodity symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await commodityClient.getContract(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCommodityMarketData",
+  {
+    symbol: z.string().describe("Commodity symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await commodityClient.getMarketData(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCommodityNews",
+  {
+    symbol: z.string().describe("Commodity symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results"),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await commodityClient.getNews(symbol, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCommodityForecast",
+  {
+    symbol: z.string().describe("Commodity symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await commodityClient.getForecast(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getCommoditySupplyDemand",
+  {
+    symbol: z.string().describe("Commodity symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await commodityClient.getSupplyDemand(symbol);
       return {
         content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
       };
