@@ -1,5 +1,5 @@
 {
-  "name": "fmp-mcp-server",
+  "name": "financial-modeling-prep-mcp-server",
   "version": "1.0.0",
   "main": "dist/index.js",
   "type": "module",
