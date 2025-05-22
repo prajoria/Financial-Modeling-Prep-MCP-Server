@@ -2,7 +2,8 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import http from "node:http";
 import { SearchClient } from "./api/search/SearchClient.js";
 import { DirectoryClient } from "./api/directory/DirectoryClient.js";
 import { AnalystClient } from "./api/analyst/AnalystClient.js";
@@ -31,7 +32,6 @@ import { EarningsTranscriptClient } from "./api/earnings-transcript/EarningsTran
 import { SECFilingsClient } from "./api/sec-filings/SECFilingsClient.js";
 import { GovernmentTradingClient } from "./api/government-trading/GovernmentTradingClient.js";
 import { BulkClient } from "./api/bulk/BulkClient.js";
-import { Period } from "./api/statements/types.js";
 import minimist from "minimist";
 
 // Import manually specified version instead of from package.json
@@ -7042,7 +7042,7 @@ server.tool(
 );
 
 server.tool(
-  "getCompanyProfile",
+  "getCompanySECProfile",
   {
     symbol: z.string().optional().describe("Stock symbol"),
     cik: z.string().optional().describe("Central Index Key (CIK)"),
@@ -7824,8 +7824,41 @@ console.log(
   "Financial Modeling Prep MCP initialized successfully with provided token"
 );
 
-// Create a StdioServerTransport and connect to it
-const transport = new StdioServerTransport();
+// Create a StreamableHTTPServerTransport and connect to it
+const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+const transport = new StreamableHTTPServerTransport({
+  sessionIdGenerator: undefined, // Use stateless mode
+});
+
+// Create HTTP server
+const httpServer = http.createServer((req, res) => {
+  // Handle MCP requests
+  if (req.url === "/mcp") {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk.toString();
+    });
+    req.on("end", () => {
+      let parsedBody;
+      try {
+        parsedBody = JSON.parse(body);
+      } catch (e) {
+        // If body is empty or invalid JSON, pass undefined
+      }
+      transport.handleRequest(req, res, parsedBody);
+    });
+  } else {
+    // Respond with 404 for other paths
+    res.writeHead(404);
+    res.end("Not Found");
+  }
+});
+
+// Start HTTP server
+httpServer.listen(port, () => {
+  console.log(`Server started on port ${port}`);
+});
+
 server.connect(transport).catch((error) => {
   console.error("Failed to connect to transport:", error);
   process.exit(1);
