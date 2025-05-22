@@ -5,6 +5,8 @@ import { z } from "zod";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { SearchClient } from "./api/search/SearchClient.js";
 import { DirectoryClient } from "./api/directory/DirectoryClient.js";
+import { AnalystClient } from "./api/analyst/AnalystClient.js";
+import { CalendarClient } from "./api/calendar/CalendarClient.js";
 import minimist from "minimist";
 
 // Import manually specified version instead of from package.json
@@ -32,6 +34,12 @@ const searchClient = new SearchClient(accessToken);
 
 // Initialize the directory client
 const directoryClient = new DirectoryClient(accessToken);
+
+// Initialize the analyst client
+const analystClient = new AnalystClient(accessToken);
+
+// Initialize the calendar client
+const calendarClient = new CalendarClient(accessToken);
 
 // Register search tools
 server.tool(
@@ -561,6 +569,661 @@ server.tool("getAvailableCountries", {}, async () => {
     };
   }
 });
+
+// Register analyst tools
+server.tool(
+  "getAnalystEstimates",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    period: z
+      .enum(["annual", "quarter"])
+      .describe("Period (annual or quarter)"),
+    page: z.number().optional().describe("Optional page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results (default: 10, max: 1000)"),
+  },
+  async ({ symbol, period, page, limit }) => {
+    try {
+      const results = await analystClient.getAnalystEstimates(
+        symbol,
+        period,
+        page,
+        limit
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getRatingsSnapshot",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results (default: 1)"),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await analystClient.getRatingsSnapshot(symbol, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getHistoricalRatings",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results (default: 1, max: 10000)"),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await analystClient.getHistoricalRatings(symbol, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getPriceTargetSummary",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await analystClient.getPriceTargetSummary(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getPriceTargetConsensus",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await analystClient.getPriceTargetConsensus(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getPriceTargetNews",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    page: z.number().optional().describe("Optional page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results (default: 10)"),
+  },
+  async ({ symbol, page, limit }) => {
+    try {
+      const results = await analystClient.getPriceTargetNews(
+        symbol,
+        page,
+        limit
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getPriceTargetLatestNews",
+  {
+    page: z
+      .number()
+      .optional()
+      .describe("Optional page number (default: 0, max: 100)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results (default: 10, max: 1000)"),
+  },
+  async ({ page, limit }) => {
+    try {
+      const results = await analystClient.getPriceTargetLatestNews(page, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getStockGrades",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await analystClient.getStockGrades(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getHistoricalStockGrades",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe(
+        "Optional limit on number of results (default: 100, max: 1000)"
+      ),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await analystClient.getHistoricalStockGrades(
+        symbol,
+        limit
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getStockGradeSummary",
+  {
+    symbol: z.string().describe("Stock symbol"),
+  },
+  async ({ symbol }) => {
+    try {
+      const results = await analystClient.getStockGradeSummary(symbol);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getStockGradeNews",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    page: z.number().optional().describe("Optional page number (default: 0)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results (default: 1, max: 100)"),
+  },
+  async ({ symbol, page, limit }) => {
+    try {
+      const results = await analystClient.getStockGradeNews(
+        symbol,
+        page,
+        limit
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getStockGradeLatestNews",
+  {
+    page: z
+      .number()
+      .optional()
+      .describe("Optional page number (default: 0, max: 100)"),
+    limit: z
+      .number()
+      .optional()
+      .describe("Optional limit on number of results (default: 10, max: 1000)"),
+  },
+  async ({ page, limit }) => {
+    try {
+      const results = await analystClient.getStockGradeLatestNews(page, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Register calendar tools
+server.tool(
+  "getDividends",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe(
+        "Optional limit on number of results (default: 100, max: 1000)"
+      ),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await calendarClient.getDividends(symbol, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getDividendsCalendar",
+  {
+    from: z.string().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ from, to }) => {
+    try {
+      const results = await calendarClient.getDividendsCalendar(from, to);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getEarningsReports",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe(
+        "Optional limit on number of results (default: 100, max: 1000)"
+      ),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await calendarClient.getEarningsReports(symbol, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getEarningsCalendar",
+  {
+    from: z.string().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ from, to }) => {
+    try {
+      const results = await calendarClient.getEarningsCalendar(from, to);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIPOCalendar",
+  {
+    from: z.string().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ from, to }) => {
+    try {
+      const results = await calendarClient.getIPOCalendar(from, to);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIPODisclosures",
+  {
+    from: z.string().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ from, to }) => {
+    try {
+      const results = await calendarClient.getIPODisclosures(from, to);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getIPOProspectuses",
+  {
+    from: z.string().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ from, to }) => {
+    try {
+      const results = await calendarClient.getIPOProspectuses(from, to);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getStockSplits",
+  {
+    symbol: z.string().describe("Stock symbol"),
+    limit: z
+      .number()
+      .optional()
+      .describe(
+        "Optional limit on number of results (default: 100, max: 1000)"
+      ),
+  },
+  async ({ symbol, limit }) => {
+    try {
+      const results = await calendarClient.getStockSplits(symbol, limit);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
+  "getStockSplitsCalendar",
+  {
+    from: z.string().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().describe("End date (YYYY-MM-DD)"),
+  },
+  async ({ from, to }) => {
+    try {
+      const results = await calendarClient.getStockSplitsCalendar(from, to);
+      return {
+        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
 
 // Log successful initialization
 console.log(
