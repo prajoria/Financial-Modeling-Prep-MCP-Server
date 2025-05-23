@@ -435,7 +435,7 @@ Every pull request triggers a GitHub Actions workflow that verifies the build pr
 
 ```bash
 # Clone the repository
-git clone https://github.com/TODO
+git clone https://github.com/imbenrabi/Financial-Modeling-Prep-MCP-Server
 cd fmp-mcp-server
 
 # Install dependencies
