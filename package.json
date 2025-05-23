@@ -34,16 +34,16 @@
     "typescript": "^5.3.3"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/TODO"
+    "url": "https://github.com/imbenrabi/Financial-Modeling-Prep-MCP-Server"
   },
   "bugs": {
-    "url": "https://github.com/TODO"
+    "url": "https://github.com/imbenrabi/Financial-Modeling-Prep-MCP-Server/issues"
   },
-  "homepage": "https://github.com/TODO",
+  "homepage": "https://github.com/imbenrabi/Financial-Modeling-Prep-MCP-Server",
   "keywords": [
     "mcp",
     "ai",
