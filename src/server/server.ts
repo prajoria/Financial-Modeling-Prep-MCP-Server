@@ -1,11 +1,9 @@
-// server/server.ts
-// Main server configuration and setup
-
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { registerAllTools } from "../tools/index.js";
 import http from "node:http";
 import { getServerVersion } from "../utils/getServerVersion.js";
+import { isValidJsonRpc } from "../utils/isValidJsonRpc.js";
 
 const VERSION = getServerVersion();
 
@@ -22,13 +20,11 @@ interface ServerConfig {
  * @param accessToken - FMP access token
  * @returns Configured MCP server instance
  */
-export function createServer(accessToken: string): McpServer {
+function createServer(accessToken: string): McpServer {
   const server = new McpServer({
     name: "Financial Modeling Prep MCP",
     version: VERSION,
   });
-
-  // Register all tools with the server
   registerAllTools(server, accessToken);
 
   return server;
@@ -42,13 +38,47 @@ export function createServer(accessToken: string): McpServer {
 export function startServer(config: ServerConfig): http.Server {
   const { port, accessToken } = config;
 
-  const mcpServer = createServer(accessToken);
+  const MAX_REQUEST_SIZE = 10 * 1024 * 1024; // 10MB
+  const REQUEST_TIMEOUT = 30000; // 30 seconds
 
-  const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: undefined, // Use stateless mode
-  });
+  const httpServer = http.createServer(async (req, res) => {
+    req.setTimeout(REQUEST_TIMEOUT, () => {
+      if (!res.headersSent) {
+        res.writeHead(408, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            jsonrpc: "2.0",
+            error: {
+              code: -32000,
+              message: "Request timeout",
+            },
+            id: null,
+          })
+        );
+      }
+    });
 
-  const httpServer = http.createServer((req, res) => {
+    req.on("error", (err) => {
+      console.error("Request error:", err);
+      if (!res.headersSent) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            jsonrpc: "2.0",
+            error: {
+              code: -32603,
+              message: "Internal server error",
+            },
+            id: null,
+          })
+        );
+      }
+    });
+
+    res.on("error", (err) => {
+      console.error("Response error:", err);
+    });
+
     // Handle healthcheck
     if (req.url === "/health" || req.url === "/healthcheck") {
       res.writeHead(200, { "Content-Type": "application/json" });
@@ -63,47 +93,124 @@ export function startServer(config: ServerConfig): http.Server {
     }
     // Handle MCP requests
     else if (req.url === "/mcp") {
-      let body = "";
-      req.on("data", (chunk) => {
-        body += chunk.toString();
-      });
-      req.on("end", () => {
-        let parsedBody;
+      // Handle different HTTP methods
+      if (req.method === "GET" || req.method === "DELETE") {
+        res.writeHead(405, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            jsonrpc: "2.0",
+            error: {
+              code: -32000,
+              message: "Method not allowed.",
+            },
+            id: null,
+          })
+        );
+        return;
+      }
+
+      if (req.method === "POST") {
         try {
-          parsedBody = JSON.parse(body);
+          // For each request, create new server and transport instances to ensure complete isolation in stateless mode
+          const mcpServer = createServer(accessToken);
+          const transport = new StreamableHTTPServerTransport({
+            sessionIdGenerator: undefined, // Use stateless mode
+          });
 
-          // Convert the request to MCP protocol format if needed
-          if (
-            parsedBody.method &&
-            parsedBody.method !== "invokePlugin" &&
-            !parsedBody.method.startsWith("tools.")
-          ) {
-            // Save the original request for debugging
-            const originalRequest = { ...parsedBody };
+          const cleanup = () => {
+            console.log("Cleaning up resources");
+            transport.close();
+            mcpServer.close();
+          };
 
-            // Convert to invokePlugin format
-            parsedBody = {
-              jsonrpc: "2.0",
-              id: parsedBody.id,
-              method: "invokePlugin",
-              params: {
-                name: parsedBody.method,
-                parameters: parsedBody.params || {},
-              },
-            };
+          res.on("close", cleanup);
+          res.on("error", (err) => {
+            console.error("Response error:", err);
+            cleanup();
+          });
 
-            console.log(
-              "Converted request from:",
-              JSON.stringify(originalRequest)
+          await mcpServer.connect(transport);
+
+          // Parse request body with size limit
+          let body = "";
+          let size = 0;
+
+          req.on("data", (chunk) => {
+            size += chunk.length;
+            if (size > MAX_REQUEST_SIZE) {
+              res.writeHead(413, { "Content-Type": "application/json" });
+              res.end(
+                JSON.stringify({
+                  jsonrpc: "2.0",
+                  error: {
+                    code: -32000,
+                    message: "Request entity too large",
+                  },
+                  id: null,
+                })
+              );
+              req.destroy();
+              return;
+            }
+            body += chunk.toString();
+          });
+
+          req.on("end", () => {
+            let parsedBody;
+            try {
+              parsedBody = JSON.parse(body);
+
+              // Validate JSON-RPC 2.0 format
+              if (!isValidJsonRpc(parsedBody)) {
+                res.writeHead(400, { "Content-Type": "application/json" });
+                res.end(
+                  JSON.stringify({
+                    jsonrpc: "2.0",
+                    error: {
+                      code: -32600,
+                      message: "Invalid JSON-RPC 2.0 request",
+                    },
+                    id: parsedBody?.id || null,
+                  })
+                );
+                return;
+              }
+
+              transport.handleRequest(req, res, parsedBody);
+            } catch (e) {
+              console.error("Error parsing request:", e);
+              if (!res.headersSent) {
+                res.writeHead(400, { "Content-Type": "application/json" });
+                res.end(
+                  JSON.stringify({
+                    jsonrpc: "2.0",
+                    error: {
+                      code: -32700,
+                      message: "Parse error",
+                    },
+                    id: null,
+                  })
+                );
+              }
+            }
+          });
+        } catch (error) {
+          console.error("Error handling MCP request:", error);
+          if (!res.headersSent) {
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(
+              JSON.stringify({
+                jsonrpc: "2.0",
+                error: {
+                  code: -32603,
+                  message: "Internal server error",
+                },
+                id: null,
+              })
             );
-            console.log("To MCP format:", JSON.stringify(parsedBody));
           }
-        } catch (e) {
-          console.error("Error parsing request:", e);
-          // If body is empty or invalid JSON, pass undefined
         }
-        transport.handleRequest(req, res, parsedBody);
-      });
+      }
     } else {
       // Respond with 404 for other paths
       res.writeHead(404);
@@ -111,9 +218,12 @@ export function startServer(config: ServerConfig): http.Server {
     }
   });
 
-  mcpServer.connect(transport).catch((error) => {
-    console.error("Failed to connect to transport:", error);
-    process.exit(1);
+  // Add server timeout
+  httpServer.timeout = REQUEST_TIMEOUT;
+
+  // Handle server errors
+  httpServer.on("error", (err) => {
+    console.error("Server error:", err);
   });
 
   httpServer.listen(port, () => {
