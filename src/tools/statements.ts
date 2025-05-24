@@ -5,11 +5,11 @@ import { StatementsClient } from "../api/statements/StatementsClient.js";
 /**
  * Register all financial statements-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
 export function registerStatementsTools(
   server: McpServer,
-  accessToken: string
+  accessToken?: string
 ): void {
   const statementsClient = new StatementsClient(accessToken);
 

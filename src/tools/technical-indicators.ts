@@ -5,11 +5,11 @@ import { TechnicalIndicatorsClient } from "../api/technical-indicators/Technical
 /**
  * Register all technical indicators-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
 export function registerTechnicalIndicatorsTools(
   server: McpServer,
-  accessToken: string
+  accessToken?: string
 ): void {
   const technicalIndicatorsClient = new TechnicalIndicatorsClient(accessToken);
 

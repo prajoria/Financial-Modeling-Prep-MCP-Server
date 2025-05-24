@@ -5,11 +5,11 @@ import { MarketPerformanceClient } from "../api/market-performance/MarketPerform
 /**
  * Register all market performance-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
 export function registerMarketPerformanceTools(
   server: McpServer,
-  accessToken: string
+  accessToken?: string
 ): void {
   const marketPerformanceClient = new MarketPerformanceClient(accessToken);
 

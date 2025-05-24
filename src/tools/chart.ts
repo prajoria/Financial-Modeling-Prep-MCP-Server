@@ -5,11 +5,11 @@ import { ChartClient } from "../api/chart/ChartClient.js";
 /**
  * Register all chart-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
 export function registerChartTools(
   server: McpServer,
-  accessToken: string
+  accessToken?: string
 ): void {
   const chartClient = new ChartClient(accessToken);
 

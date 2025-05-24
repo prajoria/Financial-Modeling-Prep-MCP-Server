@@ -5,11 +5,11 @@ import { SECFilingsClient } from "../api/sec-filings/SECFilingsClient.js";
 /**
  * Register all SEC filings-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
 export function registerSECFilingsTools(
   server: McpServer,
-  accessToken: string
+  accessToken?: string
 ): void {
   const secFilingsClient = new SECFilingsClient(accessToken);
 

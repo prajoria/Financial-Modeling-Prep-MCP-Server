@@ -5,9 +5,9 @@ import { ESGClient } from "../api/esg/ESGClient.js";
 /**
  * Register all ESG-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
-export function registerESGTools(server: McpServer, accessToken: string): void {
+export function registerESGTools(server: McpServer, accessToken?: string): void {
   const esgClient = new ESGClient(accessToken);
 
   server.tool(

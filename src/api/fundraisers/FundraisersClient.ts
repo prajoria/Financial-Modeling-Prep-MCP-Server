@@ -6,8 +6,15 @@ import {
   EquityOfferingSearchResult,
 } from "./types.js";
 
+// Define a context type for all client methods
+type FMPContext = {
+  config?: {
+    FMP_ACCESS_TOKEN?: string;
+  };
+};
+
 export class FundraisersClient extends FMPClient {
-  constructor(apiKey: string) {
+  constructor(apiKey?: string) {
     super(apiKey);
   }
 
@@ -15,13 +22,16 @@ export class FundraisersClient extends FMPClient {
    * Get latest crowdfunding campaigns
    * @param page Page number (default: 0)
    * @param limit Number of results per page (default: 100)
-   * @param options Additional options including abort signal
+   * @param options Additional options including abort signal and context
    * @returns Array of crowdfunding campaigns
    */
   async getLatestCrowdfundingCampaigns(
     page: number = 0,
     limit: number = 100,
-    options?: { signal?: AbortSignal }
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
   ): Promise<CrowdfundingCampaign[]> {
     return super.get<CrowdfundingCampaign[]>(
       "/crowdfunding-offerings-latest",
@@ -36,12 +46,15 @@ export class FundraisersClient extends FMPClient {
   /**
    * Search for crowdfunding campaigns by name
    * @param name Company name, campaign name, or platform to search for
-   * @param options Additional options including abort signal
+   * @param options Additional options including abort signal and context
    * @returns Array of crowdfunding search results
    */
   async searchCrowdfundingCampaigns(
     name: string,
-    options?: { signal?: AbortSignal }
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
   ): Promise<CrowdfundingSearchResult[]> {
     return super.get<CrowdfundingSearchResult[]>(
       "/crowdfunding-offerings-search",
@@ -55,12 +68,15 @@ export class FundraisersClient extends FMPClient {
   /**
    * Get crowdfunding campaigns by CIK
    * @param cik CIK number to search for
-   * @param options Additional options including abort signal
+   * @param options Additional options including abort signal and context
    * @returns Array of crowdfunding campaigns
    */
   async getCrowdfundingCampaignsByCIK(
     cik: string,
-    options?: { signal?: AbortSignal }
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
   ): Promise<CrowdfundingCampaign[]> {
     return super.get<CrowdfundingCampaign[]>(
       "/crowdfunding-offerings",
@@ -76,14 +92,17 @@ export class FundraisersClient extends FMPClient {
    * @param page Page number (default: 0)
    * @param limit Number of results per page (default: 10)
    * @param cik Optional CIK to filter by
-   * @param options Additional options including abort signal
+   * @param options Additional options including abort signal and context
    * @returns Array of equity offerings
    */
   async getLatestEquityOfferings(
     page: number = 0,
     limit: number = 10,
     cik?: string,
-    options?: { signal?: AbortSignal }
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
   ): Promise<EquityOffering[]> {
     return super.get<EquityOffering[]>(
       "/fundraising-latest",
@@ -99,12 +118,15 @@ export class FundraisersClient extends FMPClient {
   /**
    * Search for equity offerings by name
    * @param name Company name or stock symbol to search for
-   * @param options Additional options including abort signal
+   * @param options Additional options including abort signal and context
    * @returns Array of equity offering search results
    */
   async searchEquityOfferings(
     name: string,
-    options?: { signal?: AbortSignal }
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
   ): Promise<EquityOfferingSearchResult[]> {
     return super.get<EquityOfferingSearchResult[]>(
       "/fundraising-search",
@@ -118,12 +140,15 @@ export class FundraisersClient extends FMPClient {
   /**
    * Get equity offerings by CIK
    * @param cik CIK number to search for
-   * @param options Additional options including abort signal
+   * @param options Additional options including abort signal and context
    * @returns Array of equity offerings
    */
   async getEquityOfferingsByCIK(
     cik: string,
-    options?: { signal?: AbortSignal }
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
   ): Promise<EquityOffering[]> {
     return super.get<EquityOffering[]>(
       "/fundraising",
