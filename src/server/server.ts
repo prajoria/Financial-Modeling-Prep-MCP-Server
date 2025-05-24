@@ -13,7 +13,7 @@ const VERSION = getServerVersion();
  */
 interface ServerConfig {
   port: number;
-  accessToken?: string; // Make accessToken optional to support lazy loading
+  accessToken?: string; // Make accessToken optional to support lazy loading of tools
 }
 
 /**
@@ -42,15 +42,11 @@ function createMcpServer({
     },
   });
 
-  // Register tools
   registerAllTools(mcpServer, accessToken);
 
   return mcpServer.server;
 }
 
-/**
- * Create the stateless server instance
- */
 const { app } = createStatelessServer(createMcpServer);
 
 /**
@@ -61,7 +57,6 @@ const { app } = createStatelessServer(createMcpServer);
 export function startServer(config: ServerConfig): http.Server {
   const { port } = config;
 
-  // Add health check endpoint
   app.get("/healthcheck", (req: Request, res: Response) => {
     res.status(200).json({
       status: "ok",
@@ -71,7 +66,6 @@ export function startServer(config: ServerConfig): http.Server {
     });
   });
 
-  // Start the server
   const server = app.listen(port, () => {
     console.log(`Financial Modeling Prep MCP server started on port ${port}`);
     console.log(`Health endpoint available at http://localhost:${port}/health`);
