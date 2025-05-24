@@ -1,0 +1,20 @@
+version: 1
+start:
+  command: ["node", "dist/index.js"]
+  port: 8000
+  env:
+    - name: PORT
+      value: "8000"
+    - name: NODE_ENV
+      value: "production"
+
+startCommand:
+  type: http
+  configSchema:
+    type: object
+    required: ["FMP_ACCESS_TOKEN"]
+    properties:
+      FMP_ACCESS_TOKEN:
+        type: string
+        title: "FMP Access Token"
+        description: "Financial Modeling Prep API access token"
