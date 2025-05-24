@@ -15,7 +15,7 @@ const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 startServer({ port, accessToken });
 
 console.log(
-  accessToken === DEFAULT_API_KEY
+  accessToken
     ? "Financial Modeling Prep MCP initialized successfully with provided token"
     : "Financial Modeling Prep MCP initialized in tool discovery mode - API calls will require a token"
 );
