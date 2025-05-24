@@ -5,11 +5,11 @@ import { CryptoClient } from "../api/crypto/CryptoClient.js";
 /**
  * Register all cryptocurrency-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
 export function registerCryptoTools(
   server: McpServer,
-  accessToken: string
+  accessToken?: string
 ): void {
   const cryptoClient = new CryptoClient(accessToken);
 

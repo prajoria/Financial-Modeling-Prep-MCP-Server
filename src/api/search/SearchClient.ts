@@ -9,8 +9,15 @@ import {
   ExchangeVariantResult,
 } from "./types.js";
 
+// Define a context type for all client methods
+type FMPContext = {
+  config?: {
+    FMP_ACCESS_TOKEN?: string;
+  };
+};
+
 export class SearchClient extends FMPClient {
-  constructor(apiKey: string) {
+  constructor(apiKey?: string) {
     super(apiKey);
   }
 
@@ -19,18 +26,24 @@ export class SearchClient extends FMPClient {
    * @param query The search query
    * @param limit Optional limit on number of results (default: 50)
    * @param exchange Optional exchange filter
+   * @param context Optional context containing configuration
    * @returns Array of matching symbols
    */
   async searchSymbol(
     query: string,
     limit?: number,
-    exchange?: string
+    exchange?: string,
+    context?: FMPContext
   ): Promise<SymbolSearchResult[]> {
-    return super.get<SymbolSearchResult[]>("/search-symbol", {
-      query,
-      limit,
-      exchange,
-    });
+    return super.get<SymbolSearchResult[]>(
+      "/search-symbol",
+      {
+        query,
+        limit,
+        exchange,
+      },
+      { context }
+    );
   }
 
   /**
@@ -38,87 +51,126 @@ export class SearchClient extends FMPClient {
    * @param query The search query
    * @param limit Optional limit on number of results (default: 50)
    * @param exchange Optional exchange filter
+   * @param context Optional context containing configuration
    * @returns Array of matching companies
    */
   async searchName(
     query: string,
     limit?: number,
-    exchange?: string
+    exchange?: string,
+    context?: FMPContext
   ): Promise<NameSearchResult[]> {
-    return super.get<NameSearchResult[]>("/search-name", {
-      query,
-      limit,
-      exchange,
-    });
+    return super.get<NameSearchResult[]>(
+      "/search-name",
+      {
+        query,
+        limit,
+        exchange,
+      },
+      { context }
+    );
   }
 
   /**
    * Search for companies by CIK number
    * @param cik The CIK number to search for
    * @param limit Optional limit on number of results (default: 50)
+   * @param context Optional context containing configuration
    * @returns Array of matching companies
    */
-  async searchCIK(cik: string, limit?: number): Promise<CIKSearchResult[]> {
-    return super.get<CIKSearchResult[]>("/search-cik", { cik, limit });
+  async searchCIK(
+    cik: string,
+    limit?: number,
+    context?: FMPContext
+  ): Promise<CIKSearchResult[]> {
+    return super.get<CIKSearchResult[]>(
+      "/search-cik",
+      { cik, limit },
+      { context }
+    );
   }
 
   /**
    * Search for securities by CUSIP number
    * @param cusip The CUSIP number to search for
+   * @param context Optional context containing configuration
    * @returns Array of matching securities
    */
-  async searchCUSIP(cusip: string): Promise<CUSIPSearchResult[]> {
-    return super.get<CUSIPSearchResult[]>("/search-cusip", { cusip });
+  async searchCUSIP(
+    cusip: string,
+    context?: FMPContext
+  ): Promise<CUSIPSearchResult[]> {
+    return super.get<CUSIPSearchResult[]>(
+      "/search-cusip",
+      { cusip },
+      { context }
+    );
   }
 
   /**
    * Search for securities by ISIN number
    * @param isin The ISIN number to search for
+   * @param context Optional context containing configuration
    * @returns Array of matching securities
    */
-  async searchISIN(isin: string): Promise<ISINSearchResult[]> {
-    return super.get<ISINSearchResult[]>("/search-isin", { isin });
+  async searchISIN(
+    isin: string,
+    context?: FMPContext
+  ): Promise<ISINSearchResult[]> {
+    return super.get<ISINSearchResult[]>("/search-isin", { isin }, { context });
   }
 
   /**
    * Search for stocks using various criteria
    * @param params Search criteria
+   * @param context Optional context containing configuration
    * @returns Array of matching stocks
    */
-  async stockScreener(params: {
-    marketCapMoreThan?: number;
-    marketCapLowerThan?: number;
-    sector?: string;
-    industry?: string;
-    betaMoreThan?: number;
-    betaLowerThan?: number;
-    priceMoreThan?: number;
-    priceLowerThan?: number;
-    dividendMoreThan?: number;
-    dividendLowerThan?: number;
-    volumeMoreThan?: number;
-    volumeLowerThan?: number;
-    exchange?: string;
-    country?: string;
-    isEtf?: boolean;
-    isFund?: boolean;
-    isActivelyTrading?: boolean;
-    limit?: number;
-    includeAllShareClasses?: boolean;
-  }): Promise<StockScreenerResult[]> {
-    return super.get<StockScreenerResult[]>("/company-screener", params);
+  async stockScreener(
+    params: {
+      marketCapMoreThan?: number;
+      marketCapLowerThan?: number;
+      sector?: string;
+      industry?: string;
+      betaMoreThan?: number;
+      betaLowerThan?: number;
+      priceMoreThan?: number;
+      priceLowerThan?: number;
+      dividendMoreThan?: number;
+      dividendLowerThan?: number;
+      volumeMoreThan?: number;
+      volumeLowerThan?: number;
+      exchange?: string;
+      country?: string;
+      isEtf?: boolean;
+      isFund?: boolean;
+      isActivelyTrading?: boolean;
+      limit?: number;
+      includeAllShareClasses?: boolean;
+    },
+    context?: FMPContext
+  ): Promise<StockScreenerResult[]> {
+    return super.get<StockScreenerResult[]>("/company-screener", params, {
+      context,
+    });
   }
 
   /**
    * Search for exchange variants of a symbol
    * @param symbol The stock symbol to search for
+   * @param context Optional context containing configuration
    * @returns Array of exchange variants
    */
   async searchExchangeVariants(
-    symbol: string
+    symbol: string,
+    context?: FMPContext
   ): Promise<ExchangeVariantResult[]> {
-    return super.get<ExchangeVariantResult[]>("/search-exchange-variants", {
-      symbol,
-    });
+    return super.get<ExchangeVariantResult[]>(
+      "/search-exchange-variants",
+      {
+        symbol,
+      },
+      { context }
+    );
   }
 }

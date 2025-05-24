@@ -5,11 +5,11 @@ import { CompanyClient } from "../api/company/CompanyClient.js";
 /**
  * Register all company-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
 export function registerCompanyTools(
   server: McpServer,
-  accessToken: string
+  accessToken?: string
 ): void {
   const companyClient = new CompanyClient(accessToken);
 

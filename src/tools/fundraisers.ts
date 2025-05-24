@@ -5,11 +5,11 @@ import { FundraisersClient } from "../api/fundraisers/FundraisersClient.js";
 /**
  * Register all fundraisers-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
 export function registerFundraisersTools(
   server: McpServer,
-  accessToken: string
+  accessToken?: string
 ): void {
   const fundraisersClient = new FundraisersClient(accessToken);
 

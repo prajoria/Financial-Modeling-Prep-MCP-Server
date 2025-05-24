@@ -1,9 +1,10 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { registerAllTools } from "../tools/index.js";
-import http from "node:http";
 import { getServerVersion } from "../utils/getServerVersion.js";
 import { isValidJsonRpc } from "../utils/isValidJsonRpc.js";
+import { DEFAULT_API_KEY } from "../constants/index.js";
+import http from "node:http";
 
 const VERSION = getServerVersion();
 
@@ -12,20 +13,34 @@ const VERSION = getServerVersion();
  */
 interface ServerConfig {
   port: number;
-  accessToken: string;
+  accessToken?: string; // Make accessToken optional to support lazy loading
 }
 
 /**
  * Create and configure the MCP server
- * @param accessToken - FMP access token
+ * @param accessToken - Optional FMP access token (can be provided later via configuration)
  * @returns Configured MCP server instance
  */
-function createServer(accessToken: string): McpServer {
+function createServer(accessToken?: string): McpServer {
   const server = new McpServer({
     name: "Financial Modeling Prep MCP",
     version: VERSION,
+    configSchema: {
+      type: "object",
+      required: ["FMP_ACCESS_TOKEN"],
+      properties: {
+        FMP_ACCESS_TOKEN: {
+          type: "string",
+          title: "FMP Access Token",
+          description: "Financial Modeling Prep API access token",
+        },
+      },
+    },
   });
-  registerAllTools(server, accessToken);
+
+  // Register tools even without an access token to support tool listing
+  // The actual API calls will be made only when the tools are invoked with proper configuration
+  registerAllTools(server, accessToken || DEFAULT_API_KEY);
 
   return server;
 }

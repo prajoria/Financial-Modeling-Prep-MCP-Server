@@ -5,11 +5,11 @@ import { MarketHoursClient } from "../api/market-hours/MarketHoursClient.js";
 /**
  * Register all market hours-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
 export function registerMarketHoursTools(
   server: McpServer,
-  accessToken: string
+  accessToken?: string
 ): void {
   const marketHoursClient = new MarketHoursClient(accessToken);
 

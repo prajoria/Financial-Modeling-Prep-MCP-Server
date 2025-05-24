@@ -5,11 +5,11 @@ import { EarningsTranscriptClient } from "../api/earnings-transcript/EarningsTra
 /**
  * Register all earnings transcript-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
 export function registerEarningsTranscriptTools(
   server: McpServer,
-  accessToken: string
+  accessToken?: string
 ): void {
   const earningsTranscriptClient = new EarningsTranscriptClient(accessToken);
 

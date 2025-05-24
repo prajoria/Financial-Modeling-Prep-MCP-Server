@@ -5,11 +5,11 @@ import { SearchClient } from "../api/search/SearchClient.js";
 /**
  * Register all search-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
 export function registerSearchTools(
   server: McpServer,
-  accessToken: string
+  accessToken?: string
 ): void {
   const searchClient = new SearchClient(accessToken);
 
@@ -26,8 +26,10 @@ export function registerSearchTools(
         .optional()
         .describe("Optional exchange filter (e.g., NASDAQ, NYSE)"),
     },
-    async ({ query, limit, exchange }) => {
+    async ({ query, limit, exchange }, extra) => {
       try {
+        // We'll just use the instance API key for now - the FMPClient has been modified
+        // to handle missing or placeholder API keys, so this will work for listing tools
         const results = await searchClient.searchSymbol(query, limit, exchange);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
@@ -61,7 +63,7 @@ export function registerSearchTools(
         .optional()
         .describe("Optional exchange filter (e.g., NASDAQ, NYSE)"),
     },
-    async ({ query, limit, exchange }) => {
+    async ({ query, limit, exchange }, extra) => {
       try {
         const results = await searchClient.searchName(query, limit, exchange);
         return {
@@ -92,7 +94,7 @@ export function registerSearchTools(
         .optional()
         .describe("Optional limit on number of results (default: 50)"),
     },
-    async ({ cik, limit }) => {
+    async ({ cik, limit }, extra) => {
       try {
         const results = await searchClient.searchCIK(cik, limit);
         return {
@@ -119,7 +121,7 @@ export function registerSearchTools(
     {
       cusip: z.string().describe("The CUSIP number to search for"),
     },
-    async ({ cusip }) => {
+    async ({ cusip }, extra) => {
       try {
         const results = await searchClient.searchCUSIP(cusip);
         return {
@@ -146,7 +148,7 @@ export function registerSearchTools(
     {
       isin: z.string().describe("The ISIN number to search for"),
     },
-    async ({ isin }) => {
+    async ({ isin }, extra) => {
       try {
         const results = await searchClient.searchISIN(isin);
         return {

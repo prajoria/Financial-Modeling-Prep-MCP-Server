@@ -5,11 +5,11 @@ import { CalendarClient } from "../api/calendar/CalendarClient.js";
 /**
  * Register all calendar-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
 export function registerCalendarTools(
   server: McpServer,
-  accessToken: string
+  accessToken?: string
 ): void {
   const calendarClient = new CalendarClient(accessToken);
 
@@ -253,7 +253,7 @@ export function registerCalendarTools(
   );
 
   server.tool(
-    "getStockSplitsCalendar",
+    "getStockSplitCalendar",
     {
       from: z.string().describe("Start date (YYYY-MM-DD)"),
       to: z.string().describe("End date (YYYY-MM-DD)"),

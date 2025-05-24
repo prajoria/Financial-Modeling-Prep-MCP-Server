@@ -7,18 +7,41 @@ import {
   AcquisitionOwnership,
 } from "./types.js";
 
+// Define a context type for all client methods
+type FMPContext = {
+  config?: {
+    FMP_ACCESS_TOKEN?: string;
+  };
+};
+
 export class InsiderTradesClient extends FMPClient {
+  constructor(apiKey?: string) {
+    super(apiKey);
+  }
+
   /**
    * Get latest insider trading activities
+   * @param params Optional parameters for date, pagination
+   * @param options Optional parameters including abort signal and context
    */
   async getLatestInsiderTrading(
-    params: { date?: string; page?: number; limit?: number } = {}
+    params: { date?: string; page?: number; limit?: number } = {},
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
   ): Promise<InsiderTrading[]> {
-    return super.get<InsiderTrading[]>("/insider-trading/latest", params);
+    return super.get<InsiderTrading[]>(
+      "/insider-trading/latest",
+      params,
+      options
+    );
   }
 
   /**
    * Search insider trades by various criteria
+   * @param params Search parameters
+   * @param options Optional parameters including abort signal and context
    */
   async searchInsiderTrades(
     params: {
@@ -28,49 +51,85 @@ export class InsiderTradesClient extends FMPClient {
       reportingCik?: string;
       companyCik?: string;
       transactionType?: string;
-    } = {}
+    } = {},
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
   ): Promise<InsiderTrading[]> {
-    return super.get<InsiderTrading[]>("/insider-trading/search", params);
+    return super.get<InsiderTrading[]>(
+      "/insider-trading/search",
+      params,
+      options
+    );
   }
 
   /**
    * Search insider trades by reporting name
+   * @param name Name to search for
+   * @param options Optional parameters including abort signal and context
    */
   async searchInsiderTradesByReportingName(
-    name: string
+    name: string,
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
   ): Promise<InsiderReportingName[]> {
     return super.get<InsiderReportingName[]>(
       "/insider-trading/reporting-name",
-      { name }
+      { name },
+      options
     );
   }
 
   /**
    * Get all insider transaction types
+   * @param options Optional parameters including abort signal and context
    */
-  async getInsiderTransactionTypes(): Promise<InsiderTransactionType[]> {
+  async getInsiderTransactionTypes(options?: {
+    signal?: AbortSignal;
+    context?: FMPContext;
+  }): Promise<InsiderTransactionType[]> {
     return super.get<InsiderTransactionType[]>(
-      "/insider-trading-transaction-type"
+      "/insider-trading-transaction-type",
+      {},
+      options
     );
   }
 
   /**
    * Get insider trade statistics for a symbol
+   * @param symbol Stock symbol
+   * @param options Optional parameters including abort signal and context
    */
   async getInsiderTradeStatistics(
-    symbol: string
+    symbol: string,
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
   ): Promise<InsiderTradeStatistics[]> {
-    return super.get<InsiderTradeStatistics[]>("/insider-trading/statistics", {
-      symbol,
-    });
+    return super.get<InsiderTradeStatistics[]>(
+      "/insider-trading/statistics",
+      { symbol },
+      options
+    );
   }
 
   /**
    * Get acquisition ownership information for a symbol
+   * @param symbol Stock symbol
+   * @param limit Optional limit on number of results
+   * @param options Optional parameters including abort signal and context
    */
   async getAcquisitionOwnership(
     symbol: string,
-    limit?: number
+    limit?: number,
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
   ): Promise<AcquisitionOwnership[]> {
     const params: Record<string, any> = { symbol };
     if (limit !== undefined) {
@@ -78,7 +137,8 @@ export class InsiderTradesClient extends FMPClient {
     }
     return super.get<AcquisitionOwnership[]>(
       "/acquisition-of-beneficial-ownership",
-      params
+      params,
+      options
     );
   }
 }

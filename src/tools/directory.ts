@@ -5,11 +5,11 @@ import { DirectoryClient } from "../api/directory/DirectoryClient.js";
 /**
  * Register all directory-related tools with the MCP server
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token
+ * @param accessToken The Financial Modeling Prep API access token (optional when using lazy loading)
  */
 export function registerDirectoryTools(
   server: McpServer,
-  accessToken: string
+  accessToken?: string
 ): void {
   const directoryClient = new DirectoryClient(accessToken);
 

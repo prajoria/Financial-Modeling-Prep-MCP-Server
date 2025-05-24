@@ -6,35 +6,63 @@ import {
   CustomDCFOutput,
 } from "./types.js";
 
+// Define a context type for all client methods
+type FMPContext = {
+  config?: {
+    FMP_ACCESS_TOKEN?: string;
+  };
+};
+
 export class DCFClient extends FMPClient {
-  constructor(apiKey: string) {
+  constructor(apiKey?: string) {
     super(apiKey);
   }
 
   /**
    * Get DCF(Discounted Cash Flow) valuation for a symbol
    * @param symbol The stock symbol
+   * @param options Optional parameters including abort signal and context
    * @returns DCF valuation data
    */
-  async getValuation(symbol: string): Promise<DCFValuation> {
-    return super.get<DCFValuation>("/dcf", { symbol });
+  async getValuation(
+    symbol: string,
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
+  ): Promise<DCFValuation> {
+    return super.get<DCFValuation>("/dcf", { symbol }, options);
   }
 
   /**
    * Get levered DCF(Discounted Cash Flow) valuation for a symbol
    * @param symbol The stock symbol
+   * @param options Optional parameters including abort signal and context
    * @returns Levered DCF valuation data
    */
-  async getLeveredValuation(symbol: string): Promise<LeveredDCF> {
-    return super.get<LeveredDCF>("/dcf-levered", { symbol });
+  async getLeveredValuation(
+    symbol: string,
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
+  ): Promise<LeveredDCF> {
+    return super.get<LeveredDCF>("/dcf-levered", { symbol }, options);
   }
 
   /**
    * Calculate custom DCF valuation
    * @param input Custom DCF input parameters
+   * @param options Optional parameters including abort signal and context
    * @returns Custom DCF output data
    */
-  async calculateCustomDCF(input: CustomDCFInput): Promise<CustomDCFOutput> {
-    return super.post<CustomDCFOutput>("/dcf-custom", input);
+  async calculateCustomDCF(
+    input: CustomDCFInput,
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
+  ): Promise<CustomDCFOutput> {
+    return super.post<CustomDCFOutput>("/dcf-custom", input, {}, options);
   }
 }
