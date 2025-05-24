@@ -9,8 +9,7 @@ const accessToken: string | undefined =
   argv["fmp-token"] || process.env.FMP_ACCESS_TOKEN;
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
-// Access token is now optional for server startup
-// It will be required later when making API calls
+// Access token is optional for server startup but it will be required later when making API calls
 startServer({ port, accessToken });
 
 console.log(
