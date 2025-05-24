@@ -1,6 +1,6 @@
 # Financial Modeling Prep MCP (Model Context Protocol)
 
-[![smithery badge](https://smithery.ai/badge/@imbenrabi/financial-modeling-prep-mcp)](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp)
+[![smithery badge](https://smithery.ai/badge/@imbenrabi/financial-modeling-prep-mcp)](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)
 
 A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabling AI assistants to access and analyze financial data, stock information, company fundamentals, and market insights.
 
