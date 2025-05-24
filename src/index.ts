@@ -2,7 +2,6 @@
 
 import minimist from "minimist";
 import { startServer } from "./server/server.js";
-import { DEFAULT_API_KEY } from "./constants/index.js";
 
 // Parse command line arguments
 const argv = minimist(process.argv.slice(2));
