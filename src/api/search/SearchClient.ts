@@ -1,6 +1,6 @@
 import { FMPClient } from "../FMPClient.js";
 import type { FMPContext } from "../../types/index.js";
-import {
+import type {
   SymbolSearchResult,
   NameSearchResult,
   CIKSearchResult,
@@ -9,8 +9,6 @@ import {
   StockScreenerResult,
   ExchangeVariantResult,
 } from "./types.js";
-
-
 
 export class SearchClient extends FMPClient {
   constructor(apiKey?: string) {

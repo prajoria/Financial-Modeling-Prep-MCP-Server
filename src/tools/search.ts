@@ -26,10 +26,8 @@ export function registerSearchTools(
         .optional()
         .describe("Optional exchange filter (e.g., NASDAQ, NYSE)"),
     },
-    async ({ query, limit, exchange }, extra) => {
+    async ({ query, limit, exchange }) => {
       try {
-        // We'll just use the instance API key for now - the FMPClient has been modified
-        // to handle missing or placeholder API keys, so this will work for listing tools
         const results = await searchClient.searchSymbol(query, limit, exchange);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
@@ -63,7 +61,7 @@ export function registerSearchTools(
         .optional()
         .describe("Optional exchange filter (e.g., NASDAQ, NYSE)"),
     },
-    async ({ query, limit, exchange }, extra) => {
+    async ({ query, limit, exchange }) => {
       try {
         const results = await searchClient.searchName(query, limit, exchange);
         return {
@@ -94,7 +92,7 @@ export function registerSearchTools(
         .optional()
         .describe("Optional limit on number of results (default: 50)"),
     },
-    async ({ cik, limit }, extra) => {
+    async ({ cik, limit }) => {
       try {
         const results = await searchClient.searchCIK(cik, limit);
         return {
@@ -121,7 +119,7 @@ export function registerSearchTools(
     {
       cusip: z.string().describe("The CUSIP number to search for"),
     },
-    async ({ cusip }, extra) => {
+    async ({ cusip }) => {
       try {
         const results = await searchClient.searchCUSIP(cusip);
         return {
@@ -148,7 +146,7 @@ export function registerSearchTools(
     {
       isin: z.string().describe("The ISIN number to search for"),
     },
-    async ({ isin }, extra) => {
+    async ({ isin }) => {
       try {
         const results = await searchClient.searchISIN(isin);
         return {
