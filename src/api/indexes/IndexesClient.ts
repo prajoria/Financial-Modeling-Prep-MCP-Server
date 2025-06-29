@@ -1,6 +1,6 @@
 import { FMPClient } from "../FMPClient.js";
 import type { FMPContext } from "../../types/index.js";
-import {
+import type {
   IndexItem,
   IndexQuote,
   IndexShortQuote,
@@ -10,8 +10,6 @@ import {
   IndexConstituent,
   HistoricalIndexChange,
 } from "./types.js";
-
-
 
 export class IndexesClient extends FMPClient {
   constructor(apiKey?: string) {
@@ -73,11 +71,11 @@ export class IndexesClient extends FMPClient {
 
   /**
    * Get quotes for all available indexes
-   * @param short Whether to use short format (default: false)
+   * @param short Optional Whether to use short format (default: false)
    * @param options Optional parameters including abort signal and context
    */
   async getAllIndexQuotes(
-    short: boolean = false,
+    short?: boolean,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
