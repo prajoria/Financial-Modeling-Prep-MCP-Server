@@ -342,11 +342,9 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getGovernmentTradingList**: Get government trading list
 - **getSenateTrading**: Get senate trading data
 - **getHouseTrading**: Get house trading data
-- **getESGData**: Get Environmental, Social, and Governance data
-- **getESGRatings**: Get ESG ratings
-- **getESGBenchmark**: Get ESG benchmark data
-- **getESGDisclosures**: Get ESG disclosures
-- **getESGBenchmarks**: Get ESG benchmarks
+- **getESGDisclosures**: Get ESG disclosures for a specific symbol
+- **getESGRatings**: Get ESG ratings for a specific symbol
+- **getESGBenchmarks**: Get ESG benchmark data with optional year filtering
 
 ### Commodities
 

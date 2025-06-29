@@ -14,14 +14,10 @@ export function registerESGTools(server: McpServer, accessToken?: string): void 
     "getESGDisclosures",
     {
       symbol: z.string().describe("Stock symbol"),
-      limit: z
-        .number()
-        .optional()
-        .describe("Optional limit on number of results"),
     },
-    async ({ symbol, limit }) => {
+    async ({ symbol }) => {
       try {
-        const results = await esgClient.getDisclosures(symbol, limit);
+        const results = await esgClient.getDisclosures(symbol);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };
@@ -71,15 +67,14 @@ export function registerESGTools(server: McpServer, accessToken?: string): void 
   server.tool(
     "getESGBenchmarks",
     {
-      sector: z.string().describe("Sector to get benchmarks for"),
       year: z
         .string()
         .optional()
         .describe("Optional year to get benchmarks for"),
     },
-    async ({ sector, year }) => {
+    async ({ year }) => {
       try {
-        const results = await esgClient.getBenchmarks(sector, year);
+        const results = await esgClient.getBenchmarks(year);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };

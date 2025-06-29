@@ -216,11 +216,11 @@ This document provides a comprehensive list of all available tools in the Financ
 
 ## ESG
 
-| Tool Name | Return Type |
-|-----------|-------------|
-| getDisclosures | `ESGDisclosure[]` |
-| getRatings | `ESGRating[]` |
-| getBenchmarks | `ESGBenchmark[]` |
+| Tool Name | Parameters | Return Type |
+|-----------|------------|-------------|
+| getESGDisclosures | symbol (string) | `ESGDisclosure[]` |
+| getESGRatings | symbol (string) | `ESGRating[]` |
+| getESGBenchmarks | year? (string) | `ESGBenchmark[]` |
 
 ## Forex
 
