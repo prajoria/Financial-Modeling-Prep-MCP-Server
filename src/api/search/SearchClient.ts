@@ -1,4 +1,5 @@
 import { FMPClient } from "../FMPClient.js";
+import type { FMPContext } from "../../types/index.js";
 import {
   SymbolSearchResult,
   NameSearchResult,
@@ -9,12 +10,7 @@ import {
   ExchangeVariantResult,
 } from "./types.js";
 
-// Define a context type for all client methods
-type FMPContext = {
-  config?: {
-    FMP_ACCESS_TOKEN?: string;
-  };
-};
+
 
 export class SearchClient extends FMPClient {
   constructor(apiKey?: string) {

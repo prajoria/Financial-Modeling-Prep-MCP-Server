@@ -1,4 +1,5 @@
 import { FMPClient } from "../FMPClient.js";
+import type { FMPContext } from "../../types/index.js";
 import {
   CompanySymbol,
   FinancialStatementSymbol,
@@ -13,12 +14,7 @@ import {
   CountryEntry,
 } from "./types.js";
 
-// Define a context type for all client methods
-type FMPContext = {
-  config?: {
-    FMP_ACCESS_TOKEN?: string;
-  };
-};
+
 
 export class DirectoryClient extends FMPClient {
   constructor(apiKey?: string) {

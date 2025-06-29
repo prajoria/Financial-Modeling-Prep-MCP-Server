@@ -1,4 +1,5 @@
 import { FMPClient } from "../FMPClient.js";
+import type { FMPContext } from "../../types/index.js";
 import {
   FundHolding,
   FundInfo,
@@ -9,13 +10,6 @@ import {
   FundDisclosureSearch,
   FundDisclosureDate,
 } from "./types.js";
-
-// Define a context type for all client methods
-type FMPContext = {
-  config?: {
-    FMP_ACCESS_TOKEN?: string;
-  };
-};
 
 export class FundClient extends FMPClient {
   constructor(apiKey?: string) {

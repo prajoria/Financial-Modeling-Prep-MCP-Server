@@ -1,4 +1,5 @@
 import { FMPClient } from "../FMPClient.js";
+import type { FMPContext } from "../../types/index.js";
 import {
   TechnicalIndicatorParams,
   SMAIndicator,
@@ -12,12 +13,7 @@ import {
   ADXIndicator,
 } from "./types.js";
 
-// Define a context type for all client methods
-type FMPContext = {
-  config?: {
-    FMP_ACCESS_TOKEN?: string;
-  };
-};
+
 
 export class TechnicalIndicatorsClient extends FMPClient {
   constructor(apiKey?: string) {

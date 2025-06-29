@@ -1,4 +1,5 @@
 import { FMPClient } from "../FMPClient.js";
+import type { FMPContext } from "../../types/index.js";
 import {
   ChartData,
   LightChartData,
@@ -7,12 +8,7 @@ import {
   Interval,
 } from "./types.js";
 
-// Define a context type for all client methods
-type FMPContext = {
-  config?: {
-    FMP_ACCESS_TOKEN?: string;
-  };
-};
+
 
 export class ChartClient extends FMPClient {
   constructor(apiKey?: string) {

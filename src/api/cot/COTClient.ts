@@ -1,12 +1,6 @@
 import { FMPClient } from "../FMPClient.js";
+import type { FMPContext } from "../../types/index.js";
 import { COTReport, COTAnalysis, COTList } from "./types.js";
-
-// Define a context type for all client methods
-type FMPContext = {
-  config?: {
-    FMP_ACCESS_TOKEN?: string;
-  };
-};
 
 export class COTClient extends FMPClient {
   constructor(apiKey?: string) {
