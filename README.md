@@ -339,9 +339,8 @@ This MCP provides the following tools for AI assistants to access financial data
 ### Special Data Sets
 
 - **getCOTList**: Get Commitment of Traders (COT) list
-- **getCOTReport**: Get COT report for a specific symbol
-- **getCOTReports**: Get COT reports for a specific symbol
-- **getCOTAnalysis**: Get COT analysis for a specific symbol
+- **getCOTReports**: Get COT reports for a specific symbol with optional date range filtering
+- **getCOTAnalysis**: Get COT analysis for a specific symbol with optional date range filtering
 - **getGovernmentTradingList**: Get government trading list
 - **getSenateTrading**: Get senate trading data
 - **getHouseTrading**: Get house trading data
@@ -399,7 +398,7 @@ Most tools accept optional parameters such as:
 - `symbol`: Stock ticker symbol
 - `period`: Time period (annual, quarterly)
 - `limit`: Number of results to return
-- `from` and `to`: Date range in YYYY-MM-DD format
+- `from` and `to`: Date range in YYYY-MM-DD format (particularly for COT, chart, and historical data tools)
 
 ## Obtaining a Financial Modeling Prep Access Token
 

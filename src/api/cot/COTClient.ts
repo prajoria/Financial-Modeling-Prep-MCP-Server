@@ -9,40 +9,44 @@ export class COTClient extends FMPClient {
 
   /**
    * Get COT(Commitment Of Traders) reports for a symbol
-   * @param symbol The commodity symbol
-   * @param limit Optional limit on number of results
+   * @param symbol Optional the commodity symbol
+   * @param from Optional start date
+   * @param to Optional end date
    * @param options Optional parameters including abort signal and context
    * @returns Array of COT reports
    */
   async getReports(
     symbol: string,
-    limit?: number,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
     }
   ): Promise<COTReport[]> {
-    return super.get<COTReport[]>("/cot", { symbol, limit }, options);
+    return super.get<COTReport[]>("/commitment-of-traders-report", { symbol, from, to }, options);
   }
 
   /**
    * Get COT(Commitment Of Traders) analysis for a symbol
    * @param symbol The commodity symbol
-   * @param limit Optional limit on number of results
+   * @param from Optional start date
+   * @param to Optional end date
    * @param options Optional parameters including abort signal and context
    * @returns Array of COT analysis
    */
   async getAnalysis(
     symbol: string,
-    limit?: number,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
     }
   ): Promise<COTAnalysis[]> {
     return super.get<COTAnalysis[]>(
-      "/cot-analysis",
-      { symbol, limit },
+      "/commitment-of-traders-analysis",
+      { symbol, from, to },
       options
     );
   }
@@ -56,6 +60,6 @@ export class COTClient extends FMPClient {
     signal?: AbortSignal;
     context?: FMPContext;
   }): Promise<COTList[]> {
-    return super.get<COTList[]>("/cot-list", {}, options);
+    return super.get<COTList[]>("/commitment-of-traders-list", {}, options);
   }
 }
