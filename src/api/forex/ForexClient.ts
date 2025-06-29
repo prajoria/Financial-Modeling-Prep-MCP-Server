@@ -4,9 +4,9 @@ import {
   ForexPair,
   ForexQuote,
   ForexShortQuote,
-  ForexLightPrice,
-  ForexHistoricalPrice,
-  ForexIntradayPrice,
+  ForexLightChart,
+  ForexHistoricalChart,
+  ForexIntradayChart,
 } from "./types.js";
 
 
@@ -62,16 +62,19 @@ export class ForexClient extends FMPClient {
 
   /**
    * Get batch quotes for all forex pairs
+   * @param short Optional boolean to get short quotes
    * @param options Optional parameters including abort signal and context
    * @returns Array of forex short quotes
    */
-  async getBatchQuotes(options?: {
+  async getBatchQuotes(
+    short?: boolean,
+    options?: {
     signal?: AbortSignal;
     context?: FMPContext;
   }): Promise<ForexShortQuote[]> {
     return super.get<ForexShortQuote[]>(
       "/batch-forex-quotes",
-      { short: true },
+      { short },
       options
     );
   }
@@ -92,8 +95,8 @@ export class ForexClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<ForexLightPrice[]> {
-    return super.get<ForexLightPrice[]>(
+  ): Promise<ForexLightChart[]> {
+    return super.get<ForexLightChart[]>(
       "/historical-price-eod/light",
       { symbol, from, to },
       options
@@ -116,8 +119,8 @@ export class ForexClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<ForexHistoricalPrice[]> {
-    return super.get<ForexHistoricalPrice[]>(
+  ): Promise<ForexHistoricalChart[]> {
+    return super.get<ForexHistoricalChart[]>(
       "/historical-price-eod/full",
       { symbol, from, to },
       options
@@ -140,8 +143,8 @@ export class ForexClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<ForexIntradayPrice[]> {
-    return super.get<ForexIntradayPrice[]>(
+  ): Promise<ForexIntradayChart[]> {
+    return super.get<ForexIntradayChart[]>(
       "/historical-chart/1min",
       { symbol, from, to },
       options
@@ -164,8 +167,8 @@ export class ForexClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<ForexIntradayPrice[]> {
-    return super.get<ForexIntradayPrice[]>(
+  ): Promise<ForexIntradayChart[]> {
+    return super.get<ForexIntradayChart[]>(
       "/historical-chart/5min",
       { symbol, from, to },
       options
@@ -188,8 +191,8 @@ export class ForexClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<ForexIntradayPrice[]> {
-    return super.get<ForexIntradayPrice[]>(
+  ): Promise<ForexIntradayChart[]> {
+    return super.get<ForexIntradayChart[]>(
       "/historical-chart/1hour",
       { symbol, from, to },
       options

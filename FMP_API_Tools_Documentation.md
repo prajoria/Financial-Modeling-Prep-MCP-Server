@@ -224,14 +224,17 @@ This document provides a comprehensive list of all available tools in the Financ
 
 ## Forex
 
-| Tool Name | Return Type |
-|-----------|-------------|
-| getForexPairs | `ForexPair[]` |
-| getForexQuote | `ForexQuote[]` |
-| getForexShortQuote | `ForexShortQuote[]` |
-| getForexLightPrice | `ForexLightPrice[]` |
-| getForexHistoricalPrice | `ForexHistoricalPrice[]` |
-| getForexIntradayPrice | `ForexIntradayPrice[]` |
+| Tool Name | Parameters | Return Type |
+|-----------|------------|-------------|
+| getForexList | (no parameters) | `ForexPair[]` |
+| getForexQuote | symbol (string) | `ForexQuote[]` |
+| getForexShortQuote | symbol (string) | `ForexShortQuote[]` |
+| getForexBatchQuotes | short? (boolean) | `ForexShortQuote[]` |
+| getForexHistoricalLightChart | symbol (string), from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `ForexLightChart[]` |
+| getForexHistoricalFullChart | symbol (string), from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `ForexHistoricalChart[]` |
+| getForex1MinuteData | symbol (string), from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `ForexIntradayChart[]` |
+| getForex5MinuteData | symbol (string), from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `ForexIntradayChart[]` |
+| getForex1HourData | symbol (string), from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `ForexIntradayChart[]` |
 
 ## DCF
 

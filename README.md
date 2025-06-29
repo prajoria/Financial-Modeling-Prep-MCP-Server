@@ -316,15 +316,12 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getForexList**: Get a list of forex pairs
 - **getForexQuote**: Get forex pair quote
 - **getForexShortQuote**: Get abbreviated forex quote
-- **getForexBatchQuotes**: Get quotes for multiple forex pairs
-- **getHistoricalForexPrice**: Get historical forex price data
-- **getForexHistoricalLightChart**: Get light historical forex chart
-- **getForexHistoricalFullChart**: Get full historical forex chart
-- **getForex1MinuteData**: Get 1-minute forex data
-- **getForex5MinuteData**: Get 5-minute forex data
-- **getForex1HourData**: Get 1-hour forex data
-- **getForexQuotes**: Get forex quotes
-- **getExchangeQuotes**: Get exchange quotes
+- **getForexBatchQuotes**: Get quotes for multiple forex pairs with optional short format
+- **getForexHistoricalLightChart**: Get light historical forex chart with optional date range
+- **getForexHistoricalFullChart**: Get full historical forex chart with optional date range
+- **getForex1MinuteData**: Get 1-minute forex data with optional date range
+- **getForex5MinuteData**: Get 5-minute forex data with optional date range
+- **getForex1HourData**: Get 1-hour forex data with optional date range
 
 ### Earnings
 
@@ -446,16 +443,6 @@ The development server will start on port 3000 by default. You can configure the
 ```bash
 PORT=4000 FMP_ACCESS_TOKEN=your_api_key npm run dev
 ```
-
-### Release Process
-
-To publish a new version to NPM:
-
-1. Update the version in `package.json`
-2. Create a new GitHub release with a tag like `v1.0.1`
-3. The GitHub Actions workflow will automatically build and publish the package to NPM
-
-Make sure you have the `NPM_TOKEN` secret configured in your GitHub repository settings.
 
 ## License
 
