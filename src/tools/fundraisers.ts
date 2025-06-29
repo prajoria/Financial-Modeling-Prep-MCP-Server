@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { FundraisersClient } from "../api/fundraisers/FundraisersClient.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 /**
  * Register all fundraisers-related tools with the MCP server
@@ -114,7 +114,7 @@ export function registerFundraisersTools(
       limit: z
         .number()
         .optional()
-        .describe("Limit on number of results (default: 100, max: 1000)"),
+        .describe("Limit on number of results (default: 10, max: 1000)"),
       cik: z.string().optional().describe("Optional CIK number to filter by"),
     },
     async ({ page, limit, cik }) => {

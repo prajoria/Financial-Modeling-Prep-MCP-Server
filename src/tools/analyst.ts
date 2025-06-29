@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { AnalystClient } from "../api/analyst/AnalystClient.js";
+import type{ McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 /**
  * Register all analyst-related tools with the MCP server

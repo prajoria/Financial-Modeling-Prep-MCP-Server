@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { COTClient } from "../api/cot/COTClient.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 /**
  * Register all COT-related tools with the MCP server
@@ -14,14 +14,18 @@ export function registerCOTTools(server: McpServer, accessToken?: string): void 
     "getCOTReports",
     {
       symbol: z.string().describe("Commodity symbol"),
-      limit: z
-        .number()
+      from: z
+        .string()
         .optional()
-        .describe("Optional limit on number of results"),
+        .describe("Optional start date (YYYY-MM-DD)"),
+      to: z
+        .string()
+        .optional()
+        .describe("Optional end date (YYYY-MM-DD)"),
     },
-    async ({ symbol, limit }) => {
+    async ({ symbol, from, to }) => {
       try {
-        const results = await cotClient.getReports(symbol, limit);
+        const results = await cotClient.getReports(symbol, from, to);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };
@@ -45,14 +49,18 @@ export function registerCOTTools(server: McpServer, accessToken?: string): void 
     "getCOTAnalysis",
     {
       symbol: z.string().describe("Commodity symbol"),
-      limit: z
-        .number()
+      from: z
+        .string()
         .optional()
-        .describe("Optional limit on number of results"),
+        .describe("Optional start date (YYYY-MM-DD)"),
+      to: z
+        .string()
+        .optional()
+        .describe("Optional end date (YYYY-MM-DD)"),
     },
-    async ({ symbol, limit }) => {
+    async ({ symbol, from, to }) => {
       try {
-        const results = await cotClient.getAnalysis(symbol, limit);
+        const results = await cotClient.getAnalysis(symbol, from, to);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };

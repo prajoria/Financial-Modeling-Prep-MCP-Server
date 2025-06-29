@@ -1,112 +1,88 @@
 export interface FundHolding {
   symbol: string;
+  asset: string;
   name: string;
-  weight: number;
-  shares: number;
+  isin: string;
+  securityCusip: string;
+  sharesNumber: number;
+  weightPercentage: number; 
   marketValue: number;
-  currency: string;
-  exchange: string;
-  sector: string;
+  updatedAt: string;
+  updated: string;
+}
+
+export interface FundSector {
   industry: string;
-  country: string;
-  lastUpdated: string;
+  exposure: number;
 }
 
 export interface FundInfo {
   symbol: string;
   name: string;
-  currency: string;
-  exchange: string;
-  micCode: string;
-  country: string;
-  type: string;
-  isin: string;
-  lei: string;
-  cusip: string;
-  class: string;
-  category: string;
-  family: string;
   description: string;
+  isin: string;
+  assetClass: string;
+  securityCusip: string;
+  domicile: string;   
   website: string;
-  inceptionDate: string;
+  etfCompany: string;
   expenseRatio: number;
-  aum: number;
+  assetsUnderManagement: number;
+  avgVolume: number;
+  inceptionDate: string;  
   nav: number;
   navCurrency: string;
-  navDate: string;
-  navChange: number;
-  navChangePercent: number;
-  ytdReturn: number;
-  oneYearReturn: number;
-  threeYearReturn: number;
-  fiveYearReturn: number;
-  tenYearReturn: number;
-  sinceInceptionReturn: number;
-  dividendYield: number;
-  dividendFrequency: string;
-  lastDividendDate: string;
-  lastDividendAmount: number;
-  lastDividendCurrency: string;
-  isActive: boolean;
-  isEtf: boolean;
-  isMutualFund: boolean;
+  holdingsCount: number;
+  updatedAt: string;
+  sectorsList: FundSector[];
 }
 
 export interface FundCountryAllocation {
   country: string;
-  weight: number;
-  marketValue: number;
-  currency: string;
-  lastUpdated: string;
+  weightPercentage: string;
 }
 
 export interface FundAssetExposure {
-  etfSymbol: string;
-  etfName: string;
-  weight: number;
-  shares: number;
+  symbol: string;
+  asset: string;
+  sharesNumber: number;
+  weightPercentage: number;
   marketValue: number;
-  currency: string;
-  lastUpdated: string;
 }
 
 export interface FundSectorWeighting {
+  symbol: string;
   sector: string;
-  weight: number;
-  marketValue: number;
-  currency: string;
-  lastUpdated: string;
+  weightPercentage: number;
 }
 
 export interface FundDisclosure {
-  symbol: string;
-  name: string;
   cik: string;
-  formType: string;
-  filingDate: string;
-  acceptedDate: string;
-  periodOfReport: string;
-  url: string;
-  holdings: FundHolding[];
-  lastUpdated: string;
+  holder: string;
+  shares: number;
+  dateReported: string;
+  change: number;
+  weightPercent: number;
 }
 
 export interface FundDisclosureSearch {
   symbol: string;
-  name: string;
   cik: string;
-  formType: string;
-  filingDate: string;
-  acceptedDate: string;
-  periodOfReport: string;
-  url: string;
-  lastUpdated: string;
+  classId: string;
+  seriesId: string;
+  entityName: string;
+  entityOrgType: string;
+  seriesName: string; 
+  className: string;
+  reportingFileNumber: string;
+  address: string;
+  city: string;
+  zipCode: string;
+  state: string;
 }
 
 export interface FundDisclosureDate {
-  filingDate: string;
-  acceptedDate: string;
-  formType: string;
-  url: string;
-  lastUpdated: string;
+  date: string;
+  year: number;
+  quarter: number;
 }

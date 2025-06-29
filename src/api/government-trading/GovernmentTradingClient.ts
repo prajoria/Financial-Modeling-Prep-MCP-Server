@@ -1,17 +1,11 @@
 import { FMPClient } from "../FMPClient.js";
-import {
+import type { FMPContext } from "../../types/index.js";
+import type {
   FinancialDisclosure,
   PaginationParams,
   SymbolParams,
   NameParams,
 } from "./types.js";
-
-// Define a context type for all client methods
-type FMPContext = {
-  config?: {
-    FMP_ACCESS_TOKEN?: string;
-  };
-};
 
 export class GovernmentTradingClient extends FMPClient {
   constructor(apiKey?: string) {

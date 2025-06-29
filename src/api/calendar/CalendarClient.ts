@@ -1,5 +1,6 @@
 import { FMPClient } from "../FMPClient.js";
-import {
+import type { FMPContext } from "../../types/index.js";
+import type {
   Dividend,
   EarningsReport,
   IPO,
@@ -7,13 +8,6 @@ import {
   IPOProspectus,
   StockSplit,
 } from "./types.js";
-
-// Define a context type for all client methods
-type FMPContext = {
-  config?: {
-    FMP_ACCESS_TOKEN?: string;
-  };
-};
 
 export class CalendarClient extends FMPClient {
   constructor(apiKey?: string) {
@@ -40,14 +34,14 @@ export class CalendarClient extends FMPClient {
 
   /**
    * Get dividend calendar for a date range
-   * @param from Start date (YYYY-MM-DD)
-   * @param to End date (YYYY-MM-DD)
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of dividend calendar entries
    */
   async getDividendsCalendar(
-    from: string,
-    to: string,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
@@ -76,14 +70,14 @@ export class CalendarClient extends FMPClient {
 
   /**
    * Get earnings calendar for a date range
-   * @param from Start date (YYYY-MM-DD)
-   * @param to End date (YYYY-MM-DD)
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of earnings calendar entries
    */
   async getEarningsCalendar(
-    from: string,
-    to: string,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
@@ -98,14 +92,14 @@ export class CalendarClient extends FMPClient {
 
   /**
    * Get IPO calendar for a date range
-   * @param from Start date (YYYY-MM-DD)
-   * @param to End date (YYYY-MM-DD)
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of IPO calendar entries
    */
   async getIPOCalendar(
-    from: string,
-    to: string,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
@@ -116,14 +110,14 @@ export class CalendarClient extends FMPClient {
 
   /**
    * Get IPO disclosures for a date range
-   * @param from Start date (YYYY-MM-DD)
-   * @param to End date (YYYY-MM-DD)
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of IPO disclosures
    */
   async getIPODisclosures(
-    from: string,
-    to: string,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
@@ -138,14 +132,14 @@ export class CalendarClient extends FMPClient {
 
   /**
    * Get IPO prospectuses for a date range
-   * @param from Start date (YYYY-MM-DD)
-   * @param to End date (YYYY-MM-DD)
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of IPO prospectuses
    */
   async getIPOProspectuses(
-    from: string,
-    to: string,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
@@ -178,14 +172,14 @@ export class CalendarClient extends FMPClient {
 
   /**
    * Get stock splits calendar for a date range
-   * @param from Start date (YYYY-MM-DD)
-   * @param to End date (YYYY-MM-DD)
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of stock splits calendar entries
    */
   async getStockSplitsCalendar(
-    from: string,
-    to: string,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;

@@ -4,7 +4,7 @@ import { registerAllTools } from "../tools/index.js";
 import { getServerVersion } from "../utils/getServerVersion.js";
 import { DEFAULT_API_KEY } from "../constants/index.js";
 import type { Request, Response } from "express";
-import http from "node:http";
+import type { Server } from "node:http";
 
 const VERSION = getServerVersion();
 
@@ -54,7 +54,7 @@ const { app } = createStatelessServer(createMcpServer);
  * @param config - Server configuration
  * @returns HTTP server instance
  */
-export function startServer(config: ServerConfig): http.Server {
+export function startServer(config: ServerConfig): Server {
   const { port } = config;
 
   app.get("/healthcheck", (req: Request, res: Response) => {

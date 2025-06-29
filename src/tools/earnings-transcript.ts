@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { EarningsTranscriptClient } from "../api/earnings-transcript/EarningsTranscriptClient.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 /**
  * Register all earnings transcript-related tools with the MCP server
@@ -16,6 +16,7 @@ export function registerEarningsTranscriptTools(
   server.tool(
     "getLatestEarningsTranscripts",
     {
+      description: "Get latest earning transcripts with pagination",
       limit: z.number().optional().describe("Limit the number of results"),
       page: z.number().optional().describe("Page number for pagination"),
     },
@@ -47,6 +48,7 @@ export function registerEarningsTranscriptTools(
   server.tool(
     "getEarningsTranscript",
     {
+      description: "Get earning transcript for a specific company, year, and quarter",
       symbol: z.string().describe("Stock symbol"),
       year: z.string().describe("Year of the earnings call"),
       quarter: z
@@ -84,6 +86,7 @@ export function registerEarningsTranscriptTools(
   server.tool(
     "getEarningsTranscriptDates",
     {
+      description: "Get transcript dates for a specific company",
       symbol: z.string().describe("Stock symbol"),
     },
     async ({ symbol }) => {
@@ -110,25 +113,31 @@ export function registerEarningsTranscriptTools(
     }
   );
 
-  server.tool("getAvailableTranscriptSymbols", {}, async () => {
-    try {
-      const results =
-        await earningsTranscriptClient.getAvailableTranscriptSymbols();
-      return {
-        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
-      };
-    } catch (error) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Error: ${
-              error instanceof Error ? error.message : String(error)
-            }`,
-          },
-        ],
-        isError: true,
-      };
+  server.tool(
+    "getAvailableTranscriptSymbols",
+    {
+      description: "Get list of available transcript symbols",
+    },
+    async () => {
+      try {
+        const results =
+          await earningsTranscriptClient.getAvailableTranscriptSymbols();
+        return {
+          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
     }
-  });
+  );
 }

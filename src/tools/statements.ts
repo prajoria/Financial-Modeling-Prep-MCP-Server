@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { StatementsClient } from "../api/statements/StatementsClient.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 /**
  * Register all financial statements-related tools with the MCP server
@@ -739,6 +739,202 @@ export function registerStatementsTools(
           "Error fetching full financial statement as reported:",
           error
         );
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "getKeyMetrics",
+    {
+      symbol: z.string().describe("Stock symbol"),
+      limit: z
+        .number()
+        .optional()
+        .describe("Limit on number of results (default: 100, max: 1000)"),
+      period: z
+        .enum(["Q1", "Q2", "Q3", "Q4", "FY", "annual", "quarter"])
+        .optional()
+        .describe("Period (Q1, Q2, Q3, Q4, FY, annual, or quarter)"),
+    },
+    async ({ symbol, limit, period }) => {
+      try {
+        const results = await statementsClient.getKeyMetrics(symbol, {
+          limit,
+          period,
+        });
+        return {
+          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+        };
+      } catch (error) {
+        console.error("Error fetching key metrics:", error);
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "getRatios",
+    {
+      symbol: z.string().describe("Stock symbol"),
+      limit: z
+        .number()
+        .optional()
+        .describe("Limit on number of results (default: 100, max: 1000)"),
+      period: z
+        .enum(["Q1", "Q2", "Q3", "Q4", "FY", "annual", "quarter"])
+        .optional()
+        .describe("Period (Q1, Q2, Q3, Q4, FY, annual, or quarter)"),
+    },
+    async ({ symbol, limit, period }) => {
+      try {
+        const results = await statementsClient.getRatios(symbol, {
+          limit,
+          period,
+        });
+        return {
+          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+        };
+      } catch (error) {
+        console.error("Error fetching ratios:", error);
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "getKeyMetricsTTM",
+    {
+      symbol: z.string().describe("Stock symbol"),
+    },
+    async ({ symbol }) => {
+      try {
+        const results = await statementsClient.getKeyMetricsTTM(symbol);
+        return {
+          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+        };
+      } catch (error) {
+        console.error("Error fetching key metrics TTM:", error);
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "getFinancialRatiosTTM",
+    {
+      symbol: z.string().describe("Stock symbol"),
+    },
+    async ({ symbol }) => {
+      try {
+        const results = await statementsClient.getFinancialRatiosTTM(symbol);
+        return {
+          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+        };
+      } catch (error) {
+        console.error("Error fetching financial ratios TTM:", error);
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "getFinancialScores",
+    {
+      symbol: z.string().describe("Stock symbol"),
+      limit: z
+        .number()
+        .optional()
+        .describe("Limit on number of results (default: 100, max: 1000)"),
+    },
+    async ({ symbol, limit }) => {
+      try {
+        const results = await statementsClient.getFinancialScores(symbol, {
+          limit,
+        });
+        return {
+          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+        };
+      } catch (error) {
+        console.error("Error fetching financial scores:", error);
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "getOwnerEarnings",
+    {
+      symbol: z.string().describe("Stock symbol"),
+    },
+    async ({ symbol }) => {
+      try {
+        const results = await statementsClient.getOwnerEarnings(symbol);
+        return {
+          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+        };
+      } catch (error) {
+        console.error("Error fetching owner earnings:", error);
         return {
           content: [
             {

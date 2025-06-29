@@ -1,12 +1,6 @@
 import { FMPClient } from "../FMPClient.js";
-import { ESGDisclosure, ESGRating, ESGBenchmark } from "./types.js";
-
-// Define a context type for all client methods
-type FMPContext = {
-  config?: {
-    FMP_ACCESS_TOKEN?: string;
-  };
-};
+import type { FMPContext } from "../../types/index.js";
+import type { ESGDisclosure, ESGRating, ESGBenchmark } from "./types.js";
 
 export class ESGClient extends FMPClient {
   constructor(apiKey?: string) {
@@ -16,13 +10,11 @@ export class ESGClient extends FMPClient {
   /**
    * Get ESG disclosures for a symbol
    * @param symbol The stock symbol
-   * @param limit Optional limit on number of results
    * @param options Optional parameters including abort signal and context
    * @returns Array of ESG disclosures
    */
   async getDisclosures(
     symbol: string,
-    limit?: number,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
@@ -30,7 +22,7 @@ export class ESGClient extends FMPClient {
   ): Promise<ESGDisclosure[]> {
     return super.get<ESGDisclosure[]>(
       "/esg-disclosure",
-      { symbol, limit },
+      { symbol },
       options
     );
   }
@@ -48,18 +40,16 @@ export class ESGClient extends FMPClient {
       context?: FMPContext;
     }
   ): Promise<ESGRating[]> {
-    return super.get<ESGRating[]>("/esg-rating", { symbol }, options);
+    return super.get<ESGRating[]>("/esg-ratings", { symbol }, options);
   }
 
   /**
-   * Get ESG benchmarks for a sector
-   * @param sector The sector to get benchmarks for
+   * Get ESG benchmarks
    * @param year Optional year to get benchmarks for
    * @param options Optional parameters including abort signal and context
    * @returns Array of ESG benchmarks
    */
   async getBenchmarks(
-    sector: string,
     year?: string,
     options?: {
       signal?: AbortSignal;
@@ -68,7 +58,7 @@ export class ESGClient extends FMPClient {
   ): Promise<ESGBenchmark[]> {
     return super.get<ESGBenchmark[]>(
       "/esg-benchmark",
-      { sector, year },
+      { year },
       options
     );
   }

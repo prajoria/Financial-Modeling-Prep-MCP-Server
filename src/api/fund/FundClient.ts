@@ -1,5 +1,6 @@
 import { FMPClient } from "../FMPClient.js";
-import {
+import type { FMPContext } from "../../types/index.js";
+import type {
   FundHolding,
   FundInfo,
   FundCountryAllocation,
@@ -10,13 +11,6 @@ import {
   FundDisclosureDate,
 } from "./types.js";
 
-// Define a context type for all client methods
-type FMPContext = {
-  config?: {
-    FMP_ACCESS_TOKEN?: string;
-  };
-};
-
 export class FundClient extends FMPClient {
   constructor(apiKey?: string) {
     super(apiKey);
@@ -25,21 +19,19 @@ export class FundClient extends FMPClient {
   /**
    * Get fund(ETF and Mutual Funds) holdings for a symbol
    * @param symbol The fund symbol
-   * @param limit Optional limit on number of results
    * @param options Optional parameters including abort signal and context
    * @returns Array of fund holdings
    */
   async getHoldings(
     symbol: string,
-    limit?: number,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
     }
   ): Promise<FundHolding[]> {
     return super.get<FundHolding[]>(
-      "/etf-holdings",
-      { symbol, limit },
+      "/etf/holdings",
+      { symbol },
       options
     );
   }
@@ -57,7 +49,7 @@ export class FundClient extends FMPClient {
       context?: FMPContext;
     }
   ): Promise<FundInfo> {
-    return super.get<FundInfo>("/etf-info", { symbol }, options);
+    return super.get<FundInfo>("/etf/info", { symbol }, options);
   }
 
   /**
@@ -74,7 +66,7 @@ export class FundClient extends FMPClient {
     }
   ): Promise<FundCountryAllocation[]> {
     return super.get<FundCountryAllocation[]>(
-      "/etf-country-allocation",
+      "/etf/country-weightings",
       {
         symbol,
       },
@@ -96,7 +88,7 @@ export class FundClient extends FMPClient {
     }
   ): Promise<FundAssetExposure[]> {
     return super.get<FundAssetExposure[]>(
-      "/etf-asset-exposure",
+      "/etf/asset-exposure",
       { symbol },
       options
     );
@@ -116,7 +108,7 @@ export class FundClient extends FMPClient {
     }
   ): Promise<FundSectorWeighting[]> {
     return super.get<FundSectorWeighting[]>(
-      "/etf-sector-weighting",
+      "/etf/sector-weightings",
       {
         symbol,
       },
@@ -127,67 +119,65 @@ export class FundClient extends FMPClient {
   /**
    * Get fund(ETF and Mutual Funds) disclosure for a symbol
    * @param symbol The fund symbol
-   * @param limit Optional limit on number of results
    * @param options Optional parameters including abort signal and context
    * @returns Array of fund disclosures
    */
   async getDisclosure(
     symbol: string,
-    limit?: number,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
     }
   ): Promise<FundDisclosure[]> {
     return super.get<FundDisclosure[]>(
-      "/etf-disclosure",
-      { symbol, limit },
+      "/funds/disclosure-holders-latest",
+      { symbol },
       options
     );
   }
 
   /**
-   * Search fund(ETF and Mutual Funds) disclosures
-   * @param query Search query
-   * @param limit Optional limit on number of results
+   * Search fund(ETF and Mutual Funds) disclosures by holder name
+   * @param name Name of the holder
    * @param options Optional parameters including abort signal and context
    * @returns Array of fund disclosure search results
    */
   async searchDisclosures(
-    query: string,
-    limit?: number,
+    name: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
     }
   ): Promise<FundDisclosureSearch[]> {
     return super.get<FundDisclosureSearch[]>(
-      "/etf-disclosure-search",
+      "/funds/disclosure-holders-search",
       {
-        query,
-        limit,
+        name,
       },
       options
     );
   }
 
   /**
-   * Get fund(ETF and Mutual Funds) disclosure dates for a symbol
+   * Get fund(ETF and Mutual Funds) disclosure dates for a symbol and cik
    * @param symbol The fund symbol
+   * @param cik Optional CIK number
    * @param options Optional parameters including abort signal and context
    * @returns Array of fund disclosure dates
    */
-  async getDisclosureDates(
+  async getDisclosureDates( 
     symbol: string,
+    cik?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
     }
   ): Promise<FundDisclosureDate[]> {
     return super.get<FundDisclosureDate[]>(
-      "/etf-disclosure-dates",
+      "/funds/disclosure-dates",
       {
         symbol,
+        cik,
       },
       options
     );

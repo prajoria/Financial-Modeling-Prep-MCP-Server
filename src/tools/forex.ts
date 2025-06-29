@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ForexClient } from "../api/forex/ForexClient.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 /**
  * Register all forex-related tools with the MCP server
@@ -88,26 +88,35 @@ export function registerForexTools(
     }
   );
 
-  server.tool("getForexBatchQuotes", {}, async () => {
-    try {
-      const results = await forexClient.getBatchQuotes();
-      return {
-        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
-      };
-    } catch (error) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Error: ${
-              error instanceof Error ? error.message : String(error)
-            }`,
-          },
-        ],
-        isError: true,
-      };
+  server.tool(
+    "getForexBatchQuotes",
+    {
+      short: z
+        .boolean()
+        .optional()
+        .describe("Optional boolean to get short quotes"),
+    },
+    async ({ short }) => {
+      try {
+        const results = await forexClient.getBatchQuotes(short);
+        return {
+          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
     }
-  });
+  );
 
   server.tool(
     "getForexHistoricalLightChart",

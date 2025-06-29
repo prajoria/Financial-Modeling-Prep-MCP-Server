@@ -95,6 +95,12 @@ This document provides a comprehensive list of all available tools in the Financ
 | getBalanceSheetStatementAsReported | `AsReportedBalanceSheet[]` |
 | getCashFlowStatementAsReported | `AsReportedCashFlowStatement[]` |
 | getFinancialStatementFullAsReported | `AsReportedFinancialStatement[]` |
+| getKeyMetrics | `KeyMetrics[]` |
+| getRatios | `Ratios[]` |
+| getKeyMetricsTTM | `KeyMetricsTTM[]` |
+| getFinancialRatiosTTM | `FinancialRatiosTTM[]` |
+| getFinancialScores | `FinancialScores[]` |
+| getOwnerEarnings | `OwnerEarnings[]` |
 
 ## Market Performance
 
@@ -158,7 +164,9 @@ This document provides a comprehensive list of all available tools in the Financ
 
 | Tool Name | Return Type |
 |-----------|-------------|
-| getMarketHours | `ExchangeMarketHours[]` |
+| getExchangeMarketHours | `ExchangeMarketHours[]` |
+| getHolidaysByExchange | `HolidayByExchange[]` |
+| getAllExchangeMarketHours | `ExchangeMarketHours[]` |
 
 ## Form 13F
 
@@ -175,16 +183,16 @@ This document provides a comprehensive list of all available tools in the Financ
 
 ## Fund
 
-| Tool Name | Return Type |
-|-----------|-------------|
-| getHoldings | `FundHolding[]` |
-| getInfo | `FundInfo` |
-| getCountryAllocation | `FundCountryAllocation[]` |
-| getAssetExposure | `FundAssetExposure[]` |
-| getSectorWeighting | `FundSectorWeighting[]` |
-| getDisclosure | `FundDisclosure[]` |
-| getDisclosureSearch | `FundDisclosureSearch[]` |
-| getDisclosureDates | `FundDisclosureDate[]` |
+| Tool Name | Parameters | Return Type |
+|-----------|------------|-------------|
+| getFundHoldings | symbol (string) | `FundHolding[]` |
+| getFundInfo | symbol (string) | `FundInfo` |
+| getFundCountryAllocation | symbol (string) | `FundCountryAllocation[]` |
+| getFundAssetExposure | symbol (string) | `FundAssetExposure[]` |
+| getFundSectorWeighting | symbol (string) | `FundSectorWeighting[]` |
+| getFundDisclosure | symbol (string) | `FundDisclosure[]` |
+| searchFundDisclosures | name (string) | `FundDisclosureSearch[]` |
+| getFundDisclosureDates | symbol (string), cik? (string) | `FundDisclosureDate[]` |
 
 ## Fundraisers
 
@@ -207,55 +215,59 @@ This document provides a comprehensive list of all available tools in the Financ
 
 ## Economics
 
-| Tool Name | Return Type |
-|-----------|-------------|
-| getTreasuryRates | `TreasuryRate[]` |
-| getEconomicIndicators | `EconomicIndicator[]` |
-| getEconomicCalendar | `EconomicCalendar[]` |
-| getMarketRiskPremium | `MarketRiskPremium[]` |
+| Tool Name | Parameters | Return Type |
+|-----------|------------|-------------|
+| getTreasuryRates | from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `TreasuryRate[]` |
+| getEconomicIndicators | name (string), from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `EconomicIndicator[]` |
+| getEconomicCalendar | from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `EconomicCalendar[]` |
+| getMarketRiskPremium | (no parameters) | `MarketRiskPremium[]` |
 
 ## ESG
 
-| Tool Name | Return Type |
-|-----------|-------------|
-| getDisclosures | `ESGDisclosure[]` |
-| getRatings | `ESGRating[]` |
-| getBenchmarks | `ESGBenchmark[]` |
+| Tool Name | Parameters | Return Type |
+|-----------|------------|-------------|
+| getESGDisclosures | symbol (string) | `ESGDisclosure[]` |
+| getESGRatings | symbol (string) | `ESGRating[]` |
+| getESGBenchmarks | year? (string) | `ESGBenchmark[]` |
 
 ## Forex
 
-| Tool Name | Return Type |
-|-----------|-------------|
-| getForexPairs | `ForexPair[]` |
-| getForexQuote | `ForexQuote[]` |
-| getForexShortQuote | `ForexShortQuote[]` |
-| getForexLightPrice | `ForexLightPrice[]` |
-| getForexHistoricalPrice | `ForexHistoricalPrice[]` |
-| getForexIntradayPrice | `ForexIntradayPrice[]` |
+| Tool Name | Parameters | Return Type |
+|-----------|------------|-------------|
+| getForexList | (no parameters) | `ForexPair[]` |
+| getForexQuote | symbol (string) | `ForexQuote[]` |
+| getForexShortQuote | symbol (string) | `ForexShortQuote[]` |
+| getForexBatchQuotes | short? (boolean) | `ForexShortQuote[]` |
+| getForexHistoricalLightChart | symbol (string), from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `ForexLightChart[]` |
+| getForexHistoricalFullChart | symbol (string), from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `ForexHistoricalChart[]` |
+| getForex1MinuteData | symbol (string), from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `ForexIntradayChart[]` |
+| getForex5MinuteData | symbol (string), from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `ForexIntradayChart[]` |
+| getForex1HourData | symbol (string), from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `ForexIntradayChart[]` |
 
 ## DCF
 
 | Tool Name | Return Type |
 |-----------|-------------|
-| getValuation | `DCFValuation` |
-| getLeveredValuation | `LeveredDCF` |
-| getCustomDCF | `CustomDCFOutput` |
+| getDCFValuation | `DCFValuation` |
+| getLeveredDCFValuation | `DCFValuation[]` |
+| calculateCustomDCF | `CustomDCFOutput` |
+| calculateCustomLeveredDCF | `CustomDCFOutput` |
 
 ## Directory
 
-| Tool Name | Return Type |
-|-----------|-------------|
-| getCompanySymbols | `CompanySymbol[]` |
-| getFinancialStatementSymbols | `FinancialStatementSymbol[]` |
-| getCIKList | `CIKEntry[]` |
-| getSymbolChanges | `SymbolChange[]` |
-| getETFList | `ETFEntry[]` |
-| getActivelyTradingList | `ActivelyTradingEntry[]` |
-| getEarningsTranscriptSymbols | `EarningsTranscriptEntry[]` |
-| getExchangeList | `ExchangeEntry[]` |
-| getSectorList | `SectorEntry[]` |
-| getIndustryList | `IndustryEntry[]` |
-| getCountryList | `CountryEntry[]` |
+| Tool Name | Description | Return Type |
+|-----------|-------------|-------------|
+| getCompanySymbols | Get a list of all company symbols | `CompanySymbol[]` |
+| getFinancialStatementSymbols | Get a list of companies with available financial statements | `FinancialStatementSymbol[]` |
+| getCIKList | Get a list of CIK numbers for SEC-registered entities | `CIKEntry[]` |
+| getSymbolChanges | Get a list of stock symbol changes | `SymbolChange[]` |
+| getETFList | Get a list of ETFs | `ETFEntry[]` |
+| getActivelyTradingList | Get a list of actively trading companies | `ActivelyTradingEntry[]` |
+| getEarningsTranscriptSymbols | Get a list of companies with earnings transcripts | `EarningsTranscriptEntry[]` |
+| getExchangeList | Get a list of available exchanges | `ExchangeEntry[]` |
+| getSectorList | Get a list of available sectors | `SectorEntry[]` |
+| getIndustryList | Get a list of available industries | `IndustryEntry[]` |
+| getCountryList | Get a list of available countries | `CountryEntry[]` |
 
 ## Earnings Transcript
 
@@ -278,35 +290,31 @@ This document provides a comprehensive list of all available tools in the Financ
 
 | Tool Name | Return Type |
 |-----------|-------------|
-| getCryptocurrencies | `Cryptocurrency[]` |
+| getCryptocurrencyList | `Cryptocurrency[]` |
 | getCryptocurrencyQuote | `CryptocurrencyQuote[]` |
 | getCryptocurrencyShortQuote | `CryptocurrencyShortQuote[]` |
-| getCryptocurrencyLightPrice | `CryptocurrencyLightPrice[]` |
-| getCryptocurrencyHistoricalPrice | `CryptocurrencyHistoricalPrice[]` |
-| getCryptocurrencyIntradayPrice | `CryptocurrencyIntradayPrice[]` |
+| getCryptocurrencyBatchQuotes | `CryptocurrencyShortQuote[]` |
+| getCryptocurrencyHistoricalLightChart | `CryptocurrencyLightChart[]` |
+| getCryptocurrencyHistoricalFullChart | `CryptocurrencyHistoricalChart[]` |
+| getCryptocurrency1MinuteData | `CryptocurrencyIntradayPrice[]` |
+| getCryptocurrency5MinuteData | `CryptocurrencyIntradayPrice[]` |
+| getCryptocurrency1HourData | `CryptocurrencyIntradayPrice[]` |
 
 ## Chart
 
 | Tool Name | Return Type |
 |-----------|-------------|
-| getHistoricalChart | `ChartData[]` |
-| getHistoricalLightChart | `LightChartData[]` |
+| getLightChart | `LightChartData[]` |
+| getFullChart | `ChartData[]` |
 | getUnadjustedChart | `UnadjustedChartData[]` |
-| getDividendAdjustedChart | `DividendAdjustedChartData[]` |
-| getIntradayChart | `ChartData[]` |
+| getDividendAdjustedChart | `UnadjustedChartData[]` |
+| getIntradayChart | `IntradayChartData[]` |
 
 ## Commodity
 
 | Tool Name | Return Type |
 |-----------|-------------|
-| getCommodityPrices | `CommodityPrice[]` |
-| getCommodityHistoricalPrices | `CommodityHistoricalPrice[]` |
-| getCommodityQuotes | `CommodityQuote[]` |
-| getCommodityContracts | `CommodityContract[]` |
-| getCommodityMarketData | `CommodityMarketData[]` |
-| getCommodityNews | `CommodityNews[]` |
-| getCommodityForecasts | `CommodityForecast[]` |
-| getCommoditySupplyDemand | `CommoditySupplyDemand[]` |
+| listCommodities | `Commodity[]` |
 
 ## Analyst
 
@@ -325,26 +333,28 @@ This document provides a comprehensive list of all available tools in the Financ
 
 ## Bulk
 
+**Important Note**: All bulk endpoints return data in CSV format as raw strings rather than parsed JSON objects. This endpoint returns the response as a CSV file. The provided sample response represents an individual record. This design preserves the original FMP API format and provides better performance for large datasets.
+
 | Tool Name | Return Type |
 |-----------|-------------|
-| getCompanyProfiles | `CompanyProfile[]` |
-| getStockRatings | `StockRating[]` |
-| getDCFValuations | `DCFValuation[]` |
-| getFinancialScores | `FinancialScore[]` |
-| getPriceTargetSummaries | `PriceTargetSummary[]` |
-| getETFHolders | `ETFHolder[]` |
-| getUpgradesDowngradesConsensus | `UpgradesDowngradesConsensus[]` |
-| getKeyMetricsTTM | `KeyMetricsTTM[]` |
-| getRatiosTTM | `RatiosTTM[]` |
-| getStockPeers | `StockPeer[]` |
-| getEarningsSurprises | `EarningsSurprise[]` |
-| getIncomeStatements | `IncomeStatement[]` |
-| getIncomeStatementGrowth | `IncomeStatementGrowth[]` |
-| getBalanceSheetStatements | `BalanceSheetStatement[]` |
-| getBalanceSheetGrowth | `BalanceSheetGrowth[]` |
-| getCashFlowStatements | `CashFlowStatement[]` |
-| getCashFlowGrowth | `CashFlowGrowth[]` |
-| getEODData | `EODData[]` |
+| getCompanyProfiles | `string` (CSV format) |
+| getStockRatings | `string` (CSV format) |
+| getDCFValuations | `string` (CSV format) |
+| getFinancialScores | `string` (CSV format) |
+| getPriceTargetSummaries | `string` (CSV format) |
+| getETFHolders | `string` (CSV format) |
+| getUpgradesDowngradesConsensus | `string` (CSV format) |
+| getKeyMetricsTTM | `string` (CSV format) |
+| getRatiosTTM | `string` (CSV format) |
+| getStockPeers | `string` (CSV format) |
+| getEarningsSurprises | `string` (CSV format) |
+| getIncomeStatements | `string` (CSV format) |
+| getIncomeStatementGrowth | `string` (CSV format) |
+| getBalanceSheetStatements | `string` (CSV format) |
+| getBalanceSheetGrowth | `string` (CSV format) |
+| getCashFlowStatements | `string` (CSV format) |
+| getCashFlowGrowth | `string` (CSV format) |
+| getEODData | `string` (CSV format) |
 
 ## Calendar
 
@@ -1174,6 +1184,15 @@ interface ExchangeMarketHours {
   timezone: string;
   isMarketOpen: boolean;
 }
+
+interface HolidayByExchange {
+  exchange: string;
+  date: string;
+  name: string;
+  isClosed: boolean;
+  adjOpenTime: string | null;
+  adjCloseTime: string | null;
+}
 ```
 
 ### Form 13F
@@ -1355,117 +1374,93 @@ interface IndustryPerformanceSummary {
 ### Fund
 
 ```typescript
+interface FundSector {
+  industry: string;
+  exposure: number;
+}
+
 interface FundHolding {
   symbol: string;
+  asset: string;
   name: string;
-  weight: number;
-  shares: number;
+  isin: string;
+  securityCusip: string;
+  sharesNumber: number;
+  weightPercentage: number;
   marketValue: number;
-  currency: string;
-  exchange: string;
-  sector: string;
-  industry: string;
-  country: string;
-  lastUpdated: string;
+  updatedAt: string;
+  updated: string;
 }
 
 interface FundInfo {
   symbol: string;
   name: string;
-  currency: string;
-  exchange: string;
-  micCode: string;
-  country: string;
-  type: string;
-  isin: string;
-  lei: string;
-  cusip: string;
-  class: string;
-  category: string;
-  family: string;
   description: string;
+  isin: string;
+  assetClass: string;
+  securityCusip: string;
+  domicile: string;
   website: string;
-  inceptionDate: string;
+  etfCompany: string;
   expenseRatio: number;
-  aum: number;
+  assetsUnderManagement: number;
+  avgVolume: number;
+  inceptionDate: string;
   nav: number;
   navCurrency: string;
-  navDate: string;
-  navChange: number;
-  navChangePercent: number;
-  ytdReturn: number;
-  oneYearReturn: number;
-  threeYearReturn: number;
-  fiveYearReturn: number;
-  tenYearReturn: number;
-  sinceInceptionReturn: number;
-  dividendYield: number;
-  dividendFrequency: string;
-  lastDividendDate: string;
-  lastDividendAmount: number;
-  lastDividendCurrency: string;
-  isActive: boolean;
-  isEtf: boolean;
-  isMutualFund: boolean;
+  holdingsCount: number;
+  updatedAt: string;
+  sectorsList: FundSector[];
 }
 
 interface FundCountryAllocation {
   country: string;
-  weight: number;
-  marketValue: number;
-  currency: string;
-  lastUpdated: string;
+  weightPercentage: string;
 }
 
 interface FundAssetExposure {
-  etfSymbol: string;
-  etfName: string;
-  weight: number;
-  shares: number;
+  symbol: string;
+  asset: string;
+  sharesNumber: number;
+  weightPercentage: number;
   marketValue: number;
-  currency: string;
-  lastUpdated: string;
 }
 
 interface FundSectorWeighting {
+  symbol: string;
   sector: string;
-  weight: number;
-  marketValue: number;
-  currency: string;
-  lastUpdated: string;
+  weightPercentage: number;
 }
 
 interface FundDisclosure {
-  symbol: string;
-  name: string;
   cik: string;
-  formType: string;
-  filingDate: string;
-  acceptedDate: string;
-  periodOfReport: string;
-  url: string;
-  holdings: FundHolding[];
-  lastUpdated: string;
+  holder: string;
+  shares: number;
+  dateReported: string;
+  change: number;
+  weightPercent: number;
 }
 
 interface FundDisclosureSearch {
   symbol: string;
-  name: string;
   cik: string;
-  formType: string;
-  filingDate: string;
-  acceptedDate: string;
-  periodOfReport: string;
-  url: string;
-  lastUpdated: string;
+  classId: string;
+  seriesId: string;
+  entityName: string;
+  entityOrgType: string;
+  seriesName: string;
+  className: string;
+  reportingFileNumber: string;
+  address: string;
+  city: string;
+  zipCode: string;
+  state: string;
 }
 
 interface FundDisclosureDate {
-  filingDate: string;
-  acceptedDate: string;
-  formType: string;
-  url: string;
-  lastUpdated: string;
+  date: string;
+  year: number;
+  quarter: number;
 }
 ```
 
@@ -1639,68 +1634,79 @@ interface ForexIntradayPrice {
 interface DCFValuation {
   symbol: string;
   date: string;
-  stockPrice: number;
+  ["Stock Price"]: number;
   dcf: number;
-  dcfPlus: number;
-  dcfMinus: number;
-  upside: number;
-  downside: number;
-  growthRate: number;
-  discountRate: number;
-  terminalGrowthRate: number;
-  wacc: number;
-  beta: number;
-  marketRiskPremium: number;
-  riskFreeRate: number;
-  taxRate: number;
-  debtToEquity: number;
-  costOfDebt: number;
-  costOfEquity: number;
-  assumptions: {
-    revenueGrowth: number;
-    operatingMargin: number;
-    taxRate: number;
-    capexToRevenue: number;
-    workingCapitalToRevenue: number;
-    beta: number;
-    marketRiskPremium: number;
-    riskFreeRate: number;
-    terminalGrowthRate: number;
-  };
 }
 
-interface LeveredDCF extends DCFValuation {
-  enterpriseValue: number;
-  equityValue: number;
-  netDebt: number;
-  minorityInterest: number;
-  preferredEquity: number;
-  cashAndEquivalents: number;
-  totalDebt: number;
-  operatingLeaseLiabilities: number;
-  pensionLiabilities: number;
-  otherLiabilities: number;
+interface CustomDCFInput {
+  symbol: string;
+  revenueGrowthPct?: number;
+  ebitdaPct?: number;
+  depreciationAndAmortizationPct?: number;
+  cashAndShortTermInvestmentsPct?: number;
+  receivablesPct?: number;
+  inventoriesPct?: number;
+  payablePct?: number;
+  ebitPct?: number;
+  capitalExpenditurePct?: number;
+  operatingCashFlowPct?: number;
+  sellingGeneralAndAdministrativeExpensesPct?: number;
+  taxRate?: number;
+  longTermGrowthRate?: number;
+  costOfDebt?: number;
+  costOfEquity?: number;
+  marketRiskPremium?: number;
+  beta?: number;
+  riskFreeRate?: number;
 }
 
-interface CustomDCFOutput extends DCFValuation {
-  projections: {
-    year: number;
-    revenue: number;
-    operatingIncome: number;
-    freeCashFlow: number;
-    presentValue: number;
-  }[];
-  terminalValue: number;
-  enterpriseValue: number;
-  equityValue: number;
-  netDebt?: number;
-  minorityInterest?: number;
-  preferredEquity?: number;
-  cashAndEquivalents?: number;
+interface CustomDCFOutput {
+  symbol: string;
+  revenue?: number;
+  revenuePercentage?: number;
+  ebitda?: number;
+  ebitdaPercentage?: number;
+  ebit?: number;
+  ebitPercentage?: number;
+  depreciation?: number;
+  depreciationPercentage?: number;
+  totalCash?: number;
+  totalCashPercentage?: number;
+  receivables?: number;
+  receivablesPercentage?: number;
+  inventories?: number;
+  inventoriesPercentage?: number;
+  payable?: number;
+  payablePercentage?: number;
+  capitalExpenditure?: number;
+  capitalExpenditurePercentage?: number;
+  price?: number;
+  beta?: number;
+  dilutedSharesOutstanding?: number;
+  costofDebt?: number;
+  taxRate?: number;
+  afterTaxCostOfDebt?: number;
+  riskFreeRate?: number;
+  marketRiskPremium?: number;
+  costOfEquity?: number;
   totalDebt?: number;
-  operatingLeaseLiabilities?: number;
-  pensionLiabilities?: number;
-  otherLiabilities?: number;
+  totalEquity?: number;
+  totalCapital?: number;
+  debtWeighting?: number;
+  equityWeighting?: number;
+  wacc?: number;
+  taxRateCash?: number;
+  ebiat?: number;
+  ufcf?: number;
+  sumPvUfcf?: number;
+  longTermGrowthRate?: number;
+  terminalValue?: number;
+  presentTerminalValue?: number;
+  enterpriseValue?: number;
+  netDebt?: number;
+  equityValue?: number;
+  equityValuePerShare?: number;
+  freeCashFlowT1?: number;
 }
 ```
 
@@ -1996,67 +2002,157 @@ interface AvailableTranscriptSymbol {
 // COT
 interface COTReport {
   symbol: string;
-  name: string;
   date: string;
-  longPositions: number;
-  shortPositions: number;
-  longPercentage: number;
-  shortPercentage: number;
-  netPositions: number;
-  netPercentage: number;
-  longChange: number;
-  shortChange: number;
-  netChange: number;
-  longChangePercentage: number;
-  shortChangePercentage: number;
-  netChangePercentage: number;
-  reportType: string;
-  exchange: string;
-  category: string;
+  name: string;
+  sector: string;
+  marketAndExchangeNames: string;
+  cftcContractMarketCode: string;
+  cftcMarketCode: string; 
+  cftcRegionCode: string;
+  cftcCommodityCode: string;
+  openInterestAll: number;
+  noncommPositionsLongAll: number;
+  noncommPositionsShortAll: number;
+  noncommPositionsSpreadAll: number;  
+  commPositionsLongAll: number;
+  commPositionsShortAll: number;
+  totReptPositionsLongAll: number;
+  totReptPositionsShortAll: number;
+  nonreptPositionsLongAll: number;
+  nonreptPositionsShortAll: number; 
+  openInterestOld: number;
+  noncommPositionsLongOld: number;
+  noncommPositionsShortOld: number;
+  noncommPositionsSpreadOld: number;
+  commPositionsLongOld: number;
+  commPositionsShortOld: number;  
+  totReptPositionsLongOld: number;
+  totReptPositionsShortOld: number;
+  nonreptPositionsLongOld: number;
+  nonreptPositionsShortOld: number;
+  openInterestOther: number;
+  noncommPositionsLongOther: number;  
+  noncommPositionsShortOther: number;
+  noncommPositionsSpreadOther: number;
+  commPositionsLongOther: number;
+  commPositionsShortOther: number;
+  totReptPositionsLongOther: number;
+  totReptPositionsShortOther: number; 
+  nonreptPositionsLongOther: number;
+  nonreptPositionsShortOther: number;
+  changeInOpenInterestAll: number;
+  changeInNoncommLongAll: number;
+  changeInNoncommShortAll: number;
+  changeInNoncommSpeadAll: number;  
+  changeInCommLongAll: number;
+  changeInCommShortAll: number;
+  changeInTotReptLongAll: number;
+  changeInTotReptShortAll: number;
+  changeInNonreptLongAll: number;
+  changeInNonreptShortAll: number;  
+  pctOfOpenInterestAll: number;
+  pctOfOiNoncommLongAll: number;
+  pctOfOiNoncommShortAll: number;
+  pctOfOiNoncommSpreadAll: number;
+  pctOfOiCommLongAll: number;
+  pctOfOiCommShortAll: number;  
+  pctOfOiTotReptLongAll: number;
+  pctOfOiTotReptShortAll: number;
+  pctOfOiNonreptLongAll: number;
+  pctOfOiNonreptShortAll: number;
+  pctOfOpenInterestOl: number;
+  pctOfOiNoncommLongOl: number; 
+  pctOfOiNoncommShortOl: number;
+  pctOfOiNoncommSpreadOl: number;
+  pctOfOiCommLongOl: number;
+  pctOfOiCommShortOl: number;
+  pctOfOiTotReptLongOl: number;
+  pctOfOiTotReptShortOl: number;  
+  pctOfOiNonreptLongOl: number;
+  pctOfOiNonreptShortOl: number;
+  pctOfOpenInterestOther: number;
+  pctOfOiNoncommLongOther: number;
+  pctOfOiNoncommShortOther: number;
+  pctOfOiNoncommSpreadOther: number;  
+  pctOfOiCommLongOther: number;
+  pctOfOiCommShortOther: number;
+  pctOfOiTotReptLongOther: number;
+  pctOfOiTotReptShortOther: number;
+  pctOfOiNonreptLongOther: number;
+  pctOfOiNonreptShortOther: number; 
+  tradersTotAll: number;
+  tradersNoncommLongAll: number;
+  tradersNoncommShortAll: number;
+  tradersNoncommSpreadAll: number;
+  tradersCommLongAll: number;
+  tradersCommShortAll: number;  
+  tradersTotReptLongAll: number;
+  tradersTotReptShortAll: number;
+  tradersTotOl: number;
+  tradersNoncommLongOl: number;
+  tradersNoncommShortOl: number;
+  tradersNoncommSpeadOl: number;  
+  tradersCommLongOl: number;
+  tradersCommShortOl: number;
+  tradersTotReptLongOl: number;
+  tradersTotReptShortOl: number;
+  tradersTotOther: number;
+  tradersNoncommLongOther: number;  
+  tradersNoncommShortOther: number;
+  tradersNoncommSpreadOther: number;
+  tradersCommLongOther: number;
+  tradersCommShortOther: number;
+  tradersTotReptLongOther: number;
+  tradersTotReptShortOther: number; 
+  concGrossLe4TdrLongAll: number;
+  concGrossLe4TdrShortAll: number;
+  concGrossLe8TdrLongAll: number;
+  concGrossLe8TdrShortAll: number;
+  concNetLe4TdrLongAll: number;
+  concNetLe4TdrShortAll: number;  
+  concNetLe8TdrLongAll: number;
+  concNetLe8TdrShortAll: number;
+  concGrossLe4TdrLongOl: number;
+  concGrossLe4TdrShortOl: number;
+  concGrossLe8TdrLongOl: number;
+  concGrossLe8TdrShortOl: number; 
+  concNetLe4TdrLongOl: number;
+  concNetLe4TdrShortOl: number;
+  concNetLe8TdrLongOl: number;
+  concNetLe8TdrShortOl: number;
+  concGrossLe4TdrLongOther: number;
+  concGrossLe4TdrShortOther: number;  
+  concGrossLe8TdrLongOther: number;
+  concGrossLe8TdrShortOther: number;
+  concNetLe4TdrLongOther: number;
+  concNetLe4TdrShortOther: number;
+  concNetLe8TdrLongOther: number;
+  concNetLe8TdrShortOther: number;
+  contractUnits: string;
 }
 
 interface COTAnalysis {
   symbol: string;
-  name: string;
   date: string;
-  longPositions: number;
-  shortPositions: number;
-  longPercentage: number;
-  shortPercentage: number;
-  netPositions: number;
-  netPercentage: number;
-  longChange: number;
-  shortChange: number;
-  netChange: number;
-  longChangePercentage: number;
-  shortChangePercentage: number;
-  netChangePercentage: number;
-  reportType: string;
+  name: string;
+  sector: string;
   exchange: string;
-  category: string;
-  sentiment: string;
-  trend: string;
-  strength: number;
-  volatility: number;
-  momentum: number;
+  currentLongMarketSituation: number;
+  currentShortMarketSituation: number;  
+  marketSituation: string;
+  previousLongMarketSituation: number;
+  previousShortMarketSituation: number;
+  previousMarketSituation: string;
+  netPostion: number;
+  previousNetPosition: number;  
+  changeInNetPosition: number;
+  marketSentiment: string;
+  reversalTrend: boolean;
 }
 
 interface COTList {
   symbol: string;
   name: string;
-  exchange: string;
-  category: string;
-  reportType: string;
-  lastUpdated: string;
-  description: string;
-  contractSize: number;
-  contractUnit: string;
-  tickSize: number;
-  tickValue: number;
-  tradingHours: string;
-  settlementType: string;
-  deliveryMonths: string[];
-  isActive: boolean;
 }
 
 // Crypto
@@ -2096,14 +2192,14 @@ interface CryptocurrencyShortQuote {
   volume: number;
 }
 
-interface CryptocurrencyLightPrice {
+interface CryptocurrencyLightChart {
   symbol: string;
   date: string;
   price: number;
   volume: number;
 }
 
-interface CryptocurrencyHistoricalPrice {
+interface CryptocurrencyHistoricalChart {
   symbol: string;
   date: string;
   open: number;
@@ -2127,57 +2223,45 @@ interface CryptocurrencyIntradayPrice {
 
 // Chart
 interface ChartData {
+  symbol: string;
   date: string;
   open: number;
   high: number;
   low: number;
   close: number;
   volume: number;
-  adjClose?: number;
-  unadjustedVolume?: number;
   change?: number;
   changePercent?: number;
-  vwap?: number;
-  label?: string;
-  changeOverTime?: number;
+  vwap: number;
 }
 
 interface LightChartData {
+  symbol: string;
   date: string;
   close: number;
   volume: number;
 }
 
 interface UnadjustedChartData {
+  symbol: string;
   date: string;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
+  adjOpen: number;
+  adjHigh: number;
+  adjLow: number;
+  adjClose: number;
   volume: number;
-  unadjustedVolume: number;
-  change: number;
-  changePercent: number;
-  vwap: number;
-  label: string;
-  changeOverTime: number;
 }
 
-interface DividendAdjustedChartData {
+interface IntradayChartData {
   date: string;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
+  adjOpen: number;
+  adjHigh: number;
+  adjLow: number;
   adjClose: number;
-  unadjustedVolume: number;
-  change: number;
-  changePercent: number;
-  vwap: number;
-  label: string;
-  changeOverTime: number;
+  volume: number;
 }
+
+type Interval = "1min" | "5min" | "15min" | "30min" | "1hour" | "4hour";
 
 // SEC Filings
 interface SECFiling {
@@ -2324,6 +2408,15 @@ interface StockGradeNews {
   gradingCompany: string;
   action: string;
   priceWhenPosted: number;
+}
+
+// Commodity
+interface Commodity {
+  symbol: string;
+  name: string;
+  exchange: string;
+  tradeMonth: string;
+  currency: string;
 }
 ```
 

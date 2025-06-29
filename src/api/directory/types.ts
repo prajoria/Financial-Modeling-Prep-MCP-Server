@@ -38,6 +38,11 @@ export interface EarningsTranscriptEntry {
 
 export interface ExchangeEntry {
   exchange: string;
+  name: string;
+  countryName: string;
+  countryCode: string;
+  symbolSuffix: string;
+  delay: string
 }
 
 export interface SectorEntry {

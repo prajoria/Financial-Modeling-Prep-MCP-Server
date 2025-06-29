@@ -1,10 +1,59 @@
-# Financial Modeling Prep MCP (Model Context Protocol)
-
-[![smithery badge](https://smithery.ai/badge/@imbenrabi/financial-modeling-prep-mcp)](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)
+# Financial Modeling Prep MCP (Model Context Protocol) Server
 
 A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabling AI assistants to access and analyze financial data, stock information, company fundamentals, and market insights.
 
+## Table of Contents
+
+- [Usage](#usage)
+  - [Production via Smithery Registry](#production-via-smithery-registry)
+  - [HTTP Server](#http-server)
+- [Available Tools](#available-tools)
+  - [Search Tools](#search-tools)
+  - [Directory and Symbol Lists](#directory-and-symbol-lists)
+  - [Company Information](#company-information)
+  - [Financial Statements](#financial-statements)
+  - [Financial Metrics and Analysis](#financial-metrics-and-analysis)
+  - [Technical Indicators](#technical-indicators)
+  - [Quotes and Price Data](#quotes-and-price-data)
+  - [Market Indexes and Performance](#market-indexes-and-performance)
+  - [Market Data](#market-data)
+  - [News and Press Releases](#news-and-press-releases)
+  - [SEC Filings](#sec-filings)
+  - [Insider and Institutional Trading](#insider-and-institutional-trading)
+  - [ETFs and Funds](#etfs-and-funds)
+  - [Government Trading](#government-trading)
+  - [Cryptocurrency and Forex](#cryptocurrency-and-forex)
+  - [Earnings](#earnings)
+  - [Special Data Sets](#special-data-sets)
+  - [Commodities](#commodities)
+  - [Economics](#economics)
+  - [Fundraisers](#fundraisers)
+  - [Bulk Data Tools](#bulk-data-tools)
+- [Obtaining a Financial Modeling Prep Access Token](#obtaining-a-financial-modeling-prep-access-token)
+- [Contributing](#contributing)
+  - [Development Setup](#development-setup)
+  - [Running Tests](#running-tests)
+- [Issues and Bug Reports](#issues-and-bug-reports)
+- [License](#license)
+
 ## Usage
+
+### Production via Smithery Registry
+
+For production environments, you can use this MCP server through the Smithery registry, which provides hosted and managed MCP servers:
+
+**[🚀 View on Smithery](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)**
+
+[![smithery badge](https://smithery.ai/badge/@imbenrabi/financial-modeling-prep-mcp)](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)
+
+Smithery is a platform that helps developers find and ship AI-native services designed to communicate with AI agents. All services follow the Model Context Protocol (MCP) specification and provide:
+
+- Centralized discovery of MCP servers
+- Hosting and distribution for MCP servers  
+- Standardized interfaces for tool integration
+
+To integrate this MCP server into your application through Smithery, follow the [Smithery documentation](https://smithery.ai/docs) for connecting MCP clients to hosted servers.
+
 
 ### HTTP Server
 
@@ -53,17 +102,17 @@ This MCP provides the following tools for AI assistants to access financial data
 ### Directory and Symbol Lists
 
 - **getCompanySymbols**: Get a list of all company symbols
-- **getFinancialStatementSymbols**: Get symbols with available financial statements
-- **getETFList**: Get a list of all ETFs
-- **getActivelyTradingList**: Get a list of actively trading stocks
+- **getFinancialStatementSymbols**: Get a list of companies with available financial statements
+- **getCIKList**: Get a list of CIK numbers for SEC-registered entities
+- **getSymbolChanges**: Get a list of stock symbol changes
+- **getETFList**: Get a list of ETFs
+- **getActivelyTradingList**: Get a list of actively trading companies
 - **getEarningsTranscriptList**: Get a list of companies with earnings transcripts
-- **getAvailableExchanges**: Get a list of all available exchanges
-- **getAvailableSectors**: Get a list of all available sectors
-- **getAvailableIndustries**: Get a list of all available industries
-- **getAvailableCountries**: Get a list of all available countries
+- **getAvailableExchanges**: Get a list of available exchanges
+- **getAvailableSectors**: Get a list of available sectors
+- **getAvailableIndustries**: Get a list of available industries
+- **getAvailableCountries**: Get a list of available countries
 - **getAvailableTranscriptSymbols**: Get a list of symbols with available transcripts
-- **getCIKList**: Get a list of all CIK numbers
-- **getSymbolChanges**: Get a list of symbol changes
 - **getAllIndustryClassification**: Get all industry classifications
 - **getIndustryClassificationList**: Get a list of industry classifications
 
@@ -130,18 +179,20 @@ This MCP provides the following tools for AI assistants to access financial data
 
 - **getKeyMetrics**: Get key financial metrics for a company
 - **getKeyMetricsTTM**: Get key metrics for trailing twelve months
+- **getRatios**: Get financial ratios for a company
 - **getFinancialRatios**: Get financial ratios for a company
 - **getFinancialRatiosTTM**: Get financial ratios for trailing twelve months
 - **getFinancialGrowth**: Get financial growth metrics
 - **getIncomeStatementGrowth**: Get income statement growth metrics
 - **getBalanceSheetGrowth**: Get balance sheet growth metrics
 - **getCashFlowStatementGrowth**: Get cash flow statement growth metrics
-- **getDiscountedCashFlow**: Get discounted cash flow valuation
-- **getHistoricalDCF**: Get historical DCF valuations
-- **getAdvancedDCF**: Get advanced DCF valuation
-- **getLeveredDCF**: Get levered DCF valuation
+- **getDCFValuation**: Get DCF (Discounted Cash Flow) valuation for a stock
+- **getLeveredDCFValuation**: Get levered DCF valuation for a stock
+- **calculateCustomDCF**: Calculate custom DCF valuation with user-defined parameters
+- **calculateCustomLeveredDCF**: Calculate custom levered DCF valuation with user-defined parameters
 - **getEnterpriseValue**: Get enterprise value for a company
 - **getFinancialScore**: Get financial score for a company
+- **getFinancialScores**: Get financial scores for a company
 - **getOwnerEarnings**: Get owner earnings for a company
 
 ### Technical Indicators
@@ -215,6 +266,7 @@ This MCP provides the following tools for AI assistants to access financial data
 
 - **getMarketHours**: Get market hours for a specific exchange
 - **getExchangeMarketHours**: Get market hours for a specific exchange
+- **getHolidaysByExchange**: Get holidays for a specific exchange with optional date range filtering
 - **getAllExchangeMarketHours**: Get market hours for all exchanges
 - **getEarningsCalendar**: Get earnings announcement calendar
 - **getIPOCalendar**: Get initial public offering calendar
@@ -284,8 +336,8 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getFundCountryAllocation**: Get fund country allocation
 - **getFundAssetExposure**: Get fund asset exposure
 - **getFundDisclosure**: Get fund disclosure
-- **searchFundDisclosures**: Search fund disclosures
-- **getFundDisclosureDates**: Get fund disclosure dates
+- **searchFundDisclosures**: Search fund disclosures by holder name
+- **getFundDisclosureDates**: Get fund disclosure dates (with optional CIK)
 - **getETFHoldersBulk**: Get ETF holders in bulk
 - **getETFQuotes**: Get ETF quotes
 - **getMutualFundQuotes**: Get mutual fund quotes
@@ -308,25 +360,20 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getCryptocurrencyQuote**: Get cryptocurrency quote
 - **getCryptocurrencyShortQuote**: Get abbreviated cryptocurrency quote
 - **getCryptocurrencyBatchQuotes**: Get quotes for multiple cryptocurrencies
-- **getHistoricalCryptocurrencyPrice**: Get historical cryptocurrency price data
 - **getCryptocurrencyHistoricalLightChart**: Get light historical cryptocurrency chart
 - **getCryptocurrencyHistoricalFullChart**: Get full historical cryptocurrency chart
 - **getCryptocurrency1MinuteData**: Get 1-minute cryptocurrency data
 - **getCryptocurrency5MinuteData**: Get 5-minute cryptocurrency data
 - **getCryptocurrency1HourData**: Get 1-hour cryptocurrency data
-- **getCryptoQuotes**: Get cryptocurrency quotes
 - **getForexList**: Get a list of forex pairs
 - **getForexQuote**: Get forex pair quote
 - **getForexShortQuote**: Get abbreviated forex quote
-- **getForexBatchQuotes**: Get quotes for multiple forex pairs
-- **getHistoricalForexPrice**: Get historical forex price data
-- **getForexHistoricalLightChart**: Get light historical forex chart
-- **getForexHistoricalFullChart**: Get full historical forex chart
-- **getForex1MinuteData**: Get 1-minute forex data
-- **getForex5MinuteData**: Get 5-minute forex data
-- **getForex1HourData**: Get 1-hour forex data
-- **getForexQuotes**: Get forex quotes
-- **getExchangeQuotes**: Get exchange quotes
+- **getForexBatchQuotes**: Get quotes for multiple forex pairs with optional short format
+- **getForexHistoricalLightChart**: Get light historical forex chart with optional date range
+- **getForexHistoricalFullChart**: Get full historical forex chart with optional date range
+- **getForex1MinuteData**: Get 1-minute forex data with optional date range
+- **getForex5MinuteData**: Get 5-minute forex data with optional date range
+- **getForex1HourData**: Get 1-hour forex data with optional date range
 
 ### Earnings
 
@@ -339,35 +386,25 @@ This MCP provides the following tools for AI assistants to access financial data
 ### Special Data Sets
 
 - **getCOTList**: Get Commitment of Traders (COT) list
-- **getCOTReport**: Get COT report for a specific symbol
-- **getCOTReports**: Get COT reports for a specific symbol
-- **getCOTAnalysis**: Get COT analysis for a specific symbol
+- **getCOTReports**: Get COT reports for a specific symbol with optional date range filtering
+- **getCOTAnalysis**: Get COT analysis for a specific symbol with optional date range filtering
 - **getGovernmentTradingList**: Get government trading list
 - **getSenateTrading**: Get senate trading data
 - **getHouseTrading**: Get house trading data
-- **getESGData**: Get Environmental, Social, and Governance data
-- **getESGRatings**: Get ESG ratings
-- **getESGBenchmark**: Get ESG benchmark data
-- **getESGDisclosures**: Get ESG disclosures
-- **getESGBenchmarks**: Get ESG benchmarks
+- **getESGDisclosures**: Get ESG disclosures for a specific symbol
+- **getESGRatings**: Get ESG ratings for a specific symbol
+- **getESGBenchmarks**: Get ESG benchmark data with optional year filtering
 
 ### Commodities
 
-- **getCommodityPrice**: Get commodity price
-- **getCommodityHistoricalPrices**: Get historical commodity prices
-- **getCommodityQuote**: Get commodity quote
-- **getCommodityQuotes**: Get commodity quotes
-- **getCommodityContract**: Get commodity contract information
-- **getCommodityMarketData**: Get commodity market data
-- **getCommodityNews**: Get commodity news
-- **getCommodityForecast**: Get commodity forecast
-- **getCommoditySupplyDemand**: Get commodity supply and demand data
+- **listCommodities**: Get a list of all available commodities with their symbols, names, exchanges, trade months, and currencies
 
 ### Economics
 
-- **getEconomicIndicators**: Get economic indicators
-- **getTreasuryRates**: Get treasury rates
-- **getMarketRiskPremium**: Get market risk premium
+- **getTreasuryRates**: Get treasury rates with optional date range filtering
+- **getEconomicIndicators**: Get economic indicators by name with optional date range filtering
+- **getEconomicCalendar**: Get economic events calendar with optional date range filtering
+- **getMarketRiskPremium**: Get market risk premium data
 
 ### Fundraisers
 
@@ -380,32 +417,34 @@ This MCP provides the following tools for AI assistants to access financial data
 
 ### Bulk Data Tools
 
-- **getCompanyProfilesBulk**: Get bulk company profiles
-- **getStockRatingsBulk**: Get bulk stock ratings
-- **getDCFValuationsBulk**: Get bulk DCF valuations
-- **getFinancialScoresBulk**: Get bulk financial scores
-- **getPriceTargetSummariesBulk**: Get bulk price target summaries
-- **getUpgradesDowngradesConsensusBulk**: Get bulk upgrades/downgrades consensus
-- **getKeyMetricsTTMBulk**: Get bulk key metrics TTM
-- **getRatiosTTMBulk**: Get bulk ratios TTM
-- **getStockPeersBulk**: Get bulk stock peers
-- **getEODDataBulk**: Get bulk end-of-day price data
-- **getIncomeStatementsBulk**: Get bulk income statements
-- **getIncomeStatementGrowthBulk**: Get bulk income statement growth data
-- **getBalanceSheetStatementsBulk**: Get bulk balance sheet statements
-- **getBalanceSheetGrowthBulk**: Get bulk balance sheet growth data
-- **getCashFlowStatementsBulk**: Get bulk cash flow statements
-- **getCashFlowGrowthBulk**: Get bulk cash flow growth data
-- **getFinancialRatiosBulk**: Get bulk financial ratios
-- **getKeyMetricsBulk**: Get bulk key metrics
-- **getFinancialGrowthBulk**: Get bulk financial growth data
+**Important Note**: All bulk endpoints return data in CSV format as raw strings rather than parsed JSON objects. This endpoint returns the response as a CSV file. The provided sample response represents an individual record. This design preserves the original FMP API format and provides better performance for large datasets.
+
+- **getCompanyProfilesBulk**: Get bulk company profiles (CSV format)
+- **getStockRatingsBulk**: Get bulk stock ratings (CSV format)
+- **getDCFValuationsBulk**: Get bulk DCF valuations (CSV format)
+- **getFinancialScoresBulk**: Get bulk financial scores (CSV format)
+- **getPriceTargetSummariesBulk**: Get bulk price target summaries (CSV format)
+- **getUpgradesDowngradesConsensusBulk**: Get bulk upgrades/downgrades consensus (CSV format)
+- **getKeyMetricsTTMBulk**: Get bulk key metrics TTM (CSV format)
+- **getRatiosTTMBulk**: Get bulk ratios TTM (CSV format)
+- **getStockPeersBulk**: Get bulk stock peers (CSV format)
+- **getEODDataBulk**: Get bulk end-of-day price data (CSV format)
+- **getIncomeStatementsBulk**: Get bulk income statements (CSV format)
+- **getIncomeStatementGrowthBulk**: Get bulk income statement growth data (CSV format)
+- **getBalanceSheetStatementsBulk**: Get bulk balance sheet statements (CSV format)
+- **getBalanceSheetGrowthBulk**: Get bulk balance sheet growth data (CSV format)
+- **getCashFlowStatementsBulk**: Get bulk cash flow statements (CSV format)
+- **getCashFlowGrowthBulk**: Get bulk cash flow growth data (CSV format)
+- **getFinancialRatiosBulk**: Get bulk financial ratios (CSV format)
+- **getKeyMetricsBulk**: Get bulk key metrics (CSV format)
+- **getFinancialGrowthBulk**: Get bulk financial growth data (CSV format)
 
 Most tools accept optional parameters such as:
 
 - `symbol`: Stock ticker symbol
 - `period`: Time period (annual, quarterly)
 - `limit`: Number of results to return
-- `from` and `to`: Date range in YYYY-MM-DD format
+- `from` and `to`: Date range in YYYY-MM-DD format (particularly for COT, chart, and historical data tools)
 
 ## Obtaining a Financial Modeling Prep Access Token
 
@@ -457,15 +496,38 @@ The development server will start on port 3000 by default. You can configure the
 PORT=4000 FMP_ACCESS_TOKEN=your_api_key npm run dev
 ```
 
-### Release Process
+### Running Tests
 
-To publish a new version to NPM:
+The project uses Vitest for testing. You can run tests in several ways:
 
-1. Update the version in `package.json`
-2. Create a new GitHub release with a tag like `v1.0.1`
-3. The GitHub Actions workflow will automatically build and publish the package to NPM
+```bash
+# Run tests in watch mode (for development)
+npm test
 
-Make sure you have the `NPM_TOKEN` secret configured in your GitHub repository settings.
+# Run tests once
+npm run test:run
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+The coverage report will be generated in the `coverage/` directory and displayed in the terminal. You can open `coverage/index.html` in your browser to view a detailed HTML coverage report.
+
+## Issues and Bug Reports
+
+If you encounter any bugs, have feature requests, or need help with the project, please open an issue on GitHub:
+
+**[📝 Open an Issue](https://github.com/imbenrabi/Financial-Modeling-Prep-MCP-Server/issues)**
+
+When reporting issues, please include:
+
+- A clear description of the problem or feature request
+- Steps to reproduce the issue (if applicable)
+- Your environment details (Node.js version, operating system)
+- Any relevant error messages or logs
+- Expected vs. actual behavior
+
+This helps us understand and resolve issues more quickly.
 
 ## License
 

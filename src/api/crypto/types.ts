@@ -34,14 +34,14 @@ export interface CryptocurrencyShortQuote {
   volume: number;
 }
 
-export interface CryptocurrencyLightPrice {
+export interface CryptocurrencyLightChart {
   symbol: string;
   date: string;
   price: number;
   volume: number;
 }
 
-export interface CryptocurrencyHistoricalPrice {
+export interface CryptocurrencyHistoricalChart {
   symbol: string;
   date: string;
   open: number;

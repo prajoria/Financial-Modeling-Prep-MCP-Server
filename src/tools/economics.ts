@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { EconomicsClient } from "../api/economics/EconomicsClient.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 /**
  * Register all economics-related tools with the MCP server
@@ -16,14 +16,18 @@ export function registerEconomicsTools(
   server.tool(
     "getTreasuryRates",
     {
-      limit: z
-        .number()
+      from: z
+        .string()
         .optional()
-        .describe("Optional limit on number of results"),
+        .describe("Optional start date (YYYY-MM-DD)"),
+      to: z
+        .string()
+        .optional()
+        .describe("Optional end date (YYYY-MM-DD)"),
     },
-    async ({ limit }) => {
+    async ({ from, to }) => {
       try {
-        const results = await economicsClient.getTreasuryRates(limit);
+        const results = await economicsClient.getTreasuryRates(from, to);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };
@@ -46,20 +50,24 @@ export function registerEconomicsTools(
   server.tool(
     "getEconomicIndicators",
     {
-      indicator: z
+      name: z
+        .string()
+        .describe("Name of the indicator"),
+      from: z
         .string()
         .optional()
-        .describe("Optional specific indicator to get"),
-      limit: z
-        .number()
+        .describe("Optional start date (YYYY-MM-DD)"),
+      to: z
+        .string()
         .optional()
-        .describe("Optional limit on number of results"),
+        .describe("Optional end date (YYYY-MM-DD)"),
     },
-    async ({ indicator, limit }) => {
+    async ({ name, from, to }) => {
       try {
         const results = await economicsClient.getEconomicIndicators(
-          indicator,
-          limit
+          name,
+          from,
+          to
         );
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
@@ -83,8 +91,14 @@ export function registerEconomicsTools(
   server.tool(
     "getEconomicCalendar",
     {
-      from: z.string().describe("Start date (YYYY-MM-DD)"),
-      to: z.string().describe("End date (YYYY-MM-DD)"),
+      from: z
+        .string()
+        .optional()
+        .describe("Optional start date (YYYY-MM-DD)"),
+      to: z
+        .string()
+        .optional()
+        .describe("Optional end date (YYYY-MM-DD)"),
     },
     async ({ from, to }) => {
       try {
@@ -110,15 +124,10 @@ export function registerEconomicsTools(
 
   server.tool(
     "getMarketRiskPremium",
-    {
-      limit: z
-        .number()
-        .optional()
-        .describe("Optional limit on number of results"),
-    },
-    async ({ limit }) => {
+    {},
+    async () => {
       try {
-        const results = await economicsClient.getMarketRiskPremium(limit);
+        const results = await economicsClient.getMarketRiskPremium();
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };

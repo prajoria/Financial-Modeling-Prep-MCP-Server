@@ -33,14 +33,14 @@ export interface ForexShortQuote {
   volume: number;
 }
 
-export interface ForexLightPrice {
+export interface ForexLightChart {
   symbol: string;
   date: string;
   price: number;
   volume: number;
 }
 
-export interface ForexHistoricalPrice {
+export interface ForexHistoricalChart {
   symbol: string;
   date: string;
   open: number;
@@ -53,7 +53,7 @@ export interface ForexHistoricalPrice {
   vwap: number;
 }
 
-export interface ForexIntradayPrice {
+export interface ForexIntradayChart {
   date: string;
   open: number;
   high: number;

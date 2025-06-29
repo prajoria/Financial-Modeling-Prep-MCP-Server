@@ -1,5 +1,6 @@
 import { FMPClient } from "../FMPClient.js";
-import {
+import type { FMPContext } from "../../types/index.js";
+import type {
   SECFiling,
   CompanySearchResult,
   CompanyProfile,
@@ -16,14 +17,8 @@ import {
   IndustrySearchParams,
   IndustryClassificationSearchParams,
   AllIndustryClassificationParams,
+  SECFilingFormType,
 } from "./types.js";
-
-// Define a context type for all client methods
-type FMPContext = {
-  config?: {
-    FMP_ACCESS_TOKEN?: string;
-  };
-};
 
 export class SECFilingsClient extends FMPClient {
   constructor(apiKey?: string) {
@@ -89,8 +84,8 @@ export class SECFilingsClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<SECFiling[]> {
-    return this.get<SECFiling[]>(
+  ): Promise<SECFilingFormType[]> {
+    return this.get<SECFilingFormType[]>(
       `/sec-filings-search/form-type`,
       {
         formType: params.formType,
@@ -114,8 +109,8 @@ export class SECFilingsClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<SECFiling[]> {
-    return this.get<SECFiling[]>(
+  ): Promise<SECFilingFormType[]> {
+    return this.get<SECFilingFormType[]>(
       `/sec-filings-search/symbol`,
       {
         symbol: params.symbol,
@@ -139,8 +134,8 @@ export class SECFilingsClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<SECFiling[]> {
-    return this.get<SECFiling[]>(
+  ): Promise<SECFilingFormType[]> {
+    return this.get<SECFilingFormType[]>(
       `/sec-filings-search/cik`,
       {
         cik: params.cik,
