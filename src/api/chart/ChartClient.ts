@@ -1,11 +1,11 @@
 import { FMPClient } from "../FMPClient.js";
 import type { FMPContext } from "../../types/index.js";
-import {
+import type {
   ChartData,
   LightChartData,
   UnadjustedChartData,
-  DividendAdjustedChartData,
   Interval,
+  IntradayChartData,
 } from "./types.js";
 
 
@@ -18,11 +18,15 @@ export class ChartClient extends FMPClient {
   /**
    * Get light chart data for a stock symbol
    * @param symbol Stock symbol
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of light chart data
    */
   async getLightChart(
     symbol: string,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
@@ -30,9 +34,7 @@ export class ChartClient extends FMPClient {
   ): Promise<LightChartData[]> {
     return super.get<LightChartData[]>(
       "/historical-price-eod/light",
-      {
-        symbol,
-      },
+      { symbol, from, to },
       options
     );
   }
@@ -40,11 +42,15 @@ export class ChartClient extends FMPClient {
   /**
    * Get full chart data for a stock symbol
    * @param symbol Stock symbol
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of chart data
    */
   async getFullChart(
     symbol: string,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
@@ -52,7 +58,7 @@ export class ChartClient extends FMPClient {
   ): Promise<ChartData[]> {
     return super.get<ChartData[]>(
       "/historical-price-eod/full",
-      { symbol },
+      { symbol, from, to },
       options
     );
   }
@@ -60,11 +66,15 @@ export class ChartClient extends FMPClient {
   /**
    * Get unadjusted chart data for a stock symbol
    * @param symbol Stock symbol
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of unadjusted chart data
    */
   async getUnadjustedChart(
     symbol: string,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
@@ -72,7 +82,7 @@ export class ChartClient extends FMPClient {
   ): Promise<UnadjustedChartData[]> {
     return super.get<UnadjustedChartData[]>(
       "/historical-price-eod/non-split-adjusted",
-      { symbol },
+      { symbol, from, to },
       options
     );
   }
@@ -80,19 +90,23 @@ export class ChartClient extends FMPClient {
   /**
    * Get dividend-adjusted chart data for a stock symbol
    * @param symbol Stock symbol
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of dividend-adjusted chart data
    */
   async getDividendAdjustedChart(
     symbol: string,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<DividendAdjustedChartData[]> {
-    return super.get<DividendAdjustedChartData[]>(
+  ): Promise<UnadjustedChartData[]> {
+    return super.get<UnadjustedChartData[]>(
       "/historical-price-eod/dividend-adjusted",
-      { symbol },
+      { symbol, from, to },
       options
     );
   }
@@ -101,20 +115,24 @@ export class ChartClient extends FMPClient {
    * Get intraday chart data for a stock symbol
    * @param symbol Stock symbol
    * @param interval Time interval (1min, 5min, 15min, 30min, 1hour, 4hour)
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of chart data
    */
   async getIntradayChart(
     symbol: string,
     interval: Interval,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<ChartData[]> {
-    return super.get<ChartData[]>(
+  ): Promise<IntradayChartData[]> {
+    return super.get<IntradayChartData[]>(
       `/historical-chart/${interval}`,
-      { symbol },
+      { symbol, from, to },
       options
     );
   }
