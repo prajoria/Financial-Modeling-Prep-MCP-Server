@@ -207,12 +207,12 @@ This document provides a comprehensive list of all available tools in the Financ
 
 ## Economics
 
-| Tool Name | Return Type |
-|-----------|-------------|
-| getTreasuryRates | `TreasuryRate[]` |
-| getEconomicIndicators | `EconomicIndicator[]` |
-| getEconomicCalendar | `EconomicCalendar[]` |
-| getMarketRiskPremium | `MarketRiskPremium[]` |
+| Tool Name | Parameters | Return Type |
+|-----------|------------|-------------|
+| getTreasuryRates | from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `TreasuryRate[]` |
+| getEconomicIndicators | name (string), from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `EconomicIndicator[]` |
+| getEconomicCalendar | from? (YYYY-MM-DD), to? (YYYY-MM-DD) | `EconomicCalendar[]` |
+| getMarketRiskPremium | (no parameters) | `MarketRiskPremium[]` |
 
 ## ESG
 

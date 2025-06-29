@@ -354,9 +354,10 @@ This MCP provides the following tools for AI assistants to access financial data
 
 ### Economics
 
-- **getEconomicIndicators**: Get economic indicators
-- **getTreasuryRates**: Get treasury rates
-- **getMarketRiskPremium**: Get market risk premium
+- **getTreasuryRates**: Get treasury rates with optional date range filtering
+- **getEconomicIndicators**: Get economic indicators by name with optional date range filtering
+- **getEconomicCalendar**: Get economic events calendar with optional date range filtering
+- **getMarketRiskPremium**: Get market risk premium data
 
 ### Fundraisers
 

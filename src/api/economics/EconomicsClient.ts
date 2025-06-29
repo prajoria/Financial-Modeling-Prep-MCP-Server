@@ -16,30 +16,34 @@ export class EconomicsClient extends FMPClient {
 
   /**
    * Get treasury rates
-   * @param limit Optional limit on number of results
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of treasury rates
    */
   async getTreasuryRates(
-    limit?: number,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
     }
   ): Promise<TreasuryRate[]> {
-    return super.get<TreasuryRate[]>("/treasury-rates", { limit }, options);
+    return super.get<TreasuryRate[]>("/treasury-rates", { from, to }, options);
   }
 
   /**
    * Get economic indicators
-   * @param indicator Optional specific indicator to get
-   * @param limit Optional limit on number of results
+   * @param name Name of the indicator
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of economic indicators
    */
   async getEconomicIndicators(
-    indicator?: string,
-    limit?: number,
+    name: string,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
@@ -48,8 +52,9 @@ export class EconomicsClient extends FMPClient {
     return super.get<EconomicIndicator[]>(
       "/economic-indicator",
       {
-        indicator,
-        limit,
+        name,
+        from,
+        to,
       },
       options
     );
@@ -57,14 +62,14 @@ export class EconomicsClient extends FMPClient {
 
   /**
    * Get economic calendar
-   * @param from Start date (YYYY-MM-DD)
-   * @param to End date (YYYY-MM-DD)
+   * @param from Optional start date (YYYY-MM-DD)
+   * @param to Optional end date (YYYY-MM-DD)
    * @param options Optional parameters including abort signal and context
    * @returns Array of economic calendar events
    */
   async getEconomicCalendar(
-    from: string,
-    to: string,
+    from?: string,
+    to?: string,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
@@ -79,20 +84,18 @@ export class EconomicsClient extends FMPClient {
 
   /**
    * Get market risk premium
-   * @param limit Optional limit on number of results
    * @param options Optional parameters including abort signal and context
    * @returns Array of market risk premiums
    */
   async getMarketRiskPremium(
-    limit?: number,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
     }
   ): Promise<MarketRiskPremium[]> {
     return super.get<MarketRiskPremium[]>(
-      "/market-risk-premium",
-      { limit },
+      "/market-risk-premium", 
+      {},
       options
     );
   }

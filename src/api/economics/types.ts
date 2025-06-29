@@ -18,37 +18,24 @@ export interface EconomicIndicator {
   date: string;
   name: string;
   value: number;
-  change: number;
-  changePercent: number;
-  period: string;
-  unit: string;
-  category: string;
-  subcategory: string;
-  source: string;
-  lastUpdated: string;
 }
 
 export interface EconomicCalendar {
   date: string;
-  time: string;
   country: string;
   event: string;
-  importance: string;
-  actual: number | null;
-  forecast: number | null;
-  previous: number | null;
-  unit: string;
   currency: string;
+  previous: number;
+  estimate: number | null;
+  actual: number; 
+  change: number;
   impact: string;
-  description: string;
+  changePercentage: number;
 }
 
 export interface MarketRiskPremium {
-  date: string;
-  value: number;
-  change: number;
-  changePercent: number;
-  period: string;
-  source: string;
-  lastUpdated: string;
+  country: string;
+  continent: string;
+  countryRiskPremium: number;
+  totalEquityRiskPremium: number;
 }
