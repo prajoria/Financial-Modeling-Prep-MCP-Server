@@ -1,13 +1,11 @@
 import { FMPClient } from "../FMPClient.js";
 import type { FMPContext } from "../../types/index.js";
-import {
+import type {
   FinancialDisclosure,
   PaginationParams,
   SymbolParams,
   NameParams,
 } from "./types.js";
-
-
 
 export class GovernmentTradingClient extends FMPClient {
   constructor(apiKey?: string) {
