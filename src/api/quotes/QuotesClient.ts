@@ -12,8 +12,6 @@ import {
   ShortParams,
 } from "./types.js";
 
-
-
 export class QuotesClient extends FMPClient {
   constructor(apiKey?: string) {
     super(apiKey);
