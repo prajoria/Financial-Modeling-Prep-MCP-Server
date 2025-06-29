@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from "axios";
+import axios, { type AxiosInstance, type AxiosError, type AxiosRequestConfig } from "axios";
 import { DEFAULT_API_KEY } from "../constants/index.js";
 
 interface FMPErrorResponse {
