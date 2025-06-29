@@ -42,6 +42,39 @@ export function registerMarketHoursTools(
     }
   );
 
+  server.tool(
+    "getHolidaysByExchange",
+    {
+      exchange: z.string().describe("Exchange code (e.g., NASDAQ, NYSE)"),
+      from: z.string().optional().describe("Start date for the holidays (YYYY-MM-DD format)"),
+      to: z.string().optional().describe("End date for the holidays (YYYY-MM-DD format)"),
+    },
+    async ({ exchange, from, to }) => {
+      try {
+        const results = await marketHoursClient.getHolidaysByExchange(
+          exchange,
+          from,
+          to
+        );
+        return {
+          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
   server.tool("getAllExchangeMarketHours", {}, async () => {
     try {
       const results = await marketHoursClient.getAllExchangeMarketHours();

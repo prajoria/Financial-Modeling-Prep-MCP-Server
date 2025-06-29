@@ -158,7 +158,9 @@ This document provides a comprehensive list of all available tools in the Financ
 
 | Tool Name | Return Type |
 |-----------|-------------|
-| getMarketHours | `ExchangeMarketHours[]` |
+| getExchangeMarketHours | `ExchangeMarketHours[]` |
+| getHolidaysByExchange | `HolidayByExchange[]` |
+| getAllExchangeMarketHours | `ExchangeMarketHours[]` |
 
 ## Form 13F
 
@@ -1175,6 +1177,15 @@ interface ExchangeMarketHours {
   closingHour: string;
   timezone: string;
   isMarketOpen: boolean;
+}
+
+interface HolidayByExchange {
+  exchange: string;
+  date: string;
+  name: string;
+  isClosed: boolean;
+  adjOpenTime: string | null;
+  adjCloseTime: string | null;
 }
 ```
 

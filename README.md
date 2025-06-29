@@ -215,6 +215,7 @@ This MCP provides the following tools for AI assistants to access financial data
 
 - **getMarketHours**: Get market hours for a specific exchange
 - **getExchangeMarketHours**: Get market hours for a specific exchange
+- **getHolidaysByExchange**: Get holidays for a specific exchange with optional date range filtering
 - **getAllExchangeMarketHours**: Get market hours for all exchanges
 - **getEarningsCalendar**: Get earnings announcement calendar
 - **getIPOCalendar**: Get initial public offering calendar

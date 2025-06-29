@@ -7,3 +7,12 @@ export interface ExchangeMarketHours {
   timezone: string;
   isMarketOpen: boolean;
 }
+
+export interface HolidayByExchange {
+  exchange: string;
+  date: string;
+  name: string;
+  isClosed: boolean;
+  adjOpenTime: string | null;
+  adjCloseTime: string | null;
+}
