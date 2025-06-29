@@ -9,6 +9,8 @@ export interface SECFiling {
   finalLink: string;
 }
 
+export interface SECFilingFormType extends Omit<SECFiling, 'hasFinancials'> {}
+
 export interface CompanySearchResult {
   symbol: string;
   name: string;
