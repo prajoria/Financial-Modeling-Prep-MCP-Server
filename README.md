@@ -284,8 +284,8 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getFundCountryAllocation**: Get fund country allocation
 - **getFundAssetExposure**: Get fund asset exposure
 - **getFundDisclosure**: Get fund disclosure
-- **searchFundDisclosures**: Search fund disclosures
-- **getFundDisclosureDates**: Get fund disclosure dates
+- **searchFundDisclosures**: Search fund disclosures by holder name
+- **getFundDisclosureDates**: Get fund disclosure dates (with optional CIK)
 - **getETFHoldersBulk**: Get ETF holders in bulk
 - **getETFQuotes**: Get ETF quotes
 - **getMutualFundQuotes**: Get mutual fund quotes

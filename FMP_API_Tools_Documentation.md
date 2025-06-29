@@ -175,16 +175,16 @@ This document provides a comprehensive list of all available tools in the Financ
 
 ## Fund
 
-| Tool Name | Return Type |
-|-----------|-------------|
-| getHoldings | `FundHolding[]` |
-| getInfo | `FundInfo` |
-| getCountryAllocation | `FundCountryAllocation[]` |
-| getAssetExposure | `FundAssetExposure[]` |
-| getSectorWeighting | `FundSectorWeighting[]` |
-| getDisclosure | `FundDisclosure[]` |
-| getDisclosureSearch | `FundDisclosureSearch[]` |
-| getDisclosureDates | `FundDisclosureDate[]` |
+| Tool Name | Parameters | Return Type |
+|-----------|------------|-------------|
+| getFundHoldings | symbol (string) | `FundHolding[]` |
+| getFundInfo | symbol (string) | `FundInfo` |
+| getFundCountryAllocation | symbol (string) | `FundCountryAllocation[]` |
+| getFundAssetExposure | symbol (string) | `FundAssetExposure[]` |
+| getFundSectorWeighting | symbol (string) | `FundSectorWeighting[]` |
+| getFundDisclosure | symbol (string) | `FundDisclosure[]` |
+| searchFundDisclosures | name (string) | `FundDisclosureSearch[]` |
+| getFundDisclosureDates | symbol (string), cik? (string) | `FundDisclosureDate[]` |
 
 ## Fundraisers
 
@@ -1357,117 +1357,93 @@ interface IndustryPerformanceSummary {
 ### Fund
 
 ```typescript
+interface FundSector {
+  industry: string;
+  exposure: number;
+}
+
 interface FundHolding {
   symbol: string;
+  asset: string;
   name: string;
-  weight: number;
-  shares: number;
+  isin: string;
+  securityCusip: string;
+  sharesNumber: number;
+  weightPercentage: number;
   marketValue: number;
-  currency: string;
-  exchange: string;
-  sector: string;
-  industry: string;
-  country: string;
-  lastUpdated: string;
+  updatedAt: string;
+  updated: string;
 }
 
 interface FundInfo {
   symbol: string;
   name: string;
-  currency: string;
-  exchange: string;
-  micCode: string;
-  country: string;
-  type: string;
-  isin: string;
-  lei: string;
-  cusip: string;
-  class: string;
-  category: string;
-  family: string;
   description: string;
+  isin: string;
+  assetClass: string;
+  securityCusip: string;
+  domicile: string;
   website: string;
-  inceptionDate: string;
+  etfCompany: string;
   expenseRatio: number;
-  aum: number;
+  assetsUnderManagement: number;
+  avgVolume: number;
+  inceptionDate: string;
   nav: number;
   navCurrency: string;
-  navDate: string;
-  navChange: number;
-  navChangePercent: number;
-  ytdReturn: number;
-  oneYearReturn: number;
-  threeYearReturn: number;
-  fiveYearReturn: number;
-  tenYearReturn: number;
-  sinceInceptionReturn: number;
-  dividendYield: number;
-  dividendFrequency: string;
-  lastDividendDate: string;
-  lastDividendAmount: number;
-  lastDividendCurrency: string;
-  isActive: boolean;
-  isEtf: boolean;
-  isMutualFund: boolean;
+  holdingsCount: number;
+  updatedAt: string;
+  sectorsList: FundSector[];
 }
 
 interface FundCountryAllocation {
   country: string;
-  weight: number;
-  marketValue: number;
-  currency: string;
-  lastUpdated: string;
+  weightPercentage: string;
 }
 
 interface FundAssetExposure {
-  etfSymbol: string;
-  etfName: string;
-  weight: number;
-  shares: number;
+  symbol: string;
+  asset: string;
+  sharesNumber: number;
+  weightPercentage: number;
   marketValue: number;
-  currency: string;
-  lastUpdated: string;
 }
 
 interface FundSectorWeighting {
+  symbol: string;
   sector: string;
-  weight: number;
-  marketValue: number;
-  currency: string;
-  lastUpdated: string;
+  weightPercentage: number;
 }
 
 interface FundDisclosure {
-  symbol: string;
-  name: string;
   cik: string;
-  formType: string;
-  filingDate: string;
-  acceptedDate: string;
-  periodOfReport: string;
-  url: string;
-  holdings: FundHolding[];
-  lastUpdated: string;
+  holder: string;
+  shares: number;
+  dateReported: string;
+  change: number;
+  weightPercent: number;
 }
 
 interface FundDisclosureSearch {
   symbol: string;
-  name: string;
   cik: string;
-  formType: string;
-  filingDate: string;
-  acceptedDate: string;
-  periodOfReport: string;
-  url: string;
-  lastUpdated: string;
+  classId: string;
+  seriesId: string;
+  entityName: string;
+  entityOrgType: string;
+  seriesName: string;
+  className: string;
+  reportingFileNumber: string;
+  address: string;
+  city: string;
+  zipCode: string;
+  state: string;
 }
 
 interface FundDisclosureDate {
-  filingDate: string;
-  acceptedDate: string;
-  formType: string;
-  url: string;
-  lastUpdated: string;
+  date: string;
+  year: number;
+  quarter: number;
 }
 ```
 

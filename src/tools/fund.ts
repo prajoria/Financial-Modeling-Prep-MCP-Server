@@ -17,14 +17,10 @@ export function registerFundTools(
     "getFundHoldings",
     {
       symbol: z.string().describe("Fund symbol"),
-      limit: z
-        .number()
-        .optional()
-        .describe("Optional limit on number of results"),
     },
-    async ({ symbol, limit }) => {
+    async ({ symbol }) => {
       try {
-        const results = await fundClient.getHoldings(symbol, limit);
+        const results = await fundClient.getHoldings(symbol);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };
@@ -156,14 +152,10 @@ export function registerFundTools(
     "getFundDisclosure",
     {
       symbol: z.string().describe("Fund symbol"),
-      limit: z
-        .number()
-        .optional()
-        .describe("Optional limit on number of results"),
     },
-    async ({ symbol, limit }) => {
+    async ({ symbol }) => {
       try {
-        const results = await fundClient.getDisclosure(symbol, limit);
+        const results = await fundClient.getDisclosure(symbol);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };
@@ -186,15 +178,11 @@ export function registerFundTools(
   server.tool(
     "searchFundDisclosures",
     {
-      query: z.string().describe("Search query"),
-      limit: z
-        .number()
-        .optional()
-        .describe("Optional limit on number of results"),
+      name: z.string().describe("Name of the holder to search for"),
     },
-    async ({ query, limit }) => {
+    async ({ name }) => {
       try {
-        const results = await fundClient.searchDisclosures(query, limit);
+        const results = await fundClient.searchDisclosures(name);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };
@@ -218,10 +206,11 @@ export function registerFundTools(
     "getFundDisclosureDates",
     {
       symbol: z.string().describe("Fund symbol"),
+      cik: z.string().optional().describe("Optional CIK number"),
     },
-    async ({ symbol }) => {
+    async ({ symbol, cik }) => {
       try {
-        const results = await fundClient.getDisclosureDates(symbol);
+        const results = await fundClient.getDisclosureDates(symbol, cik);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };

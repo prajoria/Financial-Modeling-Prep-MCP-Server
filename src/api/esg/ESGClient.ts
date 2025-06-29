@@ -1,6 +1,6 @@
 import { FMPClient } from "../FMPClient.js";
 import type { FMPContext } from "../../types/index.js";
-import { ESGDisclosure, ESGRating, ESGBenchmark } from "./types.js";
+import type { ESGDisclosure, ESGRating, ESGBenchmark } from "./types.js";
 
 export class ESGClient extends FMPClient {
   constructor(apiKey?: string) {
