@@ -278,12 +278,15 @@ This document provides a comprehensive list of all available tools in the Financ
 
 | Tool Name | Return Type |
 |-----------|-------------|
-| getCryptocurrencies | `Cryptocurrency[]` |
+| getCryptocurrencyList | `Cryptocurrency[]` |
 | getCryptocurrencyQuote | `CryptocurrencyQuote[]` |
 | getCryptocurrencyShortQuote | `CryptocurrencyShortQuote[]` |
-| getCryptocurrencyLightPrice | `CryptocurrencyLightPrice[]` |
-| getCryptocurrencyHistoricalPrice | `CryptocurrencyHistoricalPrice[]` |
-| getCryptocurrencyIntradayPrice | `CryptocurrencyIntradayPrice[]` |
+| getCryptocurrencyBatchQuotes | `CryptocurrencyShortQuote[]` |
+| getCryptocurrencyHistoricalLightChart | `CryptocurrencyLightChart[]` |
+| getCryptocurrencyHistoricalFullChart | `CryptocurrencyHistoricalChart[]` |
+| getCryptocurrency1MinuteData | `CryptocurrencyIntradayPrice[]` |
+| getCryptocurrency5MinuteData | `CryptocurrencyIntradayPrice[]` |
+| getCryptocurrency1HourData | `CryptocurrencyIntradayPrice[]` |
 
 ## Chart
 
@@ -2181,14 +2184,14 @@ interface CryptocurrencyShortQuote {
   volume: number;
 }
 
-interface CryptocurrencyLightPrice {
+interface CryptocurrencyLightChart {
   symbol: string;
   date: string;
   price: number;
   volume: number;
 }
 
-interface CryptocurrencyHistoricalPrice {
+interface CryptocurrencyHistoricalChart {
   symbol: string;
   date: string;
   open: number;

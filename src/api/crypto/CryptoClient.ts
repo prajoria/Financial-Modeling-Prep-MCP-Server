@@ -1,11 +1,11 @@
 import { FMPClient } from "../FMPClient.js";
 import type { FMPContext } from "../../types/index.js";
-import {
+import type {
   Cryptocurrency,
   CryptocurrencyQuote,
   CryptocurrencyShortQuote,
-  CryptocurrencyLightPrice,
-  CryptocurrencyHistoricalPrice,
+  CryptocurrencyLightChart,
+  CryptocurrencyHistoricalChart,
   CryptocurrencyIntradayPrice,
 } from "./types.js";
 
@@ -66,16 +66,19 @@ export class CryptoClient extends FMPClient {
 
   /**
    * Get batch quotes for all cryptocurrencies
+   * @param short Optional to get short quotes
    * @param context Optional context containing configuration
    * @returns Array of cryptocurrency short quotes
    */
-  async getBatchQuotes(options?: {
+  async getBatchQuotes(
+    short?: boolean,
+    options?: {
     signal?: AbortSignal;
     context?: FMPContext;
   }): Promise<CryptocurrencyShortQuote[]> {
     return super.get<CryptocurrencyShortQuote[]>(
       "/batch-crypto-quotes",
-      { short: true },
+      { short },
       options
     );
   }
@@ -96,8 +99,8 @@ export class CryptoClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<CryptocurrencyLightPrice[]> {
-    return super.get<CryptocurrencyLightPrice[]>(
+  ): Promise<CryptocurrencyLightChart[]> {
+    return super.get<CryptocurrencyLightChart[]>(
       "/historical-price-eod/light",
       { symbol, from, to },
       options
@@ -120,8 +123,8 @@ export class CryptoClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<CryptocurrencyHistoricalPrice[]> {
-    return super.get<CryptocurrencyHistoricalPrice[]>(
+  ): Promise<CryptocurrencyHistoricalChart[]> {
+    return super.get<CryptocurrencyHistoricalChart[]>(
       "/historical-price-eod/full",
       { symbol, from, to },
       options

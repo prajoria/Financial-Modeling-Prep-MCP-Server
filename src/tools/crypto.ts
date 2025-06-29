@@ -88,26 +88,32 @@ export function registerCryptoTools(
     }
   );
 
-  server.tool("getCryptocurrencyBatchQuotes", {}, async () => {
-    try {
-      const results = await cryptoClient.getBatchQuotes();
-      return {
-        content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
-      };
-    } catch (error) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Error: ${
-              error instanceof Error ? error.message : String(error)
-            }`,
-          },
-        ],
-        isError: true,
-      };
+  server.tool(
+    "getCryptocurrencyBatchQuotes",
+    {
+      short: z.boolean().optional().describe("Get short quotes instead of full quotes"),
+    },
+    async ({ short }) => {
+      try {
+        const results = await cryptoClient.getBatchQuotes(short);
+        return {
+          content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
     }
-  });
+  );
 
   server.tool(
     "getCryptocurrencyHistoricalLightChart",
