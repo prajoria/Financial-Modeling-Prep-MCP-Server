@@ -289,11 +289,11 @@ This document provides a comprehensive list of all available tools in the Financ
 
 | Tool Name | Return Type |
 |-----------|-------------|
-| getHistoricalChart | `ChartData[]` |
-| getHistoricalLightChart | `LightChartData[]` |
+| getLightChart | `LightChartData[]` |
+| getFullChart | `ChartData[]` |
 | getUnadjustedChart | `UnadjustedChartData[]` |
-| getDividendAdjustedChart | `DividendAdjustedChartData[]` |
-| getIntradayChart | `ChartData[]` |
+| getDividendAdjustedChart | `UnadjustedChartData[]` |
+| getIntradayChart | `IntradayChartData[]` |
 
 ## Commodity
 
@@ -2129,57 +2129,45 @@ interface CryptocurrencyIntradayPrice {
 
 // Chart
 interface ChartData {
+  symbol: string;
   date: string;
   open: number;
   high: number;
   low: number;
   close: number;
   volume: number;
-  adjClose?: number;
-  unadjustedVolume?: number;
   change?: number;
   changePercent?: number;
-  vwap?: number;
-  label?: string;
-  changeOverTime?: number;
+  vwap: number;
 }
 
 interface LightChartData {
+  symbol: string;
   date: string;
   close: number;
   volume: number;
 }
 
 interface UnadjustedChartData {
+  symbol: string;
   date: string;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
+  adjOpen: number;
+  adjHigh: number;
+  adjLow: number;
+  adjClose: number;
   volume: number;
-  unadjustedVolume: number;
-  change: number;
-  changePercent: number;
-  vwap: number;
-  label: string;
-  changeOverTime: number;
 }
 
-interface DividendAdjustedChartData {
+interface IntradayChartData {
   date: string;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
+  adjOpen: number;
+  adjHigh: number;
+  adjLow: number;
   adjClose: number;
-  unadjustedVolume: number;
-  change: number;
-  changePercent: number;
-  vwap: number;
-  label: string;
-  changeOverTime: number;
+  volume: number;
 }
+
+type Interval = "1min" | "5min" | "15min" | "30min" | "1hour" | "4hour";
 
 // SEC Filings
 interface SECFiling {
