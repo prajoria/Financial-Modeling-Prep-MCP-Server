@@ -49,8 +49,8 @@ export function registerCalendarTools(
   server.tool(
     "getDividendsCalendar",
     {
-      from: z.string().describe("Start date (YYYY-MM-DD)"),
-      to: z.string().describe("End date (YYYY-MM-DD)"),
+      from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+      to: z.string().optional().describe("End date (YYYY-MM-DD)"),
     },
     async ({ from, to }) => {
       try {
@@ -110,8 +110,8 @@ export function registerCalendarTools(
   server.tool(
     "getEarningsCalendar",
     {
-      from: z.string().describe("Start date (YYYY-MM-DD)"),
-      to: z.string().describe("End date (YYYY-MM-DD)"),
+      from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+      to: z.string().optional().describe("End date (YYYY-MM-DD)"),
     },
     async ({ from, to }) => {
       try {
@@ -138,8 +138,8 @@ export function registerCalendarTools(
   server.tool(
     "getIPOCalendar",
     {
-      from: z.string().describe("Start date (YYYY-MM-DD)"),
-      to: z.string().describe("End date (YYYY-MM-DD)"),
+      from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+      to: z.string().optional().describe("End date (YYYY-MM-DD)"),
     },
     async ({ from, to }) => {
       try {
@@ -166,8 +166,8 @@ export function registerCalendarTools(
   server.tool(
     "getIPODisclosures",
     {
-      from: z.string().describe("Start date (YYYY-MM-DD)"),
-      to: z.string().describe("End date (YYYY-MM-DD)"),
+      from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+      to: z.string().optional().describe("End date (YYYY-MM-DD)"),
     },
     async ({ from, to }) => {
       try {
@@ -194,8 +194,8 @@ export function registerCalendarTools(
   server.tool(
     "getIPOProspectuses",
     {
-      from: z.string().describe("Start date (YYYY-MM-DD)"),
-      to: z.string().describe("End date (YYYY-MM-DD)"),
+      from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+      to: z.string().optional().describe("End date (YYYY-MM-DD)"),
     },
     async ({ from, to }) => {
       try {
@@ -255,8 +255,8 @@ export function registerCalendarTools(
   server.tool(
     "getStockSplitCalendar",
     {
-      from: z.string().describe("Start date (YYYY-MM-DD)"),
-      to: z.string().describe("End date (YYYY-MM-DD)"),
+      from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+      to: z.string().optional().describe("End date (YYYY-MM-DD)"),
     },
     async ({ from, to }) => {
       try {

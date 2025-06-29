@@ -17,10 +17,12 @@ export function registerChartTools(
     "getLightChart",
     {
       symbol: z.string().describe("Stock symbol"),
+      from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+      to: z.string().optional().describe("End date (YYYY-MM-DD)"),
     },
-    async ({ symbol }) => {
+    async ({ symbol, from, to }) => {
       try {
-        const results = await chartClient.getLightChart(symbol);
+        const results = await chartClient.getLightChart(symbol, from, to);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };
@@ -44,10 +46,12 @@ export function registerChartTools(
     "getFullChart",
     {
       symbol: z.string().describe("Stock symbol"),
+      from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+      to: z.string().optional().describe("End date (YYYY-MM-DD)"),
     },
-    async ({ symbol }) => {
+    async ({ symbol, from, to }) => {
       try {
-        const results = await chartClient.getFullChart(symbol);
+        const results = await chartClient.getFullChart(symbol, from, to);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };
@@ -71,10 +75,12 @@ export function registerChartTools(
     "getUnadjustedChart",
     {
       symbol: z.string().describe("Stock symbol"),
+      from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+      to: z.string().optional().describe("End date (YYYY-MM-DD)"),
     },
-    async ({ symbol }) => {
+    async ({ symbol, from, to }) => {
       try {
-        const results = await chartClient.getUnadjustedChart(symbol);
+        const results = await chartClient.getUnadjustedChart(symbol, from, to);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };
@@ -98,10 +104,12 @@ export function registerChartTools(
     "getDividendAdjustedChart",
     {
       symbol: z.string().describe("Stock symbol"),
+      from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+      to: z.string().optional().describe("End date (YYYY-MM-DD)"),
     },
-    async ({ symbol }) => {
+    async ({ symbol, from, to }) => {
       try {
-        const results = await chartClient.getDividendAdjustedChart(symbol);
+        const results = await chartClient.getDividendAdjustedChart(symbol, from, to);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };
@@ -128,10 +136,12 @@ export function registerChartTools(
       interval: z
         .enum(["1min", "5min", "15min", "30min", "1hour", "4hour"])
         .describe("Time interval"),
+      from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+      to: z.string().optional().describe("End date (YYYY-MM-DD)"),
     },
-    async ({ symbol, interval }) => {
+    async ({ symbol, interval, from, to }) => {
       try {
-        const results = await chartClient.getIntradayChart(symbol, interval);
+        const results = await chartClient.getIntradayChart(symbol, interval, from, to);
         return {
           content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
         };
