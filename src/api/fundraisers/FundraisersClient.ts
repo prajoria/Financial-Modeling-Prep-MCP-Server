@@ -1,6 +1,6 @@
 import { FMPClient } from "../FMPClient.js";
 import type { FMPContext } from "../../types/index.js";
-import {
+import type {
   CrowdfundingCampaign,
   CrowdfundingSearchResult,
   EquityOffering,
@@ -16,14 +16,14 @@ export class FundraisersClient extends FMPClient {
 
   /**
    * Get latest crowdfunding campaigns
-   * @param page Page number (default: 0)
-   * @param limit Number of results per page (default: 100)
+   * @param page Optional page number (default: 0)
+   * @param limit Optional number of results per page (default: 100)
    * @param options Additional options including abort signal and context
    * @returns Array of crowdfunding campaigns
    */
   async getLatestCrowdfundingCampaigns(
-    page: number = 0,
-    limit: number = 100,
+    page?: number,
+    limit?: number,
     options?: {
       signal?: AbortSignal;
       context?: FMPContext;
@@ -85,15 +85,15 @@ export class FundraisersClient extends FMPClient {
 
   /**
    * Get latest equity offerings
-   * @param page Page number (default: 0)
-   * @param limit Number of results per page (default: 10)
+   * @param page Optional page number (default: 0)
+   * @param limit Optional number of results per page (default: 10)
    * @param cik Optional CIK to filter by
    * @param options Additional options including abort signal and context
    * @returns Array of equity offerings
    */
   async getLatestEquityOfferings(
-    page: number = 0,
-    limit: number = 10,
+    page?: number,
+    limit?: number,
     cik?: string,
     options?: {
       signal?: AbortSignal;
