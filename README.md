@@ -1,10 +1,59 @@
-# Financial Modeling Prep MCP (Model Context Protocol)
-
-[![smithery badge](https://smithery.ai/badge/@imbenrabi/financial-modeling-prep-mcp)](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)
+# Financial Modeling Prep MCP (Model Context Protocol) Server
 
 A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabling AI assistants to access and analyze financial data, stock information, company fundamentals, and market insights.
 
+## Table of Contents
+
+- [Usage](#usage)
+  - [Production via Smithery Registry](#production-via-smithery-registry)
+  - [HTTP Server](#http-server)
+- [Available Tools](#available-tools)
+  - [Search Tools](#search-tools)
+  - [Directory and Symbol Lists](#directory-and-symbol-lists)
+  - [Company Information](#company-information)
+  - [Financial Statements](#financial-statements)
+  - [Financial Metrics and Analysis](#financial-metrics-and-analysis)
+  - [Technical Indicators](#technical-indicators)
+  - [Quotes and Price Data](#quotes-and-price-data)
+  - [Market Indexes and Performance](#market-indexes-and-performance)
+  - [Market Data](#market-data)
+  - [News and Press Releases](#news-and-press-releases)
+  - [SEC Filings](#sec-filings)
+  - [Insider and Institutional Trading](#insider-and-institutional-trading)
+  - [ETFs and Funds](#etfs-and-funds)
+  - [Government Trading](#government-trading)
+  - [Cryptocurrency and Forex](#cryptocurrency-and-forex)
+  - [Earnings](#earnings)
+  - [Special Data Sets](#special-data-sets)
+  - [Commodities](#commodities)
+  - [Economics](#economics)
+  - [Fundraisers](#fundraisers)
+  - [Bulk Data Tools](#bulk-data-tools)
+- [Obtaining a Financial Modeling Prep Access Token](#obtaining-a-financial-modeling-prep-access-token)
+- [Contributing](#contributing)
+  - [Development Setup](#development-setup)
+  - [Running Tests](#running-tests)
+- [Issues and Bug Reports](#issues-and-bug-reports)
+- [License](#license)
+
 ## Usage
+
+### Production via Smithery Registry
+
+For production environments, you can use this MCP server through the Smithery registry, which provides hosted and managed MCP servers:
+
+**[🚀 View on Smithery](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)**
+
+[![smithery badge](https://smithery.ai/badge/@imbenrabi/financial-modeling-prep-mcp)](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)
+
+Smithery is a platform that helps developers find and ship AI-native services designed to communicate with AI agents. All services follow the Model Context Protocol (MCP) specification and provide:
+
+- Centralized discovery of MCP servers
+- Hosting and distribution for MCP servers  
+- Standardized interfaces for tool integration
+
+To integrate this MCP server into your application through Smithery, follow the [Smithery documentation](https://smithery.ai/docs) for connecting MCP clients to hosted servers.
+
 
 ### HTTP Server
 
@@ -446,6 +495,39 @@ The development server will start on port 3000 by default. You can configure the
 ```bash
 PORT=4000 FMP_ACCESS_TOKEN=your_api_key npm run dev
 ```
+
+### Running Tests
+
+The project uses Vitest for testing. You can run tests in several ways:
+
+```bash
+# Run tests in watch mode (for development)
+npm test
+
+# Run tests once
+npm run test:run
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+The coverage report will be generated in the `coverage/` directory and displayed in the terminal. You can open `coverage/index.html` in your browser to view a detailed HTML coverage report.
+
+## Issues and Bug Reports
+
+If you encounter any bugs, have feature requests, or need help with the project, please open an issue on GitHub:
+
+**[📝 Open an Issue](https://github.com/imbenrabi/Financial-Modeling-Prep-MCP-Server/issues)**
+
+When reporting issues, please include:
+
+- A clear description of the problem or feature request
+- Steps to reproduce the issue (if applicable)
+- Your environment details (Node.js version, operating system)
+- Any relevant error messages or logs
+- Expected vs. actual behavior
+
+This helps us understand and resolve issues more quickly.
 
 ## License
 
