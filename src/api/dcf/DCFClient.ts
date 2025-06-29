@@ -1,8 +1,7 @@
 import { FMPClient } from "../FMPClient.js";
 import type { FMPContext } from "../../types/index.js";
-import {
+import type {
   DCFValuation,
-  LeveredDCF,
   CustomDCFInput,
   CustomDCFOutput,
 } from "./types.js";
@@ -27,7 +26,7 @@ export class DCFClient extends FMPClient {
       context?: FMPContext;
     }
   ): Promise<DCFValuation> {
-    return super.get<DCFValuation>("/dcf", { symbol }, options);
+    return super.get<DCFValuation>("/discounted-cash-flow", { symbol }, options);
   }
 
   /**
@@ -42,8 +41,24 @@ export class DCFClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<LeveredDCF> {
-    return super.get<LeveredDCF>("/dcf-levered", { symbol }, options);
+  ): Promise<DCFValuation[]> {
+    return super.get<DCFValuation[]>("/levered-discounted-cash-flow", { symbol }, options);
+  }
+
+  /**
+   * Calculate custom levered DCF valuation
+   * @param input Custom DCF input parameters
+   * @param options Optional parameters including abort signal and context
+   * @returns Custom DCF output data
+   */
+  async calculateCustomLeveredDCF(
+    input: CustomDCFInput,
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
+  ): Promise<CustomDCFOutput> {
+    return super.post<CustomDCFOutput>("/custom-levered-discounted-cash-flow", { ...input }, options);
   }
 
   /**
@@ -59,6 +74,10 @@ export class DCFClient extends FMPClient {
       context?: FMPContext;
     }
   ): Promise<CustomDCFOutput> {
-    return super.post<CustomDCFOutput>("/dcf-custom", input, {}, options);
+    return super.post<CustomDCFOutput>("/custom-discounted-cash-flow", { ...input }, options);
   }
 }
+
+
+  
+

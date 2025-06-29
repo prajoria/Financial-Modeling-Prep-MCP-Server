@@ -136,10 +136,10 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getIncomeStatementGrowth**: Get income statement growth metrics
 - **getBalanceSheetGrowth**: Get balance sheet growth metrics
 - **getCashFlowStatementGrowth**: Get cash flow statement growth metrics
-- **getDiscountedCashFlow**: Get discounted cash flow valuation
-- **getHistoricalDCF**: Get historical DCF valuations
-- **getAdvancedDCF**: Get advanced DCF valuation
-- **getLeveredDCF**: Get levered DCF valuation
+- **getDCFValuation**: Get DCF (Discounted Cash Flow) valuation for a stock
+- **getLeveredDCFValuation**: Get levered DCF valuation for a stock
+- **calculateCustomDCF**: Calculate custom DCF valuation with user-defined parameters
+- **calculateCustomLeveredDCF**: Calculate custom levered DCF valuation with user-defined parameters
 - **getEnterpriseValue**: Get enterprise value for a company
 - **getFinancialScore**: Get financial score for a company
 - **getOwnerEarnings**: Get owner earnings for a company
