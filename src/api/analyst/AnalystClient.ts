@@ -1,5 +1,5 @@
 import { FMPClient } from "../FMPClient.js";
-import {
+import type {
   AnalystEstimate,
   RatingsSnapshot,
   HistoricalRating,

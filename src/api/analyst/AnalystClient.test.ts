@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AnalystClient } from './AnalystClient.js';
 import { FMPClient } from '../FMPClient.js';
-import {
+import type {
   AnalystEstimate,
   RatingsSnapshot,
   HistoricalRating,

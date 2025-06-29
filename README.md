@@ -380,25 +380,27 @@ This MCP provides the following tools for AI assistants to access financial data
 
 ### Bulk Data Tools
 
-- **getCompanyProfilesBulk**: Get bulk company profiles
-- **getStockRatingsBulk**: Get bulk stock ratings
-- **getDCFValuationsBulk**: Get bulk DCF valuations
-- **getFinancialScoresBulk**: Get bulk financial scores
-- **getPriceTargetSummariesBulk**: Get bulk price target summaries
-- **getUpgradesDowngradesConsensusBulk**: Get bulk upgrades/downgrades consensus
-- **getKeyMetricsTTMBulk**: Get bulk key metrics TTM
-- **getRatiosTTMBulk**: Get bulk ratios TTM
-- **getStockPeersBulk**: Get bulk stock peers
-- **getEODDataBulk**: Get bulk end-of-day price data
-- **getIncomeStatementsBulk**: Get bulk income statements
-- **getIncomeStatementGrowthBulk**: Get bulk income statement growth data
-- **getBalanceSheetStatementsBulk**: Get bulk balance sheet statements
-- **getBalanceSheetGrowthBulk**: Get bulk balance sheet growth data
-- **getCashFlowStatementsBulk**: Get bulk cash flow statements
-- **getCashFlowGrowthBulk**: Get bulk cash flow growth data
-- **getFinancialRatiosBulk**: Get bulk financial ratios
-- **getKeyMetricsBulk**: Get bulk key metrics
-- **getFinancialGrowthBulk**: Get bulk financial growth data
+**Important Note**: All bulk endpoints return data in CSV format as raw strings rather than parsed JSON objects. This endpoint returns the response as a CSV file. The provided sample response represents an individual record. This design preserves the original FMP API format and provides better performance for large datasets.
+
+- **getCompanyProfilesBulk**: Get bulk company profiles (CSV format)
+- **getStockRatingsBulk**: Get bulk stock ratings (CSV format)
+- **getDCFValuationsBulk**: Get bulk DCF valuations (CSV format)
+- **getFinancialScoresBulk**: Get bulk financial scores (CSV format)
+- **getPriceTargetSummariesBulk**: Get bulk price target summaries (CSV format)
+- **getUpgradesDowngradesConsensusBulk**: Get bulk upgrades/downgrades consensus (CSV format)
+- **getKeyMetricsTTMBulk**: Get bulk key metrics TTM (CSV format)
+- **getRatiosTTMBulk**: Get bulk ratios TTM (CSV format)
+- **getStockPeersBulk**: Get bulk stock peers (CSV format)
+- **getEODDataBulk**: Get bulk end-of-day price data (CSV format)
+- **getIncomeStatementsBulk**: Get bulk income statements (CSV format)
+- **getIncomeStatementGrowthBulk**: Get bulk income statement growth data (CSV format)
+- **getBalanceSheetStatementsBulk**: Get bulk balance sheet statements (CSV format)
+- **getBalanceSheetGrowthBulk**: Get bulk balance sheet growth data (CSV format)
+- **getCashFlowStatementsBulk**: Get bulk cash flow statements (CSV format)
+- **getCashFlowGrowthBulk**: Get bulk cash flow growth data (CSV format)
+- **getFinancialRatiosBulk**: Get bulk financial ratios (CSV format)
+- **getKeyMetricsBulk**: Get bulk key metrics (CSV format)
+- **getFinancialGrowthBulk**: Get bulk financial growth data (CSV format)
 
 Most tools accept optional parameters such as:
 

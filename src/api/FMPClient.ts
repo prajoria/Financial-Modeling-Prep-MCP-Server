@@ -79,6 +79,49 @@ export class FMPClient {
     }
   }
 
+  protected async getCSV(
+    endpoint: string,
+    params: Record<string, any> = {},
+    options?: {
+      signal?: AbortSignal;
+      context?: { config?: { FMP_ACCESS_TOKEN?: string } };
+    }
+  ): Promise<string> {
+    try {
+      // Try to get API key from context first, fall back to instance API key
+      const apiKey = this.getApiKey(options?.context);
+
+      const config: AxiosRequestConfig = {
+        params: {
+          ...params,
+          apikey: apiKey,
+        },
+        responseType: 'text', // Important: get response as text for CSV
+      };
+
+      if (options?.signal) {
+        config.signal = options.signal;
+      }
+
+      const response = await this.client.get<string>(endpoint, config);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError<FMPErrorResponse>;
+        throw new Error(
+          `FMP API Error: ${
+            axiosError.response?.data?.message || axiosError.message
+          }`
+        );
+      }
+      throw new Error(
+        `Unexpected error: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
   protected async post<T>(
     endpoint: string,
     data: any,

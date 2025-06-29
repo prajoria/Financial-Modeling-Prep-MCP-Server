@@ -325,26 +325,28 @@ This document provides a comprehensive list of all available tools in the Financ
 
 ## Bulk
 
+**Important Note**: All bulk endpoints return data in CSV format as raw strings rather than parsed JSON objects. This endpoint returns the response as a CSV file. The provided sample response represents an individual record. This design preserves the original FMP API format and provides better performance for large datasets.
+
 | Tool Name | Return Type |
 |-----------|-------------|
-| getCompanyProfiles | `CompanyProfile[]` |
-| getStockRatings | `StockRating[]` |
-| getDCFValuations | `DCFValuation[]` |
-| getFinancialScores | `FinancialScore[]` |
-| getPriceTargetSummaries | `PriceTargetSummary[]` |
-| getETFHolders | `ETFHolder[]` |
-| getUpgradesDowngradesConsensus | `UpgradesDowngradesConsensus[]` |
-| getKeyMetricsTTM | `KeyMetricsTTM[]` |
-| getRatiosTTM | `RatiosTTM[]` |
-| getStockPeers | `StockPeer[]` |
-| getEarningsSurprises | `EarningsSurprise[]` |
-| getIncomeStatements | `IncomeStatement[]` |
-| getIncomeStatementGrowth | `IncomeStatementGrowth[]` |
-| getBalanceSheetStatements | `BalanceSheetStatement[]` |
-| getBalanceSheetGrowth | `BalanceSheetGrowth[]` |
-| getCashFlowStatements | `CashFlowStatement[]` |
-| getCashFlowGrowth | `CashFlowGrowth[]` |
-| getEODData | `EODData[]` |
+| getCompanyProfiles | `string` (CSV format) |
+| getStockRatings | `string` (CSV format) |
+| getDCFValuations | `string` (CSV format) |
+| getFinancialScores | `string` (CSV format) |
+| getPriceTargetSummaries | `string` (CSV format) |
+| getETFHolders | `string` (CSV format) |
+| getUpgradesDowngradesConsensus | `string` (CSV format) |
+| getKeyMetricsTTM | `string` (CSV format) |
+| getRatiosTTM | `string` (CSV format) |
+| getStockPeers | `string` (CSV format) |
+| getEarningsSurprises | `string` (CSV format) |
+| getIncomeStatements | `string` (CSV format) |
+| getIncomeStatementGrowth | `string` (CSV format) |
+| getBalanceSheetStatements | `string` (CSV format) |
+| getBalanceSheetGrowth | `string` (CSV format) |
+| getCashFlowStatements | `string` (CSV format) |
+| getCashFlowGrowth | `string` (CSV format) |
+| getEODData | `string` (CSV format) |
 
 ## Calendar
 

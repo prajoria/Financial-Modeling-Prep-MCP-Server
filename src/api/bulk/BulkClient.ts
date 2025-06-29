@@ -1,31 +1,11 @@
 import { FMPClient } from "../FMPClient.js";
 import type { FMPContext } from "../../types/index.js";
-import {
-  CompanyProfile,
-  StockRating,
-  DCFValuation,
-  FinancialScore,
-  PriceTargetSummary,
-  ETFHolder,
-  UpgradesDowngradesConsensus,
-  KeyMetricsTTM,
-  RatiosTTM,
-  StockPeer,
-  EarningsSurprise,
-  IncomeStatement,
-  IncomeStatementGrowth,
-  BalanceSheetStatement,
-  BalanceSheetGrowth,
-  CashFlowStatement,
-  CashFlowGrowth,
-  EODData,
+import type {
   PartParams,
   YearPeriodParams,
   EarningsSurpriseParams,
   EODParams,
 } from "./types.js";
-
-
 
 export class BulkClient extends FMPClient {
   constructor(apiKey?: string) {
@@ -33,9 +13,10 @@ export class BulkClient extends FMPClient {
   }
 
   /**
-   * Get company profiles in bulk
+   * Get company profiles in bulk (CSV format)
    * @param params Part parameters
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getCompanyProfilesBulk(
     params: PartParams,
@@ -43,8 +24,8 @@ export class BulkClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<CompanyProfile[]> {
-    return this.get<CompanyProfile[]>(
+  ): Promise<string> {
+    return this.getCSV(
       `/profile-bulk`,
       {
         part: params.part,
@@ -54,47 +35,51 @@ export class BulkClient extends FMPClient {
   }
 
   /**
-   * Get stock ratings in bulk
+   * Get stock ratings in bulk (CSV format)
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getStockRatingsBulk(options?: {
     signal?: AbortSignal;
     context?: FMPContext;
-  }): Promise<StockRating[]> {
-    return this.get<StockRating[]>(`/rating-bulk`, {}, options);
+  }): Promise<string> {
+    return this.getCSV(`/rating-bulk`, {}, options);
   }
 
   /**
-   * Get DCF valuations in bulk
+   * Get DCF valuations in bulk (CSV format)
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getDCFValuationsBulk(options?: {
     signal?: AbortSignal;
     context?: FMPContext;
-  }): Promise<DCFValuation[]> {
-    return this.get<DCFValuation[]>(`/dcf-bulk`, {}, options);
+  }): Promise<string> {
+    return this.getCSV(`/dcf-bulk`, {}, options);
   }
 
   /**
-   * Get financial scores in bulk
+   * Get financial scores in bulk (CSV format)
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getFinancialScoresBulk(options?: {
     signal?: AbortSignal;
     context?: FMPContext;
-  }): Promise<FinancialScore[]> {
-    return this.get<FinancialScore[]>(`/scores-bulk`, {}, options);
+  }): Promise<string> {
+    return this.getCSV(`/scores-bulk`, {}, options);
   }
 
   /**
-   * Get price target summaries in bulk
+   * Get price target summaries in bulk (CSV format)
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getPriceTargetSummariesBulk(options?: {
     signal?: AbortSignal;
     context?: FMPContext;
-  }): Promise<PriceTargetSummary[]> {
-    return this.get<PriceTargetSummary[]>(
+  }): Promise<string> {
+    return this.getCSV(
       `/price-target-summary-bulk`,
       {},
       options
@@ -102,9 +87,10 @@ export class BulkClient extends FMPClient {
   }
 
   /**
-   * Get ETF holders in bulk
+   * Get ETF holders in bulk (CSV format)
    * @param params Part parameters
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getETFHoldersBulk(
     params: PartParams,
@@ -112,8 +98,8 @@ export class BulkClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<ETFHolder[]> {
-    return this.get<ETFHolder[]>(
+  ): Promise<string> {
+    return this.getCSV(
       `/etf-holder-bulk`,
       {
         part: params.part,
@@ -123,14 +109,15 @@ export class BulkClient extends FMPClient {
   }
 
   /**
-   * Get upgrades/downgrades consensus in bulk
+   * Get upgrades/downgrades consensus in bulk (CSV format)
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getUpgradesDowngradesConsensusBulk(options?: {
     signal?: AbortSignal;
     context?: FMPContext;
-  }): Promise<UpgradesDowngradesConsensus[]> {
-    return this.get<UpgradesDowngradesConsensus[]>(
+  }): Promise<string> {
+    return this.getCSV(
       `/upgrades-downgrades-consensus-bulk`,
       {},
       options
@@ -138,42 +125,46 @@ export class BulkClient extends FMPClient {
   }
 
   /**
-   * Get key metrics TTM in bulk
+   * Get key metrics TTM in bulk (CSV format)
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getKeyMetricsTTMBulk(options?: {
     signal?: AbortSignal;
     context?: FMPContext;
-  }): Promise<KeyMetricsTTM[]> {
-    return this.get<KeyMetricsTTM[]>(`/key-metrics-ttm-bulk`, {}, options);
+  }): Promise<string> {
+    return this.getCSV(`/key-metrics-ttm-bulk`, {}, options);
   }
 
   /**
-   * Get ratios TTM in bulk
+   * Get ratios TTM in bulk (CSV format)
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getRatiosTTMBulk(options?: {
     signal?: AbortSignal;
     context?: FMPContext;
-  }): Promise<RatiosTTM[]> {
-    return this.get<RatiosTTM[]>(`/ratios-ttm-bulk`, {}, options);
+  }): Promise<string> {
+    return this.getCSV(`/ratios-ttm-bulk`, {}, options);
   }
 
   /**
-   * Get stock peers in bulk
+   * Get stock peers in bulk (CSV format)
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getStockPeersBulk(options?: {
     signal?: AbortSignal;
     context?: FMPContext;
-  }): Promise<StockPeer[]> {
-    return this.get<StockPeer[]>(`/peers-bulk`, {}, options);
+  }): Promise<string> {
+    return this.getCSV(`/peers-bulk`, {}, options);
   }
 
   /**
-   * Get earnings surprises in bulk
+   * Get earnings surprises in bulk (CSV format)
    * @param params Earnings surprise parameters
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getEarningsSurprisesBulk(
     params: EarningsSurpriseParams,
@@ -181,8 +172,8 @@ export class BulkClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<EarningsSurprise[]> {
-    return this.get<EarningsSurprise[]>(
+  ): Promise<string> {
+    return this.getCSV(
       `/earnings-surprises-bulk`,
       {
         year: params.year,
@@ -192,9 +183,10 @@ export class BulkClient extends FMPClient {
   }
 
   /**
-   * Get income statements in bulk
+   * Get income statements in bulk (CSV format)
    * @param params Year and period parameters
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getIncomeStatementsBulk(
     params: YearPeriodParams,
@@ -202,8 +194,8 @@ export class BulkClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<IncomeStatement[]> {
-    return this.get<IncomeStatement[]>(
+  ): Promise<string> {
+    return this.getCSV(
       `/income-statement-bulk`,
       {
         year: params.year,
@@ -214,9 +206,10 @@ export class BulkClient extends FMPClient {
   }
 
   /**
-   * Get income statement growth in bulk
+   * Get income statement growth in bulk (CSV format)
    * @param params Year and period parameters
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getIncomeStatementGrowthBulk(
     params: YearPeriodParams,
@@ -224,8 +217,8 @@ export class BulkClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<IncomeStatementGrowth[]> {
-    return this.get<IncomeStatementGrowth[]>(
+  ): Promise<string> {
+    return this.getCSV(
       `/income-statement-growth-bulk`,
       {
         year: params.year,
@@ -236,9 +229,10 @@ export class BulkClient extends FMPClient {
   }
 
   /**
-   * Get balance sheet statements in bulk
+   * Get balance sheet statements in bulk (CSV format)
    * @param params Year and period parameters
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getBalanceSheetStatementsBulk(
     params: YearPeriodParams,
@@ -246,8 +240,8 @@ export class BulkClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<BalanceSheetStatement[]> {
-    return this.get<BalanceSheetStatement[]>(
+  ): Promise<string> {
+    return this.getCSV(
       `/balance-sheet-statement-bulk`,
       {
         year: params.year,
@@ -258,9 +252,10 @@ export class BulkClient extends FMPClient {
   }
 
   /**
-   * Get balance sheet growth in bulk
+   * Get balance sheet growth in bulk (CSV format)
    * @param params Year and period parameters
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getBalanceSheetGrowthBulk(
     params: YearPeriodParams,
@@ -268,8 +263,8 @@ export class BulkClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<BalanceSheetGrowth[]> {
-    return this.get<BalanceSheetGrowth[]>(
+  ): Promise<string> {
+    return this.getCSV(
       `/balance-sheet-statement-growth-bulk`,
       {
         year: params.year,
@@ -280,9 +275,10 @@ export class BulkClient extends FMPClient {
   }
 
   /**
-   * Get cash flow statements in bulk
+   * Get cash flow statements in bulk (CSV format)
    * @param params Year and period parameters
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getCashFlowStatementsBulk(
     params: YearPeriodParams,
@@ -290,8 +286,8 @@ export class BulkClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<CashFlowStatement[]> {
-    return this.get<CashFlowStatement[]>(
+  ): Promise<string> {
+    return this.getCSV(
       `/cash-flow-statement-bulk`,
       {
         year: params.year,
@@ -302,9 +298,10 @@ export class BulkClient extends FMPClient {
   }
 
   /**
-   * Get cash flow growth in bulk
+   * Get cash flow growth in bulk (CSV format)
    * @param params Year and period parameters
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getCashFlowGrowthBulk(
     params: YearPeriodParams,
@@ -312,8 +309,8 @@ export class BulkClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<CashFlowGrowth[]> {
-    return this.get<CashFlowGrowth[]>(
+  ): Promise<string> {
+    return this.getCSV(
       `/cash-flow-statement-growth-bulk`,
       {
         year: params.year,
@@ -324,9 +321,10 @@ export class BulkClient extends FMPClient {
   }
 
   /**
-   * Get EOD data in bulk
+   * Get EOD data in bulk (CSV format)
    * @param params EOD parameters
    * @param options Optional parameters including abort signal and context
+   * @returns Raw CSV data as string
    */
   async getEODDataBulk(
     params: EODParams,
@@ -334,8 +332,8 @@ export class BulkClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<EODData[]> {
-    return this.get<EODData[]>(
+  ): Promise<string> {
+    return this.getCSV(
       `/eod-bulk`,
       {
         date: params.date,
