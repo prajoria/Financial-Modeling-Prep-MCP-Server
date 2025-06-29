@@ -1,6 +1,6 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { TechnicalIndicatorsClient } from "../api/technical-indicators/TechnicalIndicatorsClient.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 /**
  * Register all technical indicators-related tools with the MCP server

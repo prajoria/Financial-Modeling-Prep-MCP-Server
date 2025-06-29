@@ -244,19 +244,19 @@ This document provides a comprehensive list of all available tools in the Financ
 
 ## Directory
 
-| Tool Name | Return Type |
-|-----------|-------------|
-| getCompanySymbols | `CompanySymbol[]` |
-| getFinancialStatementSymbols | `FinancialStatementSymbol[]` |
-| getCIKList | `CIKEntry[]` |
-| getSymbolChanges | `SymbolChange[]` |
-| getETFList | `ETFEntry[]` |
-| getActivelyTradingList | `ActivelyTradingEntry[]` |
-| getEarningsTranscriptSymbols | `EarningsTranscriptEntry[]` |
-| getExchangeList | `ExchangeEntry[]` |
-| getSectorList | `SectorEntry[]` |
-| getIndustryList | `IndustryEntry[]` |
-| getCountryList | `CountryEntry[]` |
+| Tool Name | Description | Return Type |
+|-----------|-------------|-------------|
+| getCompanySymbols | Get a list of all company symbols | `CompanySymbol[]` |
+| getFinancialStatementSymbols | Get a list of companies with available financial statements | `FinancialStatementSymbol[]` |
+| getCIKList | Get a list of CIK numbers for SEC-registered entities | `CIKEntry[]` |
+| getSymbolChanges | Get a list of stock symbol changes | `SymbolChange[]` |
+| getETFList | Get a list of ETFs | `ETFEntry[]` |
+| getActivelyTradingList | Get a list of actively trading companies | `ActivelyTradingEntry[]` |
+| getEarningsTranscriptSymbols | Get a list of companies with earnings transcripts | `EarningsTranscriptEntry[]` |
+| getExchangeList | Get a list of available exchanges | `ExchangeEntry[]` |
+| getSectorList | Get a list of available sectors | `SectorEntry[]` |
+| getIndustryList | Get a list of available industries | `IndustryEntry[]` |
+| getCountryList | Get a list of available countries | `CountryEntry[]` |
 
 ## Earnings Transcript
 

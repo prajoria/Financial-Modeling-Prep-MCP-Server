@@ -53,17 +53,17 @@ This MCP provides the following tools for AI assistants to access financial data
 ### Directory and Symbol Lists
 
 - **getCompanySymbols**: Get a list of all company symbols
-- **getFinancialStatementSymbols**: Get symbols with available financial statements
-- **getETFList**: Get a list of all ETFs
-- **getActivelyTradingList**: Get a list of actively trading stocks
+- **getFinancialStatementSymbols**: Get a list of companies with available financial statements
+- **getCIKList**: Get a list of CIK numbers for SEC-registered entities
+- **getSymbolChanges**: Get a list of stock symbol changes
+- **getETFList**: Get a list of ETFs
+- **getActivelyTradingList**: Get a list of actively trading companies
 - **getEarningsTranscriptList**: Get a list of companies with earnings transcripts
-- **getAvailableExchanges**: Get a list of all available exchanges
-- **getAvailableSectors**: Get a list of all available sectors
-- **getAvailableIndustries**: Get a list of all available industries
-- **getAvailableCountries**: Get a list of all available countries
+- **getAvailableExchanges**: Get a list of available exchanges
+- **getAvailableSectors**: Get a list of available sectors
+- **getAvailableIndustries**: Get a list of available industries
+- **getAvailableCountries**: Get a list of available countries
 - **getAvailableTranscriptSymbols**: Get a list of symbols with available transcripts
-- **getCIKList**: Get a list of all CIK numbers
-- **getSymbolChanges**: Get a list of symbol changes
 - **getAllIndustryClassification**: Get all industry classifications
 - **getIndustryClassificationList**: Get a list of industry classifications
 
