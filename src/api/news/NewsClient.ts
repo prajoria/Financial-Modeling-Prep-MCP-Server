@@ -1,13 +1,11 @@
 import { FMPClient } from "../FMPClient.js";
 import type { FMPContext } from "../../types/index.js";
-import {
+import type {
   FMPArticle,
   NewsArticle,
   NewsParams,
   NewsSearchParams,
 } from "./types.js";
-
-
 
 export class NewsClient extends FMPClient {
   constructor(apiKey?: string) {
