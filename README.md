@@ -353,15 +353,7 @@ This MCP provides the following tools for AI assistants to access financial data
 
 ### Commodities
 
-- **getCommodityPrice**: Get commodity price
-- **getCommodityHistoricalPrices**: Get historical commodity prices
-- **getCommodityQuote**: Get commodity quote
-- **getCommodityQuotes**: Get commodity quotes
-- **getCommodityContract**: Get commodity contract information
-- **getCommodityMarketData**: Get commodity market data
-- **getCommodityNews**: Get commodity news
-- **getCommodityForecast**: Get commodity forecast
-- **getCommoditySupplyDemand**: Get commodity supply and demand data
+- **listCommodities**: Get a list of all available commodities with their symbols, names, exchanges, trade months, and currencies
 
 ### Economics
 

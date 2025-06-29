@@ -299,14 +299,7 @@ This document provides a comprehensive list of all available tools in the Financ
 
 | Tool Name | Return Type |
 |-----------|-------------|
-| getCommodityPrices | `CommodityPrice[]` |
-| getCommodityHistoricalPrices | `CommodityHistoricalPrice[]` |
-| getCommodityQuotes | `CommodityQuote[]` |
-| getCommodityContracts | `CommodityContract[]` |
-| getCommodityMarketData | `CommodityMarketData[]` |
-| getCommodityNews | `CommodityNews[]` |
-| getCommodityForecasts | `CommodityForecast[]` |
-| getCommoditySupplyDemand | `CommoditySupplyDemand[]` |
+| listCommodities | `Commodity[]` |
 
 ## Analyst
 
@@ -2314,6 +2307,15 @@ interface StockGradeNews {
   gradingCompany: string;
   action: string;
   priceWhenPosted: number;
+}
+
+// Commodity
+interface Commodity {
+  symbol: string;
+  name: string;
+  exchange: string;
+  tradeMonth: string;
+  currency: string;
 }
 ```
 
