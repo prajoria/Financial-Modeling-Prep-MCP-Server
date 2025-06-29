@@ -95,6 +95,12 @@ This document provides a comprehensive list of all available tools in the Financ
 | getBalanceSheetStatementAsReported | `AsReportedBalanceSheet[]` |
 | getCashFlowStatementAsReported | `AsReportedCashFlowStatement[]` |
 | getFinancialStatementFullAsReported | `AsReportedFinancialStatement[]` |
+| getKeyMetrics | `KeyMetrics[]` |
+| getRatios | `Ratios[]` |
+| getKeyMetricsTTM | `KeyMetricsTTM[]` |
+| getFinancialRatiosTTM | `FinancialRatiosTTM[]` |
+| getFinancialScores | `FinancialScores[]` |
+| getOwnerEarnings | `OwnerEarnings[]` |
 
 ## Market Performance
 

@@ -130,6 +130,7 @@ This MCP provides the following tools for AI assistants to access financial data
 
 - **getKeyMetrics**: Get key financial metrics for a company
 - **getKeyMetricsTTM**: Get key metrics for trailing twelve months
+- **getRatios**: Get financial ratios for a company
 - **getFinancialRatios**: Get financial ratios for a company
 - **getFinancialRatiosTTM**: Get financial ratios for trailing twelve months
 - **getFinancialGrowth**: Get financial growth metrics
@@ -142,6 +143,7 @@ This MCP provides the following tools for AI assistants to access financial data
 - **calculateCustomLeveredDCF**: Calculate custom levered DCF valuation with user-defined parameters
 - **getEnterpriseValue**: Get enterprise value for a company
 - **getFinancialScore**: Get financial score for a company
+- **getFinancialScores**: Get financial scores for a company
 - **getOwnerEarnings**: Get owner earnings for a company
 
 ### Technical Indicators

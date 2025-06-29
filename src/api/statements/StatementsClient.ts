@@ -18,6 +18,12 @@ import {
   AsReportedBalanceSheet,
   AsReportedCashFlowStatement,
   AsReportedFinancialStatement,
+  FinancialScores,
+  FinancialRatiosTTM,
+  OwnerEarnings,
+  KeyMetrics,
+  Ratios,
+  KeyMetricsTTM,
 } from "./types.js";
 
 
@@ -504,4 +510,143 @@ export class StatementsClient extends FMPClient {
       options
     );
   }
+
+
+  /**
+     * Get 
+     * @param symbol The stock symbol
+     * @param limit Optional limit for the number of key metrics to return
+     * @param period Optional period for the key metrics
+     * @param options Optional parameters including abort signal and context
+     */
+  async getKeyMetrics(
+    symbol: string,
+    params: { limit?: number; period?: "Q1" | "Q2" | "Q3" | "Q4" | "FY" | "annual" | "quarter" } = {},
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
+  ): Promise<KeyMetrics[]> {
+    return super.get<KeyMetrics[]>(
+      "/key-metrics",
+      {
+        symbol,
+        ...params,
+      },
+      options
+    );
+  }
+
+  /**
+     * Get Average Directional Index (ADX) indicator
+     * @param symbol The stock symbol
+     * @param limit Optional limit for the number of key metrics to return
+     * @param period Optional period for the key metrics
+     * @param options Optional parameters including abort signal and context
+     */
+  async getRatios(
+    symbol: string,
+    params: { limit?: number; period?: "Q1" | "Q2" | "Q3" | "Q4" | "FY" | "annual" | "quarter" } = {},
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
+  ): Promise<Ratios[]> {  
+    return super.get<Ratios[]>(
+      "/ratios",
+      {
+        symbol,
+        ...params,
+      },
+      options
+    );
+  }
+
+  /**
+     * Get Average Directional Index (ADX) indicator
+     * @param symbol The stock symbol
+     * @param options Optional parameters including abort signal and context
+     */
+  async getKeyMetricsTTM(
+    symbol: string,
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
+  ): Promise<KeyMetricsTTM[]> {
+    return super.get<KeyMetricsTTM[]>(
+      "/key-metrics-ttm",
+      {
+        symbol,
+      },
+      options
+    );
+  }
+
+  /**
+     * Get Average Directional Index (ADX) indicator
+     * @param symbol The stock symbol
+     * @param options Optional parameters including abort signal and context
+     */
+  async getFinancialRatiosTTM(
+    symbol: string,
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
+  ): Promise<FinancialRatiosTTM[]> {
+    return super.get<FinancialRatiosTTM[]>(
+      "/ratios-ttm",
+      {
+        symbol,
+      },
+      options
+    );
+  }
+
+  /**
+     * Get Average Directional Index (ADX) indicator
+     * @param symbol The stock symbol
+     * @param limit Optional limit for the number of financial scores to return
+     * @param options Optional parameters including abort signal and context
+     */
+  async getFinancialScores(
+    symbol: string,
+    params: { limit?: number } = {},
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
+  ): Promise<FinancialScores[]> {
+    return super.get<FinancialScores[]>(
+      "/financial-scores",
+      {
+        symbol,
+        ...params,
+      },
+      options
+    );
+  }
+
+  /**
+     * Get Average Directional Index (ADX) indicator
+     * @param symbol The stock symbol
+     * @param options Optional parameters including abort signal and context
+     */
+  async getOwnerEarnings(
+    symbol: string,
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
+  ): Promise<OwnerEarnings[]> {
+    return super.get<OwnerEarnings[]>(
+      "/owner-earnings",
+      {
+        symbol,
+      },
+      options
+    );
+  }
+
 }

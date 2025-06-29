@@ -1,6 +1,6 @@
 import { FMPClient } from "../FMPClient.js";
 import type { FMPContext } from "../../types/index.js";
-import {
+import type {
   TechnicalIndicatorParams,
   SMAIndicator,
   EMAIndicator,
@@ -12,8 +12,6 @@ import {
   WilliamsIndicator,
   ADXIndicator,
 } from "./types.js";
-
-
 
 export class TechnicalIndicatorsClient extends FMPClient {
   constructor(apiKey?: string) {
