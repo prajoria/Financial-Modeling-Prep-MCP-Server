@@ -44,7 +44,7 @@ For production environments, you can use this MCP server through the Smithery re
 
 **[🚀 View on Smithery](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)**
 
-[![smithery badge](https://smithery.ai/badge/@imbenrabi/financial-modeling-prep-mcp)](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)
+[![smithery badge](https://smithery.ai/badge/@imbenrabi/financial-modeling-prep-mcp-server)](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)
 
 Smithery is a platform that helps developers find and ship AI-native services designed to communicate with AI agents. All services follow the Model Context Protocol (MCP) specification and provide:
 
