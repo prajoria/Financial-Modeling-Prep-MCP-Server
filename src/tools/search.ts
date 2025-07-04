@@ -15,6 +15,7 @@ export function registerSearchTools(
 
   server.tool(
     "searchSymbol",
+    "Easily find the ticker symbol of any stock with the FMP Stock Symbol Search API. Search by company name or symbol across multiple global markets.",
     {
       query: z.string().describe("The search query to find stock symbols"),
       limit: z
@@ -50,6 +51,7 @@ export function registerSearchTools(
 
   server.tool(
     "searchName",
+    "Search for ticker symbols, company names, and exchange details for equity securities and ETFs listed on various exchanges with the FMP Name Search API. This endpoint is useful for retrieving ticker symbols when you know the full or partial company or asset name but not the symbol identifier.",
     {
       query: z.string().describe("The search query to find company names"),
       limit: z
@@ -85,6 +87,7 @@ export function registerSearchTools(
 
   server.tool(
     "searchCIK",
+    "Easily retrieve the Central Index Key (CIK) for publicly traded companies with the FMP CIK API. Access unique identifiers needed for SEC filings and regulatory documents for a streamlined compliance and financial analysis process.",
     {
       cik: z.string().describe("The CIK number to search for"),
       limit: z
@@ -116,6 +119,7 @@ export function registerSearchTools(
 
   server.tool(
     "searchCUSIP",
+    "Easily search and retrieve financial securities information by CUSIP number using the FMP CUSIP API. Find key details such as company name, stock symbol, and market capitalization associated with the CUSIP.",
     {
       cusip: z.string().describe("The CUSIP number to search for"),
     },
@@ -143,6 +147,7 @@ export function registerSearchTools(
 
   server.tool(
     "searchISIN",
+    "Easily search and retrieve the International Securities Identification Number (ISIN) for financial securities using the FMP ISIN API. Find key details such as company name, stock symbol, and market capitalization associated with the ISIN.",
     {
       isin: z.string().describe("The ISIN number to search for"),
     },
@@ -170,6 +175,7 @@ export function registerSearchTools(
 
   server.tool(
     "stockScreener",
+    "Discover stocks that align with your investment strategy using the FMP Stock Screener API. Filter stocks based on market cap, price, volume, beta, sector, country, and more to identify the best opportunities.",
     {
       marketCapMoreThan: z
         .number()
@@ -260,6 +266,7 @@ export function registerSearchTools(
 
   server.tool(
     "searchExchangeVariants",
+    "Search across multiple public exchanges to find where a given stock symbol is listed using the FMP Exchange Variants API. This allows users to quickly identify all the exchanges where a security is actively traded.",
     {
       symbol: z
         .string()
