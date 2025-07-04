@@ -198,7 +198,8 @@ export function registerBulkTools(
       }
   });
 
-  server.tool("getKeyMetricsTTMBulk",
+  server.tool(
+    "getKeyMetricsTTMBulk",
     "The Key Metrics TTM Bulk API allows users to retrieve trailing twelve months (TTM) data for all companies available in the database. The API provides critical financial ratios and metrics based on each company’s latest financial report, offering insights into company performance and financial health.",
     {}, 
     async () => {
@@ -222,7 +223,8 @@ export function registerBulkTools(
       }
   });
 
-  server.tool("getRatiosTTMBulk",
+  server.tool(
+    "getRatiosTTMBulk",
     "The Ratios TTM Bulk API offers an efficient way to retrieve trailing twelve months (TTM) financial ratios for stocks. It provides users with detailed insights into a company’s profitability, liquidity, efficiency, leverage, and valuation ratios, all based on the most recent financial report.",
     {},
     async () => {
@@ -246,7 +248,8 @@ export function registerBulkTools(
       }
   });
 
-  server.tool("getStockPeersBulk", 
+  server.tool(
+    "getStockPeersBulk", 
     "The Stock Peers Bulk API allows you to quickly retrieve a comprehensive list of peer companies for all stocks in the database. By accessing this data, you can easily compare a stock’s performance with its closest competitors or similar companies within the same industry or sector.",
     {},
     async () => {

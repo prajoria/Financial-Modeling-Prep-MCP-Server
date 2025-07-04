@@ -12,6 +12,7 @@ export function registerDCFTools(server: McpServer, accessToken?: string): void 
 
   server.tool(
     "getDCFValuation",
+    "Estimate the intrinsic value of a company with the FMP Discounted Cash Flow Valuation API. Calculate the DCF valuation based on expected future cash flows and discount rates.",
     {
       symbol: z.string().describe("Stock symbol"),
     },
@@ -39,6 +40,7 @@ export function registerDCFTools(server: McpServer, accessToken?: string): void 
 
   server.tool(
     "getLeveredDCFValuation",
+    "Analyze a company’s value with the FMP Levered Discounted Cash Flow (DCF) API, which incorporates the impact of debt. This API provides post-debt company valuation, offering investors a more accurate measure of a company's true worth by accounting for its debt obligations.",
     {
       symbol: z.string().describe("Stock symbol"),
     },
@@ -66,6 +68,7 @@ export function registerDCFTools(server: McpServer, accessToken?: string): void 
 
   server.tool(
     "calculateCustomDCF",
+    "Run a tailored Discounted Cash Flow (DCF) analysis using the FMP Custom DCF Advanced API. With detailed inputs, this API allows users to fine-tune their assumptions and variables, offering a more personalized and precise valuation for a company.",
     {
       input: z.object({
         symbol: z.string().describe("Stock symbol"),
@@ -113,6 +116,7 @@ export function registerDCFTools(server: McpServer, accessToken?: string): void 
 
   server.tool(
     "calculateCustomLeveredDCF",
+    "Run a tailored Discounted Cash Flow (DCF) analysis using the FMP Custom DCF Advanced API. With detailed inputs, this API allows users to fine-tune their assumptions and variables, offering a more personalized and precise valuation for a company.",
     {
       input: z.object({
         symbol: z.string().describe("Stock symbol"),
