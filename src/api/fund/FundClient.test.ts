@@ -10,6 +10,7 @@ import type {
   FundDisclosure,
   FundDisclosureSearch,
   FundDisclosureDate,
+  FundDisclosureHolder,
 } from './types.js';
 
 // Mock the FMPClient
@@ -254,7 +255,7 @@ describe('FundClient', () => {
 
   describe('getDisclosure', () => {
     it('should call get with correct parameters', async () => {
-      const mockData: FundDisclosure[] = [
+      const mockData: FundDisclosureHolder[] = [
         {
           cik: '0001100663',
           holder: 'Vanguard Group Inc',
@@ -289,7 +290,7 @@ describe('FundClient', () => {
     });
 
     it('should handle options parameter', async () => {
-      const mockData: FundDisclosure[] = [];
+      const mockData: FundDisclosureHolder[] = [];
       mockGet.mockResolvedValue(mockData);
 
       const options = { 
@@ -409,6 +410,68 @@ describe('FundClient', () => {
 
       await expect(fundClient.getDisclosureDates('SPY'))
         .rejects.toThrow(errorMessage);
+    });
+  });
+
+  describe('getFundDisclosure', () => {
+    it('should call get with correct parameters', async () => {
+      const mockData: FundDisclosure[] = [
+        {
+          cik: '0001100663',
+          date: '2024-01-31',
+          acceptedDate: '2024-02-01',
+          symbol: 'SPY',
+          name: 'SPDR S&P 500 ETF Trust',
+          lei: '549300XRAQ1TX5Z7MM70',
+          title: 'SPDR S&P 500 ETF Trust',
+          cusip: '78462F103',
+          isin: 'US78462F1030',
+          balance: 425600000,
+          units: 'NS',
+          cur_cd: 'USD',
+          valUsd: 31500000000,
+          pctVal: 8.5,
+          payoffProfile: 'Long',
+          assetCat: 'EC',
+          issuerCat: 'CORP',
+          invCountry: 'US',
+          isRestrictedSec: 'N',
+          fairValLevel: '1',
+          isCashCollateral: 'N',
+          isNonCashCollateral: 'N',
+          isLoanByFund: 'N'
+        }
+      ];
+      mockGet.mockResolvedValue(mockData);
+
+      const result = await fundClient.getFundDisclosure('SPY', 2024, 1);
+
+      expect(mockGet).toHaveBeenCalledWith('/funds/disclosure', { symbol: 'SPY', year: 2024, quarter: 1, cik: undefined }, undefined);
+      expect(result).toEqual(mockData);
+    });
+
+    it('should call get with correct parameters including CIK', async () => {
+      const mockData: FundDisclosure[] = [];
+      mockGet.mockResolvedValue(mockData);
+
+      const result = await fundClient.getFundDisclosure('SPY', 2024, 1, '0000315066');
+
+      expect(mockGet).toHaveBeenCalledWith('/funds/disclosure', { symbol: 'SPY', year: 2024, quarter: 1, cik: '0000315066' }, undefined);
+      expect(result).toEqual(mockData);
+    });
+
+    it('should handle options parameter', async () => {
+      const mockData: FundDisclosure[] = [];
+      mockGet.mockResolvedValue(mockData);
+
+      const options = { 
+        signal: new AbortController().signal,
+        context: { config: { FMP_ACCESS_TOKEN: 'test-token' } }
+      };
+
+      await fundClient.getFundDisclosure('SPY', 2024, 1, '0000315066', options);
+
+      expect(mockGet).toHaveBeenCalledWith('/funds/disclosure', { symbol: 'SPY', year: 2024, quarter: 1, cik: '0000315066' }, options);
     });
   });
 

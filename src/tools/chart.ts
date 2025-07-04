@@ -15,6 +15,7 @@ export function registerChartTools(
 
   server.tool(
     "getLightChart",
+    "Access simplified stock chart data using the FMP Basic Stock Chart API. This API provides essential charting information, including date, price, and trading volume, making it ideal for tracking stock performance with minimal data and creating basic price and volume charts.",
     {
       symbol: z.string().describe("Stock symbol"),
       from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
@@ -44,6 +45,7 @@ export function registerChartTools(
 
   server.tool(
     "getFullChart",
+    "Access full price and volume data for any stock symbol using the FMP Comprehensive Stock Price and Volume Data API. Get detailed insights, including open, high, low, close prices, trading volume, price changes, percentage changes, and volume-weighted average price (VWAP).",
     {
       symbol: z.string().describe("Stock symbol"),
       from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
@@ -73,6 +75,7 @@ export function registerChartTools(
 
   server.tool(
     "getUnadjustedChart",
+    "Access stock price and volume data without adjustments for stock splits with the FMP Unadjusted Stock Price Chart API. Get accurate insights into stock performance, including open, high, low, and close prices, along with trading volume, without split-related changes.",
     {
       symbol: z.string().describe("Stock symbol"),
       from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
@@ -102,6 +105,7 @@ export function registerChartTools(
 
   server.tool(
     "getDividendAdjustedChart",
+    "Analyze stock performance with dividend adjustments using the FMP Dividend-Adjusted Price Chart API. Access end-of-day price and volume data that accounts for dividend payouts, offering a more comprehensive view of stock trends over time.",
     {
       symbol: z.string().describe("Stock symbol"),
       from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
@@ -131,6 +135,7 @@ export function registerChartTools(
 
   server.tool(
     "getIntradayChart",
+    "Access precise intraday stock price and volume data with the FMP Interval Stock Chart API. Retrieve real-time or historical stock data in intervals, including key information such as open, high, low, and close prices, and trading volume for each minute.",
     {
       symbol: z.string().describe("Stock symbol"),
       interval: z

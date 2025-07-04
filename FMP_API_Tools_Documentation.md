@@ -190,7 +190,8 @@ This document provides a comprehensive list of all available tools in the Financ
 | getFundCountryAllocation | symbol (string) | `FundCountryAllocation[]` |
 | getFundAssetExposure | symbol (string) | `FundAssetExposure[]` |
 | getFundSectorWeighting | symbol (string) | `FundSectorWeighting[]` |
-| getFundDisclosure | symbol (string) | `FundDisclosure[]` |
+| getDisclosure | symbol (string) | `FundDisclosureHolder[]` |
+| getFundDisclosure | symbol (string), year (number), quarter (number), cik? (string) | `FundDisclosure[]` |
 | searchFundDisclosures | name (string) | `FundDisclosureSearch[]` |
 | getFundDisclosureDates | symbol (string), cik? (string) | `FundDisclosureDate[]` |
 
@@ -1432,13 +1433,39 @@ interface FundSectorWeighting {
   weightPercentage: number;
 }
 
-interface FundDisclosure {
+interface FundDisclosureHolder {
   cik: string;
   holder: string;
   shares: number;
   dateReported: string;
   change: number;
   weightPercent: number;
+}
+
+interface FundDisclosure {
+  cik: string;
+  date: string;
+  acceptedDate: string;
+  symbol: string;
+  name: string;
+  lei: string;
+  title: string;
+  cusip: string;
+  isin: string;
+  balance: number;
+  units: string;
+  cur_cd: string;
+  valUsd: number;
+  pctVal: number;
+  payoffProfile: string;
+  assetCat: string;
+  issuerCat: string;
+  invCountry: string;
+  isRestrictedSec: string;
+  fairValLevel: string;
+  isCashCollateral: string;
+  isNonCashCollateral: string;
+  isLoanByFund: string;
 }
 
 interface FundDisclosureSearch {

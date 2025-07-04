@@ -14,10 +14,9 @@ export function registerDirectoryTools(
   const directoryClient = new DirectoryClient(accessToken);
 
   server.tool(
-    "getCompanySymbols", 
-    {
-      description: "Get a list of all company symbols"
-    }, 
+    "getCompanySymbols",
+    "Easily retrieve a comprehensive list of financial symbols with the FMP Company Symbols List API. Access a broad range of stock symbols and other tradable financial instruments from various global exchanges, helping you explore the full range of available securities.",
+    {}, 
     async () => {
       try {
         const results = await directoryClient.getCompanySymbols();
@@ -42,9 +41,8 @@ export function registerDirectoryTools(
 
   server.tool(
     "getFinancialStatementSymbols", 
-    {
-      description: "Get a list of companies with available financial statements"
-    }, 
+    "Access a comprehensive list of companies with available financial statements through the FMP Financial Statement Symbols List API. Find companies listed on major global exchanges and obtain up-to-date financial data including income statements, balance sheets, and cash flow statements, are provided.",
+    {}, 
     async () => {
       try {
         const results = await directoryClient.getFinancialStatementSymbols();
@@ -69,8 +67,8 @@ export function registerDirectoryTools(
 
   server.tool(
     "getCIKList",
+    "Access a comprehensive database of CIK (Central Index Key) numbers for SEC-registered entities with the FMP CIK List API. This endpoint is essential for businesses, financial professionals, and individuals who need quick access to CIK numbers for regulatory compliance, financial transactions, and investment research.",
     {
-      description: "Get a list of CIK numbers for SEC-registered entities",
       limit: z
         .number()
         .optional()
@@ -100,8 +98,8 @@ export function registerDirectoryTools(
 
   server.tool(
     "getSymbolChanges",
+    "Stay informed about the latest stock symbol changes with the FMP Stock Symbol Changes API. Track changes due to mergers, acquisitions, stock splits, and name changes to ensure accurate trading and analysis.",
     {
-      description: "Get a list of stock symbol changes",
       invalid: z
         .boolean()
         .optional()
@@ -134,10 +132,9 @@ export function registerDirectoryTools(
   );
 
   server.tool(
-    "getETFList", 
-    {
-      description: "Get a list of ETFs"
-    }, 
+    "getETFList",
+    "Quickly find ticker symbols and company names for Exchange Traded Funds (ETFs) using the FMP ETF Symbol Search API. This tool simplifies identifying specific ETFs by their name or ticker.",
+    {}, 
     async () => {
       try {
         const results = await directoryClient.getETFList();
@@ -161,10 +158,9 @@ export function registerDirectoryTools(
   );
 
   server.tool(
-    "getActivelyTradingList", 
-    {
-      description: "Get a list of actively trading companies"
-    }, 
+    "getActivelyTradingList",
+    "List all actively trading companies and financial instruments with the FMP Actively Trading List API. This endpoint allows users to filter and display securities that are currently being traded on public exchanges, ensuring you access real-time market activity.",
+    {}, 
     async () => {
       try {
         const results = await directoryClient.getActivelyTradingList();
@@ -188,10 +184,9 @@ export function registerDirectoryTools(
   );
 
   server.tool(
-    "getEarningsTranscriptList", 
-    {
-      description: "Get a list of companies with earnings transcripts"
-    }, 
+    "getEarningsTranscriptList",
+    "Access available earnings transcripts for companies with the FMP Earnings Transcript List API. Retrieve a list of companies with earnings transcripts, along with the total number of transcripts available for each company.",
+    {}, 
     async () => {
       try {
         const results = await directoryClient.getEarningsTranscriptList();
@@ -215,10 +210,9 @@ export function registerDirectoryTools(
   );
 
   server.tool(
-    "getAvailableExchanges", 
-    {
-      description: "Get a list of available exchanges"
-    }, 
+    "getAvailableExchanges",
+    "Access a complete list of supported stock exchanges using the FMP Available Exchanges API. This API provides a comprehensive overview of global stock exchanges, allowing users to identify where securities are traded and filter data by specific exchanges for further analysis.",
+    {}, 
     async () => {
       try {
         const results = await directoryClient.getAvailableExchanges();
@@ -242,10 +236,9 @@ export function registerDirectoryTools(
   );
 
   server.tool(
-    "getAvailableSectors", 
-    {
-      description: "Get a list of available sectors"
-    }, 
+    "getAvailableSectors",
+    "Access a complete list of industry sectors using the FMP Available Sectors API. This API helps users categorize and filter companies based on their respective sectors, enabling deeper analysis and more focused queries across different industries.",
+    {}, 
     async () => {
       try {
         const results = await directoryClient.getAvailableSectors();
@@ -270,9 +263,8 @@ export function registerDirectoryTools(
 
   server.tool(
     "getAvailableIndustries", 
-    {
-      description: "Get a list of available industries"
-    }, 
+    "Access a comprehensive list of industries where stock symbols are available using the FMP Available Industries API. This API helps users filter and categorize companies based on their industry for more focused research and analysis.",
+    {}, 
     async () => {
       try {
         const results = await directoryClient.getAvailableIndustries();
@@ -296,10 +288,9 @@ export function registerDirectoryTools(
   );
 
   server.tool(
-    "getAvailableCountries", 
-    {
-      description: "Get a list of available countries"
-    }, 
+    "getAvailableCountries",
+    "Access a comprehensive list of countries where stock symbols are available with the FMP Available Countries API. This API enables users to filter and analyze stock symbols based on the country of origin or the primary market where the securities are traded.",
+    {}, 
     async () => {
       try {
         const results = await directoryClient.getAvailableCountries();

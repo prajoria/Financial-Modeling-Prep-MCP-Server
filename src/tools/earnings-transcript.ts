@@ -15,8 +15,8 @@ export function registerEarningsTranscriptTools(
 
   server.tool(
     "getLatestEarningsTranscripts",
+    "Access available earnings transcripts for companies with the FMP Latest Earning Transcripts API. Retrieve a list of companies with earnings transcripts, along with the total number of transcripts available for each company.",
     {
-      description: "Get latest earning transcripts with pagination",
       limit: z.number().optional().describe("Limit the number of results"),
       page: z.number().optional().describe("Page number for pagination"),
     },
@@ -47,8 +47,8 @@ export function registerEarningsTranscriptTools(
 
   server.tool(
     "getEarningsTranscript",
+    "Access the full transcript of a company’s earnings call with the FMP Earnings Transcript API. Stay informed about a company’s financial performance, future plans, and overall strategy by analyzing management's communication.",
     {
-      description: "Get earning transcript for a specific company, year, and quarter",
       symbol: z.string().describe("Stock symbol"),
       year: z.string().describe("Year of the earnings call"),
       quarter: z
@@ -85,8 +85,8 @@ export function registerEarningsTranscriptTools(
 
   server.tool(
     "getEarningsTranscriptDates",
+    "Access earnings call transcript dates for specific companies with the FMP Transcripts Dates By Symbol API. Get a comprehensive overview of earnings call schedules based on fiscal year and quarter.",
     {
-      description: "Get transcript dates for a specific company",
       symbol: z.string().describe("Stock symbol"),
     },
     async ({ symbol }) => {
@@ -115,9 +115,8 @@ export function registerEarningsTranscriptTools(
 
   server.tool(
     "getAvailableTranscriptSymbols",
-    {
-      description: "Get list of available transcript symbols",
-    },
+    "Access a complete list of stock symbols with available earnings call transcripts using the FMP Available Earnings Transcript Symbols API. Retrieve information on which companies have earnings transcripts and how many are accessible for detailed financial analysis.",
+    {},
     async () => {
       try {
         const results =

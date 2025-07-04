@@ -9,6 +9,7 @@ import type {
   FundDisclosure,
   FundDisclosureSearch,
   FundDisclosureDate,
+  FundDisclosureHolder,
 } from "./types.js";
 
 export class FundClient extends FMPClient {
@@ -128,8 +129,8 @@ export class FundClient extends FMPClient {
       signal?: AbortSignal;
       context?: FMPContext;
     }
-  ): Promise<FundDisclosure[]> {
-    return super.get<FundDisclosure[]>(
+  ): Promise<FundDisclosureHolder[]> {
+    return super.get<FundDisclosureHolder[]>(
       "/funds/disclosure-holders-latest",
       { symbol },
       options
@@ -177,6 +178,37 @@ export class FundClient extends FMPClient {
       "/funds/disclosure-dates",
       {
         symbol,
+        cik,
+      },
+      options
+    );
+  }
+
+  /**
+   * Get fund(ETF and Mutual Funds) disclosure dates for a symbol and cik
+   * @param symbol The fund symbol
+   * @param year The year example 2025
+   * @param quarter The quarter example 1, 2, 3, 4
+   * @param cik Optional CIK number
+   * @param options Optional parameters including abort signal and context
+   * @returns Array of fund disclosure dates
+   */
+  async getFundDisclosure( 
+    symbol: string,
+    year: number,
+    quarter: number,
+    cik?: string,
+    options?: {
+      signal?: AbortSignal;
+      context?: FMPContext;
+    }
+  ): Promise<FundDisclosure[]> {
+    return super.get<FundDisclosure[]>(
+      "/funds/disclosure",
+      {
+        symbol,
+        year,
+        quarter,
         cik,
       },
       options

@@ -15,6 +15,7 @@ export function registerMarketHoursTools(
 
   server.tool(
     "getExchangeMarketHours",
+    "Retrieve trading hours for specific stock exchanges using the Global Exchange Market Hours API. Find out the opening and closing times of global exchanges to plan your trading strategies effectively.",
     {
       exchange: z.string().describe("Exchange code (e.g., NASDAQ, NYSE)"),
     },
@@ -44,6 +45,7 @@ export function registerMarketHoursTools(
 
   server.tool(
     "getHolidaysByExchange",
+    "Access holiday schedules for specific stock exchanges using the Global Exchange Market Hours API. Find out the dates when global exchanges are closed for holidays and plan your trading activities accordingly.",
     {
       exchange: z.string().describe("Exchange code (e.g., NASDAQ, NYSE)"),
       from: z.string().optional().describe("Start date for the holidays (YYYY-MM-DD format)"),
@@ -75,7 +77,11 @@ export function registerMarketHoursTools(
     }
   );
 
-  server.tool("getAllExchangeMarketHours", {}, async () => {
+  server.tool(
+    "getAllExchangeMarketHours",
+    "View the market hours for all exchanges. Check when different markets are active.",
+    {},
+    async () => {
     try {
       const results = await marketHoursClient.getAllExchangeMarketHours();
       return {
