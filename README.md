@@ -82,6 +82,63 @@ PORT=4000 npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN
 
 To send requests to the server, use the `/mcp` endpoint with JSON-RPC formatted requests.
 
+### Docker Usage
+
+You can also run the server using Docker. The server supports multiple ways to configure the FMP API token:
+
+#### Using Docker with Environment Variables
+
+```bash
+# Run with environment variable
+docker run -p 3000:3000 -e FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN your-image-name
+```
+
+#### Using Docker Compose
+
+Create a `docker-compose.yml` file:
+
+```yaml
+version: '3.8'
+services:
+  fmp-mcp:
+    image: your-image-name
+    ports:
+      - "3000:3000"
+    environment:
+      - FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
+      - PORT=3000
+```
+
+Then run:
+
+```bash
+docker-compose up
+```
+
+#### Using .env File with Docker Compose
+
+Create a `.env` file:
+
+```
+FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
+PORT=3000
+```
+
+And reference it in your `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+services:
+  fmp-mcp:
+    image: your-image-name
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+```
+
+The server will automatically detect and use the `FMP_ACCESS_TOKEN` environment variable when running in Docker.
+
 ## Available Tools
 
 This MCP provides the following tools for AI assistants to access financial data:
