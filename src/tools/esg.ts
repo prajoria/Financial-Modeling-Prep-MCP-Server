@@ -12,6 +12,7 @@ export function registerESGTools(server: McpServer, accessToken?: string): void 
 
   server.tool(
     "getESGDisclosures",
+    "Align your investments with your values using the FMP ESG Investment Search API. Discover companies and funds based on Environmental, Social, and Governance (ESG) scores, performance, controversies, and business involvement criteria.",
     {
       symbol: z.string().describe("Stock symbol"),
     },
@@ -39,6 +40,7 @@ export function registerESGTools(server: McpServer, accessToken?: string): void 
 
   server.tool(
     "getESGRatings",
+    "Access comprehensive ESG ratings for companies and funds with the FMP ESG Ratings API. Make informed investment decisions based on environmental, social, and governance (ESG) performance data.",
     {
       symbol: z.string().describe("Stock symbol"),
     },
@@ -66,6 +68,7 @@ export function registerESGTools(server: McpServer, accessToken?: string): void 
 
   server.tool(
     "getESGBenchmarks",
+    "Evaluate the ESG performance of companies and funds with the FMP ESG Benchmark Comparison API. Compare ESG leaders and laggards within industries to make informed and responsible investment decisions.",
     {
       year: z
         .string()

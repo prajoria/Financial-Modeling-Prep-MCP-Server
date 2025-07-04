@@ -15,6 +15,7 @@ export function registerEconomicsTools(
 
   server.tool(
     "getTreasuryRates",
+    "Access real-time and historical Treasury rates for all maturities with the FMP Treasury Rates API. Track key benchmarks for interest rates across the economy.",
     {
       from: z
         .string()
@@ -49,6 +50,7 @@ export function registerEconomicsTools(
 
   server.tool(
     "getEconomicIndicators",
+    "Access real-time and historical economic data for key indicators like GDP, unemployment, and inflation with the FMP Economic Indicators API. Use this data to measure economic performance and identify growth trends.",
     {
       name: z
         .string()
@@ -90,6 +92,7 @@ export function registerEconomicsTools(
 
   server.tool(
     "getEconomicCalendar",
+    "Stay informed with the FMP Economic Data Releases Calendar API. Access a comprehensive calendar of upcoming economic data releases to prepare for market impacts and make informed investment decisions.",
     {
       from: z
         .string()
@@ -124,6 +127,7 @@ export function registerEconomicsTools(
 
   server.tool(
     "getMarketRiskPremium",
+    "Access the market risk premium for specific dates with the FMP Market Risk Premium API. Use this key financial metric to assess the additional return expected from investing in the stock market over a risk-free investment.",
     {},
     async () => {
       try {
