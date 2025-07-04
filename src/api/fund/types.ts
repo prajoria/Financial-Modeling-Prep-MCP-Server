@@ -56,7 +56,7 @@ export interface FundSectorWeighting {
   weightPercentage: number;
 }
 
-export interface FundDisclosure {
+export interface FundDisclosureHolder {
   cik: string;
   holder: string;
   shares: number;
@@ -85,4 +85,30 @@ export interface FundDisclosureDate {
   date: string;
   year: number;
   quarter: number;
+}
+
+export interface FundDisclosure {
+  cik: string;
+  date: string;
+  acceptedDate: string;
+  symbol: string;
+  name: string;
+  lei: string;
+  title: string;
+  cusip: string;
+  isin: string;
+  balance: number;
+  units: string;
+  cur_cd: string;
+  valUsd: number;
+  pctVal: number;
+  payoffProfile: string;
+  assetCat: string;
+  issuerCat: string;
+  invCountry: string;
+  isRestrictedSec: string;
+  fairValLevel: string;
+  isCashCollateral: string;
+  isNonCashCollateral: string;
+  isLoanByFund: string;
 }

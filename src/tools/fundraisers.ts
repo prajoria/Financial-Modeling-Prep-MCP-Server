@@ -15,6 +15,7 @@ export function registerFundraisersTools(
 
   server.tool(
     "getLatestCrowdfundingCampaigns",
+    "Discover the most recent crowdfunding campaigns with the FMP Latest Crowdfunding Campaigns API. Stay informed on which companies and projects are actively raising funds, their financial details, and offering terms.",
     {
       page: z.number().optional().describe("Page number (default: 0)"),
       limit: z
@@ -49,6 +50,7 @@ export function registerFundraisersTools(
 
   server.tool(
     "searchCrowdfundingCampaigns",
+    "Search for crowdfunding campaigns by company name, campaign name, or platform with the FMP Crowdfunding Campaign Search API. Access detailed information to track and analyze crowdfunding activities.",
     {
       name: z
         .string()
@@ -80,6 +82,7 @@ export function registerFundraisersTools(
 
   server.tool(
     "getCrowdfundingCampaignsByCIK",
+    "Access detailed information on all crowdfunding campaigns launched by a specific company with the FMP Crowdfunding By CIK API.",
     {
       cik: z.string().describe("CIK number to search for"),
     },
@@ -109,6 +112,7 @@ export function registerFundraisersTools(
 
   server.tool(
     "getLatestEquityOfferings",
+    "Stay informed about the latest equity offerings with the FMP Equity Offering Updates API. Track new shares being issued by companies and get insights into exempt offerings and amendments.",
     {
       page: z.number().optional().describe("Page number (default: 0)"),
       limit: z
@@ -145,6 +149,7 @@ export function registerFundraisersTools(
 
   server.tool(
     "searchEquityOfferings",
+    "Easily search for equity offerings by company name or stock symbol with the FMP Equity Offering Search API. Access detailed information about recent share issuances to stay informed on company fundraising activities.",
     {
       name: z.string().describe("Company name or stock symbol to search for"),
     },
@@ -172,6 +177,7 @@ export function registerFundraisersTools(
 
   server.tool(
     "getEquityOfferingsByCIK",
+    "Access detailed information on equity offerings announced by specific companies with the FMP Company Equity Offerings by CIK API. Track offering activity and identify potential investment opportunities.",
     {
       cik: z.string().describe("CIK number to search for"),
     },
