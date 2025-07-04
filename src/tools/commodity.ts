@@ -14,6 +14,7 @@ export function registerCommodityTools(
 
   server.tool(
     "listCommodities",
+    "Access an extensive list of tracked commodities across various sectors, including energy, metals, and agricultural products. The FMP Commodities List API provides essential data on tradable commodities, giving investors the ability to explore market options in real-time.",
     {},
     async () => {
       try {
