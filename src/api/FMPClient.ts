@@ -1,5 +1,4 @@
 import axios, { type AxiosInstance, type AxiosError, type AxiosRequestConfig } from "axios";
-import { DEFAULT_API_KEY } from "../constants/index.js";
 
 interface FMPErrorResponse {
   message: string;
@@ -28,13 +27,16 @@ export class FMPClient {
       return configApiKey;
     }
 
-    if (!this.apiKey || this.apiKey === DEFAULT_API_KEY) {
+    // Fall back to constructor parameter or environment variable
+    const apiKey = this.apiKey || process.env.FMP_ACCESS_TOKEN;
+
+    if (!apiKey) {
       throw new Error(
         "FMP_ACCESS_TOKEN is required for this operation. Please provide it in the configuration."
       );
     }
 
-    return this.apiKey;
+    return apiKey;
   }
 
   protected async get<T>(

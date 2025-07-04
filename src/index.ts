@@ -5,15 +5,20 @@ import { startServer } from "./server/server.js";
 
 // Parse command line arguments
 const argv = minimist(process.argv.slice(2));
-const accessToken: string | undefined =
-  argv["fmp-token"] || process.env.FMP_ACCESS_TOKEN;
+
+// Get configuration from environment variables and command line
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+const fmpToken = argv["fmp-token"] || process.env.FMP_ACCESS_TOKEN;
 
-// Access token is optional for server startup but it will be required later when making API calls
-startServer({ port, accessToken });
+startServer({ port });
 
-console.log(
-  accessToken
-    ? "Financial Modeling Prep MCP initialized successfully with provided token"
-    : "Financial Modeling Prep MCP initialized in tool discovery mode - API calls will require a token"
-);
+// Log startup information
+if (fmpToken) {
+  console.log("Financial Modeling Prep MCP server initialized successfully with API token");
+} else {
+  console.log("Financial Modeling Prep MCP server initialized successfully");
+  console.log("Note: API token can be provided via:");
+  console.log("  - Environment variable: FMP_ACCESS_TOKEN");
+  console.log("  - Command line argument: --fmp-token");
+  console.log("  - Smithery configuration when using with Smithery");
+}

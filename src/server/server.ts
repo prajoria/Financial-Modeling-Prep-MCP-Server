@@ -2,7 +2,6 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { createStatelessServer } from "@smithery/sdk/server/stateless.js";
 import { registerAllTools } from "../tools/index.js";
 import { getServerVersion } from "../utils/getServerVersion.js";
-import { DEFAULT_API_KEY } from "../constants/index.js";
 import type { Request, Response } from "express";
 import type { Server } from "node:http";
 
@@ -13,7 +12,6 @@ const VERSION = getServerVersion();
  */
 interface ServerConfig {
   port: number;
-  accessToken?: string; // Make accessToken optional to support lazy loading of tools
 }
 
 /**
@@ -24,7 +22,7 @@ function createMcpServer({
 }: {
   config?: { FMP_ACCESS_TOKEN?: string };
 }) {
-  const accessToken = config?.FMP_ACCESS_TOKEN || DEFAULT_API_KEY;
+  const accessToken = config?.FMP_ACCESS_TOKEN;
 
   const mcpServer = new McpServer({
     name: "Financial Modeling Prep MCP",
@@ -47,8 +45,6 @@ function createMcpServer({
   return mcpServer.server;
 }
 
-const { app } = createStatelessServer(createMcpServer);
-
 /**
  * Start the server with the given configuration
  * @param config - Server configuration
@@ -56,6 +52,9 @@ const { app } = createStatelessServer(createMcpServer);
  */
 export function startServer(config: ServerConfig): Server {
   const { port } = config;
+
+  // Create the stateless server
+  const { app } = createStatelessServer(createMcpServer);
 
   app.get("/healthcheck", (req: Request, res: Response) => {
     res.status(200).json({
