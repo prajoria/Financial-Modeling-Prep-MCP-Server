@@ -36,6 +36,49 @@ A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabl
 - [Issues and Bug Reports](#issues-and-bug-reports)
 - [License](#license)
 
+## Features
+
+- **Comprehensive Coverage**: Access to 253+ financial tools across 24 categories
+- **Tool Set Filtering**: Load only the tools you need to reduce complexity and improve performance
+- **Real-time Data**: Live stock quotes, market data, and financial information
+- **Financial Statements**: Income statements, balance sheets, cash flow statements, and financial ratios
+- **Market Analysis**: Technical indicators, analyst estimates, and market performance metrics
+- **Economic Data**: Treasury rates, economic indicators, and macroeconomic information
+- **Alternative Data**: ESG scores, insider trading, congressional trading, and social sentiment
+
+## Tool Sets
+
+Instead of loading all 253 tools, you can specify which tool sets to load based on your needs:
+
+### Available Tool Sets
+
+| Tool Set | Description | Example Tools |
+|----------|-------------|---------------|
+| `search` | Search & Directory | Search stocks, company lookup, symbol directories |
+| `company` | Company Profile & Info | Company profiles, executives, employee count |
+| `quotes` | Real-time Quotes | Live stock prices, market data, price changes |
+| `statements` | Financial Statements | Income statements, balance sheets, cash flow, ratios |
+| `calendar` | Financial Calendar | Earnings calendar, dividends, IPOs, stock splits |
+| `charts` | Price Charts & History | Historical prices, technical charts, market movements |
+| `news` | Financial News | Market news, press releases, financial articles |
+| `analyst` | Analyst Coverage | Price targets, ratings, analyst estimates |
+| `market-performance` | Market Performance | Sector performance, gainers, losers, most active |
+| `insider-trades` | Insider Trading | Corporate insider activity, ownership changes |
+| `institutional` | Institutional Holdings | 13F filings, fund holdings, institutional ownership |
+| `indexes` | Market Indexes | S&P 500, NASDAQ, Dow Jones, index constituents |
+| `economics` | Economic Data | Treasury rates, GDP, inflation, economic indicators |
+| `crypto` | Cryptocurrency | Crypto prices, market data, digital assets |
+| `forex` | Foreign Exchange | Currency pairs, exchange rates, forex data |
+| `commodities` | Commodities | Gold, oil, agricultural products, futures |
+| `etf-funds` | ETFs & Mutual Funds | Fund holdings, performance, fund information |
+| `esg` | ESG & Sustainability | Environmental, social, governance ratings |
+| `technical-indicators` | Technical Indicators | RSI, SMA, EMA, MACD, Bollinger Bands |
+| `senate` | Government Trading | Congressional and Senate trading disclosures |
+| `sec-filings` | SEC Filings | 10-K, 10-Q, 8-K filings, regulatory documents |
+| `earnings` | Earnings & Transcripts | Earnings reports, call transcripts |
+| `dcf` | DCF Valuation | Discounted cash flow models, valuations |
+| `bulk` | Bulk Data | Large-scale data downloads for analysis |
+
 ## Usage
 
 ### Production via Smithery Registry
