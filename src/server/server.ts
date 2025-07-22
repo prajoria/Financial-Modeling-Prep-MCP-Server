@@ -14,6 +14,7 @@ const VERSION = getServerVersion();
 interface ServerConfig {
   port: number;
   toolSets?: ToolSet[];
+  accessToken?: string;
 }
 
 /**
@@ -22,11 +23,14 @@ interface ServerConfig {
 function createMcpServer({
   config,
   toolSets,
+  accessToken: serverAccessToken,
 }: {
   config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string };
   toolSets?: ToolSet[];
+  accessToken?: string;
 }) {
-  const accessToken = config?.FMP_ACCESS_TOKEN;
+  // Use server access token if provided, otherwise fall back to config
+  const accessToken = serverAccessToken || config?.FMP_ACCESS_TOKEN;
 
   // Parse tool sets from Smithery config if provided and no tool sets were specified
   let finalToolSets = toolSets || [];
@@ -74,13 +78,14 @@ function createMcpServer({
  * @returns HTTP server instance
  */
 export function startServer(config: ServerConfig): Server {
-  const { port, toolSets } = config;
+  const { port, toolSets, accessToken } = config;
 
   // Create the stateless server with tool sets configuration
   const { app } = createStatelessServer((params) =>
     createMcpServer({
       ...params,
       toolSets,
+      accessToken,
     })
   );
 
