@@ -23,10 +23,18 @@ function createMcpServer({
   config,
   toolSets,
 }: {
-  config?: { FMP_ACCESS_TOKEN?: string };
+  config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string };
   toolSets?: ToolSet[];
 }) {
   const accessToken = config?.FMP_ACCESS_TOKEN;
+
+  // Parse tool sets from Smithery config if provided and no tool sets were specified
+  let finalToolSets = toolSets || [];
+  if (config?.FMP_TOOL_SETS && finalToolSets.length === 0) {
+    finalToolSets = config.FMP_TOOL_SETS.split(",").map((s) =>
+      s.trim()
+    ) as ToolSet[];
+  }
 
   const mcpServer = new McpServer({
     name: "Financial Modeling Prep MCP",
@@ -40,13 +48,19 @@ function createMcpServer({
           title: "FMP Access Token",
           description: "Financial Modeling Prep API access token",
         },
+        FMP_TOOL_SETS: {
+          type: "string",
+          title: "Tool Sets (Optional)",
+          description:
+            "Comma-separated list of tool sets to load (e.g., 'search,company,quotes'). If not specified, all tools will be loaded.",
+        },
       },
     },
   });
 
   // Use tool sets if provided, otherwise register all tools for backward compatibility
-  if (toolSets && toolSets.length > 0) {
-    registerToolsBySet(mcpServer, toolSets, accessToken);
+  if (finalToolSets && finalToolSets.length > 0) {
+    registerToolsBySet(mcpServer, finalToolSets, accessToken);
   } else {
     registerAllTools(mcpServer, accessToken);
   }

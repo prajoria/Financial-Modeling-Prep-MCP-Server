@@ -17,13 +17,12 @@ if (argv.help || argv.h) {
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 const fmpToken = argv["fmp-token"] || process.env.FMP_ACCESS_TOKEN;
 
-// Parse toolSets argument
+// Parse toolSets argument from command line or environment variable
 let toolSets: ToolSet[] = [];
-if (argv["tool-sets"] || argv["toolSets"]) {
-  const toolSetsInput = argv["tool-sets"] || argv["toolSets"];
-  if (typeof toolSetsInput === "string") {
-    toolSets = toolSetsInput.split(",").map((s) => s.trim()) as ToolSet[];
-  }
+const toolSetsInput =
+  argv["tool-sets"] || argv["toolSets"] || process.env.FMP_TOOL_SETS;
+if (toolSetsInput && typeof toolSetsInput === "string") {
+  toolSets = toolSetsInput.split(",").map((s) => s.trim()) as ToolSet[];
 }
 
 // Validate tool sets
@@ -84,5 +83,6 @@ Examples:
 Environment Variables:
   PORT              Server port
   FMP_ACCESS_TOKEN  Financial Modeling Prep API access token
+  FMP_TOOL_SETS     Comma-separated list of tool sets to load
 `);
 }
