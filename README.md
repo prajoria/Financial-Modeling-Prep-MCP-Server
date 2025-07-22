@@ -7,6 +7,7 @@ A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabl
 - [Usage](#usage)
   - [Production via Smithery Registry](#production-via-smithery-registry)
   - [HTTP Server](#http-server)
+- [Selective Tool Loading](#selective-tool-loading)
 - [Available Tools](#available-tools)
   - [Search Tools](#search-tools)
   - [Directory and Symbol Lists](#directory-and-symbol-lists)
@@ -46,9 +47,8 @@ A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabl
 - **Economic Data**: Treasury rates, economic indicators, and macroeconomic information
 - **Alternative Data**: ESG scores, insider trading, congressional trading, and social sentiment
 
-## Tool Sets
-
-Instead of loading all 253 tools, you can specify which tool sets to load based on your needs:
+## Selective Tool Loading
+While MCP clients can filter tools automatically, large tool sets may impact performance. To optimize your experience, you can specify which tool categories to load instead of loading all 253 tools at once:
 
 ### Available Tool Sets
 
@@ -149,6 +149,7 @@ services:
       - "3000:3000"
     environment:
       - FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
+      - FMP_TOOL_SETS=COMMA_SEPARATED_TOOL_SETS # Optional
       - PORT=3000
 ```
 
@@ -539,13 +540,6 @@ This MCP provides the following tools for AI assistants to access financial data
 - **getFinancialRatiosBulk**: Get bulk financial ratios (CSV format)
 - **getKeyMetricsBulk**: Get bulk key metrics (CSV format)
 - **getFinancialGrowthBulk**: Get bulk financial growth data (CSV format)
-
-Most tools accept optional parameters such as:
-
-- `symbol`: Stock ticker symbol
-- `period`: Time period (annual, quarterly)
-- `limit`: Number of results to return
-- `from` and `to`: Date range in YYYY-MM-DD format (particularly for COT, chart, and historical data tools)
 
 ## Obtaining a Financial Modeling Prep Access Token
 
