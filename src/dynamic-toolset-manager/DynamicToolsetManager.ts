@@ -268,9 +268,11 @@ export class DynamicToolsetManager {
       // Track which modules can be safely unregistered
       const modulesToUnregister = modulesToDisable.filter(module => !otherModules.has(module));
       
-      // Note: MCP SDK doesn't currently support tool unregistration
-      // For now, we just track the state and log the action
-      // In a future version, we would call: this.server.unregisterTool(toolName)
+      // LIMITATION: MCP SDK doesn't support unregistering individual tools that were
+      // registered during enableToolset(). The tools remain registered with the MCP server
+      // but we track them as "disabled" in our internal state for logical consistency.
+      // Future: When MCP SDK supports tool unregistration, we would unregister each 
+      // individual tool that was registered when this toolset was enabled.
       
       for (const moduleName of modulesToUnregister) {
         this.registeredModules.delete(moduleName);
@@ -289,7 +291,7 @@ export class DynamicToolsetManager {
       
       return {
         success: true,
-        message: `Toolset '${sanitizedToolsetName}' disabled successfully. Note: Tools remain available until server restart due to MCP SDK limitations.`
+        message: `Toolset '${sanitizedToolsetName}' disabled successfully. The toolset is now inactive, but individual tools remain registered with MCP server due to SDK limitations.`
       };
 
     } catch (error) {
