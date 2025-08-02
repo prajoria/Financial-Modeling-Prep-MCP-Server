@@ -3,13 +3,15 @@
 import minimist from "minimist";
 import { startServer } from "./server/server.js";
 import { type ToolSet, getAvailableToolSets } from "./constants/index.js";
+import { showHelp } from "./utils/showHelp.js";
 
 // Parse command line arguments
 const argv = minimist(process.argv.slice(2));
 
 // Show help if requested
 if (argv.help || argv.h) {
-  showHelp();
+  const availableToolSets = getAvailableToolSets();
+  showHelp(availableToolSets);
   process.exit(0);
 }
 
@@ -55,43 +57,4 @@ if (fmpToken) {
   console.log("  - Environment variable: FMP_ACCESS_TOKEN");
   console.log("  - Command line argument: --fmp-token");
   console.log("  - Smithery configuration when using with Smithery");
-}
-
-function showHelp() {
-  console.log(`
-Financial Modeling Prep MCP Server
-
-Usage: npm start [options]
-
-Options:
-  --port <number>              Server port (default: 3000)
-  --fmp-token <token>          FMP API access token
-  --tool-sets <sets>           Comma-separated list of tool sets to load
-  --dynamic-tool-discovery     Enable dynamic toolset management (meta-tools)
-  --help, -h                   Show this help message
-
-Available Tool Sets:
-`);
-
-  const toolSets = getAvailableToolSets();
-  toolSets.forEach(({ key, definition }) => {
-    console.log(`  ${key.padEnd(20)} ${definition.name}`);
-    console.log(`  ${" ".repeat(20)} ${definition.description}`);
-    console.log();
-  });
-
-  console.log(`
-Examples:
-  npm start                                    # Load all tools (253 tools)
-  npm start -- --tool-sets search,company     # Load only search and company tools
-  npm start -- --tool-sets quotes,charts      # Load only quotes and charts tools
-  npm start -- --dynamic-tool-discovery       # Start with meta-tools only (dynamic mode)
-  npm start -- --port 4000 --tool-sets crypto,forex  # Custom port with crypto and forex tools
-
-Environment Variables:
-  PORT                     Server port
-  FMP_ACCESS_TOKEN         Financial Modeling Prep API access token
-  FMP_TOOL_SETS            Comma-separated list of tool sets to load
-  DYNAMIC_TOOL_DISCOVERY   Enable dynamic toolset management (set to "true")
-`);
 }
