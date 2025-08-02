@@ -9,7 +9,7 @@ import {
 } from "../utils/validation.js";
 import type { Request, Response } from "express";
 import type { Server } from "node:http";
-import type { ToolSet } from "../constants/index.js";
+import type { TOOL_SETS, ToolSet } from "../constants/index.js";
 import { registerMetaTools } from "../tools/meta-tools.js";
 
 const VERSION = getServerVersion();
@@ -38,6 +38,11 @@ function createMcpServer({
   accessToken?: string;
   dynamicToolDiscovery?: boolean;
 }) {
+  console.log("Creating MCP server instance with configuration:", {
+    TOOL_SETS: config?.FMP_TOOL_SETS,
+    DYNAMIC_TOOL_DISCOVERY: config?.DYNAMIC_TOOL_DISCOVERY,
+  });
+
   const accessToken = resolveAccessToken(serverAccessToken, config);
   const finalToolSets = parseToolSets(toolSets, config);
   const dynamicToolDiscovery = parseDynamicToolDiscovery(serverDynamicToolDiscovery, config);
