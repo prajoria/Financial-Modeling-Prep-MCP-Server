@@ -19,10 +19,12 @@ export function registerMetaTools(server: McpServer, accessToken?: string): void
   
   console.log(`Available toolsets: ${availableToolsets.join(', ')}`);
 
+  const toolsetDescriptionList = generateToolsetDescriptionList(availableToolsets);
+
   // Register enable_toolset meta-tool
   server.tool(
     'enable_toolset',
-    `Enables a specific group of tools (a toolset). Available toolsets: ${availableToolsets.join(', ')}`,
+    `Enables a specific group of tools (a toolset). Available toolsets:\n• ${toolsetDescriptionList}`,
     {
       toolsetName: z.enum(availableToolsets as [ToolSet, ...ToolSet[]]).describe('The name of the toolset to enable.')
     },
@@ -126,4 +128,23 @@ export function registerMetaTools(server: McpServer, accessToken?: string): void
   );
 
   console.log(`✅ Meta-tools registered: enable_toolset, get_toolset_status`);
+}
+
+/**
+ * Builds a formatted list of toolset descriptions for display in tool help text
+ * @param toolsets - Array of toolset names to format
+ * @returns Formatted string with toolset names, display names, and descriptions
+ * 
+ * @example
+ * ```typescript
+ * const toolsets = ['search', 'quotes'];
+ * const result = buildToolsetDescriptionList(toolsets);
+ * // Returns: "search (Search & Directory): Search for stocks, company information, and directory services\n• quotes (Real-time Quotes): Real-time stock quotes, price changes, and market data"
+ * ```
+ */
+function generateToolsetDescriptionList(toolsets: ToolSet[]): string {
+  return toolsets.map(toolset => {
+    const def = TOOL_SETS[toolset];
+    return `${toolset} (${def.name}): ${def.description}`;
+  }).join('\n• ');
 }
