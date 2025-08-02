@@ -59,8 +59,15 @@ The implementation must support three distinct modes:
     - *Integrates dynamic lazy-loading of toolset modules*
     - *Tracks registered modules to avoid duplicate registrations*
     - *Sends `notifications/tools/list_changed` when toolsets are enabled/disabled*
-    - *Integrated with server.ts and stored as `_dynamicManager` for meta-tools access*
-- [ ] Implement `enable_toolset` meta-tool for dynamically loading toolset modules with operation-based routing
+    - *Integrated with server.ts and stored as `_dynamicToolsetManager` for meta-tools access*
+- [x] Implement `enable_toolset` meta-tool for dynamically loading toolset modules with operation-based routing
+    - *Created `src/tools/meta-tools.ts` with `registerMetaTools()` function*
+    - *Implemented `enable_toolset` meta-tool with proper schema validation using zod*
+    - *Uses singleton DynamicToolsetManager for toolset activation*
+    - *Provides detailed success/error messages with proper MCP response format*
+    - *Added bonus `get_toolset_status` meta-tool for debugging and status checking*
+    - *Integrated with server.ts to register meta-tools in Dynamic Mode*
+    - *Follows MCP SDK API pattern: server.tool(name, description, schema, handler)*
 - [ ] Implement `disable_toolset` meta-tool for dynamically unloading toolset modules with state tracking
 - [ ] Ensure meta-tools send `notifications/tools/list_changed` after registration/unregistration
 - [ ] Update server creation logic with three-mode compatibility (Legacy/Static/Dynamic)
