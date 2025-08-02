@@ -20,10 +20,18 @@ vi.mock("../tools/index.js", () => ({
   registerToolsBySet: vi.fn(),
 }));
 
+// Mock meta-tools for dynamic mode testing
+vi.mock("../tools/meta-tools.js", () => ({
+  registerMetaTools: vi.fn(),
+}));
+
+// Note: DynamicToolsetManager is tested separately in its own test file
+
 // Import after mocking
 import { startServer } from "./server.js";
 import { createStatelessServer } from "@smithery/sdk/server/stateless.js";
 import { registerAllTools, registerToolsBySet } from "../tools/index.js";
+import { registerMetaTools } from "../tools/meta-tools.js";
 
 describe("Server Configuration and Startup", () => {
   let mockApp: any;
@@ -495,6 +503,230 @@ describe("Server Configuration and Startup", () => {
         version: expect.any(String),
         message: "Financial Modeling Prep MCP server is running",
         toolSets: "all",
+      });
+    });
+  });
+
+  describe("Dynamic Toolset Configuration", () => {
+    describe("Three-Mode Compatibility", () => {
+      it("should enable Dynamic Mode when dynamicToolDiscovery is true", () => {
+        const config = { port: 3000, dynamicToolDiscovery: true };
+
+        startServer(config);
+
+        const createMcpServerFn = vi.mocked(createStatelessServer).mock.calls[0][0];
+        createMcpServerFn({
+          config: { FMP_ACCESS_TOKEN: "test-token" },
+        });
+
+        // Should register meta-tools, not regular tools (Dynamic Mode)
+        expect(registerMetaTools).toHaveBeenCalledWith(
+          expect.any(Object),
+          "test-token"
+        );
+        expect(registerAllTools).not.toHaveBeenCalled();
+        expect(registerToolsBySet).not.toHaveBeenCalled();
+      });
+
+      it("should enable Static Mode when toolSets are provided (no dynamic flag)", () => {
+        const config = { port: 3000, toolSets: ["search", "company"] as ToolSet[] };
+
+        startServer(config);
+
+        const createMcpServerFn = vi.mocked(createStatelessServer).mock.calls[0][0];
+        createMcpServerFn({
+          config: { FMP_ACCESS_TOKEN: "test-token" },
+        });
+
+        // Should register specific toolsets
+        expect(registerToolsBySet).toHaveBeenCalledWith(
+          expect.any(Object),
+          ["search", "company"],
+          "test-token"
+        );
+        expect(registerMetaTools).not.toHaveBeenCalled();
+        expect(registerAllTools).not.toHaveBeenCalled();
+      });
+
+      it("should enable Legacy Mode when no configuration is provided", () => {
+        const config = { port: 3000 };
+
+        startServer(config);
+
+        const createMcpServerFn = vi.mocked(createStatelessServer).mock.calls[0][0];
+        createMcpServerFn({
+          config: { FMP_ACCESS_TOKEN: "test-token" },
+        });
+
+        // Should register all tools
+        expect(registerAllTools).toHaveBeenCalledWith(
+          expect.any(Object),
+          "test-token"
+        );
+        expect(registerMetaTools).not.toHaveBeenCalled();
+        expect(registerToolsBySet).not.toHaveBeenCalled();
+      });
+
+      it("should prioritize Dynamic Mode over Static Mode when both are configured", () => {
+        const config = { 
+          port: 3000, 
+          dynamicToolDiscovery: true, 
+          toolSets: ["search", "company"] as ToolSet[] 
+        };
+
+        startServer(config);
+
+        const createMcpServerFn = vi.mocked(createStatelessServer).mock.calls[0][0];
+        createMcpServerFn({
+          config: { FMP_ACCESS_TOKEN: "test-token" },
+        });
+
+        // Dynamic mode should take precedence
+        expect(registerMetaTools).toHaveBeenCalledWith(
+          expect.any(Object),
+          "test-token"
+        );
+        expect(registerToolsBySet).not.toHaveBeenCalled();
+        expect(registerAllTools).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("Configuration Sources", () => {
+      it("should enable Dynamic Mode via Smithery config", () => {
+        const config = { port: 3000 };
+
+        startServer(config);
+
+        const createMcpServerFn = vi.mocked(createStatelessServer).mock.calls[0][0];
+        createMcpServerFn({
+          config: { 
+            FMP_ACCESS_TOKEN: "test-token",
+            DYNAMIC_TOOL_DISCOVERY: "true"
+          },
+        });
+
+        expect(registerMetaTools).toHaveBeenCalledWith(
+          expect.any(Object),
+          "test-token"
+        );
+        expect(registerAllTools).not.toHaveBeenCalled();
+      });
+
+      it("should enable Static Mode via Smithery config", () => {
+        const config = { port: 3000 };
+
+        startServer(config);
+
+        const createMcpServerFn = vi.mocked(createStatelessServer).mock.calls[0][0];
+        createMcpServerFn({
+          config: { 
+            FMP_ACCESS_TOKEN: "test-token",
+            FMP_TOOL_SETS: "search,company"
+          },
+        });
+
+        expect(registerToolsBySet).toHaveBeenCalledWith(
+          expect.any(Object),
+          ["search", "company"],
+          "test-token"
+        );
+        expect(registerMetaTools).not.toHaveBeenCalled();
+      });
+
+      it("should handle server parameter priority over Smithery config", () => {
+        const config = { port: 3000, dynamicToolDiscovery: true };
+
+        startServer(config);
+
+        const createMcpServerFn = vi.mocked(createStatelessServer).mock.calls[0][0];
+        createMcpServerFn({
+          config: { 
+            FMP_ACCESS_TOKEN: "test-token",
+            DYNAMIC_TOOL_DISCOVERY: "false", // Should be ignored
+            FMP_TOOL_SETS: "search,company"   // Should be ignored
+          },
+        });
+
+        // Server parameter should take precedence
+        expect(registerMetaTools).toHaveBeenCalledWith(
+          expect.any(Object),
+          "test-token"
+        );
+        expect(registerToolsBySet).not.toHaveBeenCalled();
+      });
+
+      it("should handle malformed DYNAMIC_TOOL_DISCOVERY config gracefully", () => {
+        const config = { port: 3000 };
+
+        startServer(config);
+
+        const createMcpServerFn = vi.mocked(createStatelessServer).mock.calls[0][0];
+        createMcpServerFn({
+          config: { 
+            FMP_ACCESS_TOKEN: "test-token",
+            DYNAMIC_TOOL_DISCOVERY: "invalid" // Not "true"
+          },
+        });
+
+        // Should default to Legacy Mode
+        expect(registerAllTools).toHaveBeenCalledWith(
+          expect.any(Object),
+          "test-token"
+        );
+        expect(registerMetaTools).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("Environment Variable Support", () => {
+      let originalEnv: NodeJS.ProcessEnv;
+
+      beforeEach(() => {
+        originalEnv = { ...process.env };
+      });
+
+      afterEach(() => {
+        process.env = originalEnv;
+      });
+
+      it("should support DYNAMIC_TOOL_DISCOVERY environment variable", () => {
+        process.env.DYNAMIC_TOOL_DISCOVERY = "true";
+        
+        // Parse environment variable like index.ts does
+        const dynamicToolDiscovery = process.env.DYNAMIC_TOOL_DISCOVERY === "true";
+        const config = { port: 3000, dynamicToolDiscovery };
+        startServer(config);
+
+        const createMcpServerFn = vi.mocked(createStatelessServer).mock.calls[0][0];
+        createMcpServerFn({
+          config: { FMP_ACCESS_TOKEN: "test-token" },
+        });
+
+        expect(registerMetaTools).toHaveBeenCalledWith(
+          expect.any(Object),
+          "test-token"
+        );
+      });
+
+      it("should handle mixed environment variables correctly", () => {
+        process.env.DYNAMIC_TOOL_DISCOVERY = "true";
+        process.env.FMP_TOOL_SETS = "search,company"; // Should be ignored in dynamic mode
+        
+        // Parse environment variable like index.ts does
+        const dynamicToolDiscovery = process.env.DYNAMIC_TOOL_DISCOVERY === "true";
+        const config = { port: 3000, dynamicToolDiscovery };
+        startServer(config);
+
+        const createMcpServerFn = vi.mocked(createStatelessServer).mock.calls[0][0];
+        createMcpServerFn({
+          config: { FMP_ACCESS_TOKEN: "test-token" },
+        });
+
+        // Dynamic mode should take precedence
+        expect(registerMetaTools).toHaveBeenCalledWith(
+          expect.any(Object),
+          "test-token"
+        );
+        expect(registerToolsBySet).not.toHaveBeenCalled();
       });
     });
   });

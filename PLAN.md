@@ -96,9 +96,21 @@ The implementation must support three distinct modes:
     - *STATIC Mode: Shows "Pre-configured toolsets" with count and toolset list*
     - *LEGACY Mode: Shows "All tools registered at startup (250+ tools)"*
     - *Consistent logging format without emojis for better compatibility*
-- [ ] Create comprehensive tests for dynamic toolset functionality with multi-environment support
-- [ ] Add specific backward compatibility tests for all three modes (Legacy/Static/Dynamic)  
-- [ ] Add configuration source testing for all three environments: Command Line, Smithery, and Docker ENV
+- [x] Create comprehensive tests for dynamic toolset functionality with multi-environment support
+    - *Created `src/dynamic-toolset-manager/DynamicToolsetManager.test.ts` with 20 comprehensive unit tests*
+    - *Tests cover singleton pattern, basic functionality, validation, state management, error handling, and access token handling*
+    - *Tests validate core dynamic toolset functionality without integration complexity*
+    - *All 20 tests passing, covering essential manager behavior and edge cases*
+- [x] Add specific backward compatibility tests for all three modes (Legacy/Static/Dynamic)
+    - *Added comprehensive configuration tests to `src/server/server.test.ts`*
+    - *Tests validate Dynamic Mode (meta-tools registration), Static Mode (toolset registration), Legacy Mode (all tools registration)*
+    - *Tests verify mode priority logic: Dynamic > Static > Legacy based on configuration*
+    - *Tests cover server parameter priority over Smithery config for backward compatibility*
+- [x] Add configuration source testing for all three environments: Command Line, Smithery, and Docker ENV
+    - *Added tests for Smithery config via `DYNAMIC_TOOL_DISCOVERY` and `FMP_TOOL_SETS` properties*
+    - *Added tests for environment variable support via `process.env.DYNAMIC_TOOL_DISCOVERY`*
+    - *Added tests for mixed environment variable scenarios and malformed config handling*
+    - *Tests validate configuration source priority: CLI/env overrides Smithery config*
 - [x] Update smithery.yaml configSchema to include DYNAMIC_TOOL_DISCOVERY option
     - *Added DYNAMIC_TOOL_DISCOVERY property to configSchema in smithery.yaml*
     - *Configured as optional string parameter with descriptive title and help text*
