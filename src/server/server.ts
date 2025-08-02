@@ -79,15 +79,15 @@ function createMcpServer({
   if (dynamicToolDiscovery === true) {
     // Dynamic Mode: Get singleton DynamicToolsetManager for runtime toolset management
     registerMetaTools(mcpServer, accessToken);
-    console.log("MCP Server Mode: DYNAMIC - Runtime toolset management enabled");
+    console.log("MCP Server Mode: DYNAMIC_TOOL_DISCOVERY - Runtime toolset management enabled");
   } else if (finalToolSets && finalToolSets.length > 0) {
     // Static Mode: Register specified toolsets at startup
     registerToolsBySet(mcpServer, finalToolSets, accessToken);
-    console.log(`MCP Server Mode: STATIC - Pre-configured toolsets (${finalToolSets.length}): ${finalToolSets.join(', ')}`);
+    console.log(`MCP Server Mode: STATIC_TOOL_SETS - Pre-configured toolsets (${finalToolSets.length}): ${finalToolSets.join(', ')}`);
   } else {
     // Legacy Mode: Register all tools for backward compatibility (current default)
     registerAllTools(mcpServer, accessToken);
-    console.log("MCP Server Mode: LEGACY - All tools registered at startup (250+ tools)");
+    console.log("MCP Server Mode: ALL_TOOLS - All tools registered at startup (250+ tools)");
   }
 
   return mcpServer.server;
@@ -96,7 +96,7 @@ function createMcpServer({
 /**
  * Server mode enumeration
  */
-type ServerMode = 'DYNAMIC' | 'STATIC' | 'LEGACY';
+type ServerMode = 'DYNAMIC_TOOL_DISCOVERY' | 'STATIC_TOOL_SETS' | 'ALL_TOOLS';
 
 /**
  * Start the server with the given configuration
@@ -113,7 +113,7 @@ export function startServer(config: ServerConfig): Server {
   let dynamicMcpServerInstance: ReturnType<typeof createMcpServer> | null = null;
   
   const { app } = createStatelessServer((params) => {
-    if (serverMode === 'DYNAMIC') {
+    if (serverMode === 'DYNAMIC_TOOL_DISCOVERY') {
       // DYNAMIC MODE: Use singleton pattern (required for persistent toolset state)
       if (!dynamicMcpServerInstance) {
         console.log("✅ Creating persistent DYNAMIC server instance...");
@@ -132,7 +132,7 @@ export function startServer(config: ServerConfig): Server {
       console.log(`⚙️ Creating fresh ${serverMode} server instance...`);
       return createMcpServer({
         ...params,
-        toolSets: serverMode === 'STATIC' ? toolSets : undefined,
+        toolSets: serverMode === 'STATIC_TOOL_SETS' ? toolSets : undefined,
         accessToken: resolveAccessToken(accessToken, params.config),
         dynamicToolDiscovery: false,
       });
@@ -146,7 +146,7 @@ export function startServer(config: ServerConfig): Server {
       version: VERSION,
       message: "Financial Modeling Prep MCP server is running",
       serverMode: serverMode,
-      toolSets: serverMode === 'STATIC' ? toolSets : serverMode === 'DYNAMIC' ? 'dynamic' : 'all',
+      toolSets: serverMode === 'STATIC_TOOL_SETS' ? toolSets : serverMode === 'DYNAMIC_TOOL_DISCOVERY' ? 'dynamic-tool-discovery' : 'all-tools',
     });
   });
 
@@ -223,15 +223,15 @@ function resolveServerMode(
   
   // Server explicitly requested dynamic mode
   if (isDynamic === true) {
-    return 'DYNAMIC';
+    return 'DYNAMIC_TOOL_DISCOVERY';
   }
   
   // Server specified specific toolsets (static mode)
   if (serverToolSets && serverToolSets.length > 0) {
-    return 'STATIC';
+    return 'STATIC_TOOL_SETS';
   }
   
-  // Default to legacy mode (all tools)
-  return 'LEGACY';
+  // Default to legacy mode (all tools) 
+  return 'ALL_TOOLS';
 }
 
