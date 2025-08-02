@@ -504,15 +504,15 @@ describe("Server Configuration and Startup", () => {
         timestamp: expect.any(String),
         version: expect.any(String),
         message: "Financial Modeling Prep MCP server is running",
-        serverMode: "LEGACY",
-        toolSets: "all",
+        serverMode: "ALL_TOOLS",
+        toolSets: "all-tools",
       });
     });
   });
 
   describe("Dynamic Toolset Configuration", () => {
     describe("Three-Mode Compatibility", () => {
-      it("should enable Dynamic Mode when dynamicToolDiscovery is true", () => {
+      it("should enable DYNAMIC_TOOL_DISCOVERY mode when dynamicToolDiscovery is true", () => {
         const config = { port: 3000, dynamicToolDiscovery: true };
 
         startServer(config);
@@ -531,7 +531,7 @@ describe("Server Configuration and Startup", () => {
         expect(registerToolsBySet).not.toHaveBeenCalled();
       });
 
-      it("should enable Static Mode when toolSets are provided (no dynamic flag)", () => {
+      it("should enable STATIC_TOOL_SETS mode when toolSets are provided (no dynamic flag)", () => {
         const config = { port: 3000, toolSets: ["search", "company"] as ToolSet[] };
 
         startServer(config);
@@ -551,7 +551,7 @@ describe("Server Configuration and Startup", () => {
         expect(registerAllTools).not.toHaveBeenCalled();
       });
 
-      it("should enable Legacy Mode when no configuration is provided", () => {
+      it("should enable ALL_TOOLS mode when no configuration is provided", () => {
         const config = { port: 3000 };
 
         startServer(config);
@@ -570,7 +570,7 @@ describe("Server Configuration and Startup", () => {
         expect(registerToolsBySet).not.toHaveBeenCalled();
       });
 
-      it("should prioritize Dynamic Mode over Static Mode when both are configured", () => {
+      it("should prioritize DYNAMIC_TOOL_DISCOVERY mode over STATIC_TOOL_SETS mode when both are configured", () => {
         const config = { 
           port: 3000, 
           dynamicToolDiscovery: true, 
@@ -595,7 +595,7 @@ describe("Server Configuration and Startup", () => {
     });
 
     describe("Configuration Sources", () => {
-      it("should enable Dynamic Mode via Smithery config", () => {
+      it("should enable DYNAMIC_TOOL_DISCOVERY mode via Smithery config", () => {
         // Server must be started with dynamic mode enabled for clients to get dynamic behavior
         const config = { port: 3000, dynamicToolDiscovery: true };
 
@@ -616,8 +616,8 @@ describe("Server Configuration and Startup", () => {
         expect(registerAllTools).not.toHaveBeenCalled();
       });
 
-      it("should ignore Dynamic Mode request when server is in LEGACY mode", () => {
-        // Server started without dynamic mode -> LEGACY mode
+      it("should ignore DYNAMIC_TOOL_DISCOVERY request when server is in ALL_TOOLS mode", () => {
+        // Server started without dynamic mode -> ALL_TOOLS mode
         const config = { port: 3000 };
 
         startServer(config);
@@ -630,7 +630,7 @@ describe("Server Configuration and Startup", () => {
           },
         });
 
-        // Should use LEGACY mode (all tools), not dynamic mode
+        // Should use ALL_TOOLS mode (all tools), not dynamic mode
         expect(registerAllTools).toHaveBeenCalledWith(
           expect.any(Object),
           "test-token"
@@ -638,7 +638,7 @@ describe("Server Configuration and Startup", () => {
         expect(registerMetaTools).not.toHaveBeenCalled();
       });
 
-      it("should enable Static Mode via Smithery config", () => {
+      it("should enable STATIC_TOOL_SETS mode via Smithery config", () => {
         const config = { port: 3000 };
 
         startServer(config);
@@ -694,7 +694,7 @@ describe("Server Configuration and Startup", () => {
           },
         });
 
-        // Should default to Legacy Mode
+        // Should default to ALL_TOOLS mode
         expect(registerAllTools).toHaveBeenCalledWith(
           expect.any(Object),
           "test-token"
