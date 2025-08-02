@@ -74,21 +74,16 @@ function createMcpServer({
   // Three-mode tool registration: Dynamic, Static, or Legacy
   if (dynamicToolDiscovery === true) {
     // Dynamic Mode: Get singleton DynamicToolsetManager for runtime toolset management
-    const dynamicToolsetManager = getDynamicToolsetManager(mcpServer, accessToken);
-    console.log("Dynamic mode enabled - DynamicToolsetManager singleton initialized");
-    console.log(`Available toolsets: ${dynamicToolsetManager.getAvailableToolsets().join(', ')}`);
-    
-    // Register meta-tools for dynamic toolset management
     registerMetaTools(mcpServer, accessToken);
-    
-    // Store manager instance for access by meta-tools (for compatibility/debugging)
-    (mcpServer as any)._dynamicToolsetManager = dynamicToolsetManager;
+    console.log("MCP Server Mode: DYNAMIC - Runtime toolset management enabled");
   } else if (finalToolSets && finalToolSets.length > 0) {
     // Static Mode: Register specified toolsets at startup
     registerToolsBySet(mcpServer, finalToolSets, accessToken);
+    console.log(`MCP Server Mode: STATIC - Pre-configured toolsets (${finalToolSets.length}): ${finalToolSets.join(', ')}`);
   } else {
     // Legacy Mode: Register all tools for backward compatibility (current default)
     registerAllTools(mcpServer, accessToken);
+    console.log("MCP Server Mode: LEGACY - All tools registered at startup (250+ tools)");
   }
 
   return mcpServer.server;
@@ -126,14 +121,6 @@ export function startServer(config: ServerConfig): Server {
     console.log(`Financial Modeling Prep MCP server started on port ${port}`);
     console.log(`Health endpoint available at http://localhost:${port}/health`);
     console.log(`MCP endpoint available at http://localhost:${port}/mcp`);
-
-    if (dynamicToolDiscovery) {
-      console.log("Dynamic tool discovery enabled");
-    } else if (toolSets && toolSets.length > 0) {
-      console.log(`Tool sets enabled: ${toolSets.join(", ")}`);
-    } else {
-      console.log("All tool sets enabled (default)");
-    }
   });
 
   return server;

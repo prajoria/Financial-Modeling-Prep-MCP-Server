@@ -76,14 +76,34 @@ The implementation must support three distinct modes:
     - *Includes comprehensive error handling and logging*
     - *Sends `notifications/tools/list_changed` when toolsets are disabled*
     - *Shows active toolsets in tool description for user guidance*
-- [ ] Ensure meta-tools send `notifications/tools/list_changed` after registration/unregistration
-- [ ] Update server creation logic with three-mode compatibility (Legacy/Static/Dynamic)
-- [ ] Add `DYNAMIC_TOOL_DISCOVERY` environment variable and CLI `--dynamic-tool-discovery` support
-- [ ] Update server startup logging to clearly indicate which of the three modes is active
+- [x] Ensure meta-tools send `notifications/tools/list_changed` after registration/unregistration
+    - *Already implemented in DynamicToolsetManager.enableToolset() and disableToolset() methods*
+    - *Both methods send `await this.server.server.notification({ method: "notifications/tools/list_changed" })`*
+    - *Notifications properly trigger client tool list refresh after toolset changes*
+- [x] Update server creation logic with three-mode compatibility (Legacy/Static/Dynamic)
+    - *Already implemented in server.ts with clear conditional logic*
+    - *Dynamic Mode: Registers meta-tools only, uses DynamicToolsetManager*
+    - *Static Mode: Registers specified toolsets at startup via `registerToolsBySet()`*
+    - *Legacy Mode: Registers all tools at startup via `registerAllTools()`*
+- [x] Add `DYNAMIC_TOOL_DISCOVERY` environment variable and CLI `--dynamic-tool-discovery` support
+    - *Already implemented in src/index.ts with full parsing support*
+    - *CLI: `--dynamic-tool-discovery` flag*
+    - *Environment: `DYNAMIC_TOOL_DISCOVERY="true"` variable*
+    - *Help text includes examples and documentation*
+- [x] Update server startup logging to clearly indicate which of the three modes is active
+    - *Added clear mode indicators for all three operational modes*
+    - *DYNAMIC Mode: Shows "Runtime toolset management enabled" with available toolsets*
+    - *STATIC Mode: Shows "Pre-configured toolsets" with count and toolset list*
+    - *LEGACY Mode: Shows "All tools registered at startup (250+ tools)"*
+    - *Consistent logging format without emojis for better compatibility*
 - [ ] Create comprehensive tests for dynamic toolset functionality with multi-environment support
 - [ ] Add specific backward compatibility tests for all three modes (Legacy/Static/Dynamic)  
 - [ ] Add configuration source testing for all three environments: Command Line, Smithery, and Docker ENV
-- [ ] Update smithery.yaml configSchema to include DYNAMIC_TOOL_DISCOVERY option
+- [x] Update smithery.yaml configSchema to include DYNAMIC_TOOL_DISCOVERY option
+    - *Added DYNAMIC_TOOL_DISCOVERY property to configSchema in smithery.yaml*
+    - *Configured as optional string parameter with descriptive title and help text*
+    - *Matches the pattern used for FMP_TOOL_SETS configuration*
+    - *Enables Smithery-based configuration of dynamic toolset feature*
 - [ ] Update documentation and help text to describe dynamic toolset feature and three-mode operation
 - [ ] Add validation and error handling for dynamic toolset operations
 - [ ] Final verification: ensure no breaking changes to existing Legacy and Static modes
