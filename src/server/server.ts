@@ -15,6 +15,7 @@ interface ServerConfig {
   port: number;
   toolSets?: ToolSet[];
   accessToken?: string;
+  dynamicToolDiscovery?: boolean;
 }
 
 /**
@@ -24,10 +25,12 @@ function createMcpServer({
   config,
   toolSets,
   accessToken: serverAccessToken,
+  dynamicToolDiscovery: serverDynamicToolDiscovery,
 }: {
-  config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string };
+  config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string; DYNAMIC_TOOL_DISCOVERY?: string };
   toolSets?: ToolSet[];
   accessToken?: string;
+  dynamicToolDiscovery?: boolean;
 }) {
   // Use server access token if provided, otherwise fall back to config
   const accessToken = serverAccessToken || config?.FMP_ACCESS_TOKEN;
@@ -40,9 +43,16 @@ function createMcpServer({
     ) as ToolSet[];
   }
 
+  // Parse dynamic tool discovery setting - prioritize server config over Smithery config
+  const dynamicToolDiscovery = serverDynamicToolDiscovery ?? (config?.DYNAMIC_TOOL_DISCOVERY === "true");
+
   const mcpServer = new McpServer({
     name: "Financial Modeling Prep MCP",
     version: VERSION,
+    capabilities: {
+      // Enable dynamic tool list changes when in dynamic mode
+      tools: { listChanged: dynamicToolDiscovery === true },
+    },
     configSchema: {
       type: "object",
       required: ["FMP_ACCESS_TOKEN"],
@@ -58,14 +68,27 @@ function createMcpServer({
           description:
             "Comma-separated list of tool sets to load (e.g., 'search,company,quotes'). If not specified, all tools will be loaded.",
         },
+        DYNAMIC_TOOL_DISCOVERY: {
+          type: "string",
+          title: "Dynamic Tool Discovery (Optional)",
+          description:
+            "Enable dynamic toolset management. Set to 'true' to use meta-tools for runtime toolset loading. Default is 'false'.",
+        },
       },
     },
   });
 
-  // Use tool sets if provided, otherwise register all tools for backward compatibility
-  if (finalToolSets && finalToolSets.length > 0) {
+  // Three-mode tool registration: Dynamic, Static, or Legacy
+  if (dynamicToolDiscovery === true) {
+    // Dynamic Mode: Register only meta-tools initially, toolsets enabled on-demand
+    // TODO: Implement registerDynamicMetaTools in Step 4
+    console.log("Dynamic mode enabled - meta-tools will be registered in Step 4");
+    // registerDynamicMetaTools(mcpServer, accessToken);
+  } else if (finalToolSets && finalToolSets.length > 0) {
+    // Static Mode: Register specified toolsets at startup
     registerToolsBySet(mcpServer, finalToolSets, accessToken);
   } else {
+    // Legacy Mode: Register all tools for backward compatibility (current default)
     registerAllTools(mcpServer, accessToken);
   }
 
@@ -78,7 +101,7 @@ function createMcpServer({
  * @returns HTTP server instance
  */
 export function startServer(config: ServerConfig): Server {
-  const { port, toolSets, accessToken } = config;
+  const { port, toolSets, accessToken, dynamicToolDiscovery } = config;
 
   // Create the stateless server with tool sets configuration
   const { app } = createStatelessServer((params) =>
@@ -86,6 +109,7 @@ export function startServer(config: ServerConfig): Server {
       ...params,
       toolSets,
       accessToken,
+      dynamicToolDiscovery,
     })
   );
 

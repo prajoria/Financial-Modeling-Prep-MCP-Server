@@ -25,6 +25,12 @@ if (toolSetsInput && typeof toolSetsInput === "string") {
   toolSets = toolSetsInput.split(",").map((s) => s.trim()) as ToolSet[];
 }
 
+// Parse dynamic tool discovery from command line or environment variable
+const dynamicToolDiscovery =
+  argv["dynamic-tool-discovery"] === true ||
+  argv["dynamicToolDiscovery"] === true ||
+  process.env.DYNAMIC_TOOL_DISCOVERY === "true";
+
 // Validate tool sets
 const availableToolSets = getAvailableToolSets().map(({ key }) => key);
 const invalidToolSets = toolSets.filter(
@@ -36,7 +42,7 @@ if (invalidToolSets.length > 0) {
   process.exit(1);
 }
 
-startServer({ port, toolSets });
+startServer({ port, toolSets, dynamicToolDiscovery });
 
 // Log startup information
 if (fmpToken) {
@@ -61,6 +67,7 @@ Options:
   --port <number>              Server port (default: 3000)
   --fmp-token <token>          FMP API access token
   --tool-sets <sets>           Comma-separated list of tool sets to load
+  --dynamic-tool-discovery     Enable dynamic toolset management (meta-tools)
   --help, -h                   Show this help message
 
 Available Tool Sets:
@@ -78,11 +85,13 @@ Examples:
   npm start                                    # Load all tools (253 tools)
   npm start -- --tool-sets search,company     # Load only search and company tools
   npm start -- --tool-sets quotes,charts      # Load only quotes and charts tools
+  npm start -- --dynamic-tool-discovery       # Start with meta-tools only (dynamic mode)
   npm start -- --port 4000 --tool-sets crypto,forex  # Custom port with crypto and forex tools
 
 Environment Variables:
-  PORT              Server port
-  FMP_ACCESS_TOKEN  Financial Modeling Prep API access token
-  FMP_TOOL_SETS     Comma-separated list of tool sets to load
+  PORT                     Server port
+  FMP_ACCESS_TOKEN         Financial Modeling Prep API access token
+  FMP_TOOL_SETS            Comma-separated list of tool sets to load
+  DYNAMIC_TOOL_DISCOVERY   Enable dynamic toolset management (set to "true")
 `);
 }

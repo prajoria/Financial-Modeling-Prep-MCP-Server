@@ -40,7 +40,13 @@ The implementation must support three distinct modes:
 
 ## To-Do List
 
-- [ ] Add `dynamicToolsets: boolean` option to `ServerConfig` interface with three-mode logic
+- [x] Add `dynamicToolDiscovery: boolean` option to `ServerConfig` interface with three-mode logic
+    - *Added `DYNAMIC_TOOL_DISCOVERY?: string` to config object following established pattern*
+    - *Added `DYNAMIC_TOOL_DISCOVERY` to configSchema for Smithery/environment variable support*
+    - *Added CLI support: `--dynamic-tool-discovery` and env var `DYNAMIC_TOOL_DISCOVERY="true"`*
+    - *Parse with priority: CLI/env overrides Smithery config, similar to `FMP_TOOL_SETS` pattern*
+    - *Implemented three-mode logic: Dynamic (meta-tools only), Static (specific toolsets), Legacy (all tools)*
+    - *Added `listChanged: true` capability when dynamicToolDiscovery === true*
 - [ ] Extend MCP server capabilities to support `listChanged: true` for dynamic tool updates  
 - [ ] Create `DynamicToolsetManager` class following GitHub's pattern to wrap existing toolset system
 - [ ] Implement `enable_toolset` meta-tool for dynamically loading toolset modules with operation-based routing
@@ -64,17 +70,17 @@ Based on existing test patterns in `src/server/server.test.ts`, we need comprehe
 ### Configuration Source Testing (All 3 Modes × 3 Sources = 9 Test Scenarios)
 
 **Command Line Arguments:**
-- `node . --dynamic-toolsets` (Dynamic Mode)
+- `node . --dynamic-tool-discovery` (Dynamic Mode)
 - `node . --tool-sets="search,company"` (Static Mode)  
 - `node .` (Legacy Mode - no args)
 
 **Smithery Configuration (smithery.yaml):**
-- `FMP_DYNAMIC_TOOLSETS: true` in configSchema (Dynamic Mode)
+- `DYNAMIC_TOOL_DISCOVERY: "true"` in configSchema (Dynamic Mode)
 - `FMP_TOOL_SETS: "search,company"` in configSchema (Static Mode)
 - Neither specified (Legacy Mode)
 
 **Docker Environment Variables:**
-- `FMP_DYNAMIC_TOOLSETS=true` in docker-compose.yml (Dynamic Mode)
+- `DYNAMIC_TOOL_DISCOVERY="true"` in docker-compose.yml (Dynamic Mode)
 - `FMP_TOOL_SETS="search,company"` in docker-compose.yml (Static Mode)
 - Neither specified (Legacy Mode)
 
