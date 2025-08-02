@@ -26,6 +26,18 @@ The implementation must support three distinct modes:
    - Behavior: Only meta-tools registered initially, toolsets enabled on-demand
    - **Note**: All registration functions must receive `accessToken` parameter for consistency
 
+## Dynamic Toolset Workflow Example
+
+**User Request**: "Can you get the latest stock quote for AAPL?"
+
+**Step 1**: Server starts with `listChanged: true` and only meta-tools (`enable_toolset`, `disable_toolset`)
+**Step 2**: AI sees it doesn't have quote tools, but recognizes `enable_toolset` meta-tool  
+**Step 3**: AI calls `enable_toolset(toolsetName: "quotes")`
+**Step 4**: Server dynamically registers all quote-related tools using existing `registerQuotesTools()`
+**Step 5**: Server sends `notifications/tools/list_changed` to client
+**Step 6**: Client refreshes tool list, AI now sees `getRealTimeQuote`, `getHistoricalQuotes`, etc.
+**Step 7**: AI calls `getRealTimeQuote(symbol: "AAPL")` to fulfill original request
+
 ## To-Do List
 
 - [ ] Add `dynamicToolsets: boolean` option to `ServerConfig` interface with three-mode logic
@@ -33,6 +45,7 @@ The implementation must support three distinct modes:
 - [ ] Create `DynamicToolsetManager` class following GitHub's pattern to wrap existing toolset system
 - [ ] Implement `enable_toolset` meta-tool for dynamically loading toolset modules with operation-based routing
 - [ ] Implement `disable_toolset` meta-tool for dynamically unloading toolset modules with state tracking
+- [ ] Ensure meta-tools send `notifications/tools/list_changed` after registration/unregistration
 - [ ] Update server creation logic with three-mode compatibility (Legacy/Static/Dynamic)
 - [ ] Add `FMP_DYNAMIC_TOOLSETS` environment variable and CLI `--dynamic-toolsets` support
 - [ ] Update server startup logging to clearly indicate which of the three modes is active
