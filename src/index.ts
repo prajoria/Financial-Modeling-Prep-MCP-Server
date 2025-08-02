@@ -4,6 +4,7 @@ import minimist from "minimist";
 import { startServer } from "./server/server.js";
 import { type ToolSet, getAvailableToolSets } from "./constants/index.js";
 import { showHelp } from "./utils/showHelp.js";
+import { validateDynamicToolDiscoveryConfig } from "./utils/validation.js";
 
 // Parse command line arguments
 const argv = minimist(process.argv.slice(2));
@@ -31,7 +32,7 @@ if (toolSetsInput && typeof toolSetsInput === "string") {
 const dynamicToolDiscovery =
   argv["dynamic-tool-discovery"] === true ||
   argv["dynamicToolDiscovery"] === true ||
-  process.env.DYNAMIC_TOOL_DISCOVERY === "true";
+  validateDynamicToolDiscoveryConfig(process.env.DYNAMIC_TOOL_DISCOVERY);
 
 // Validate tool sets
 const availableToolSets = getAvailableToolSets().map(({ key }) => key);

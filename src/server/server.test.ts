@@ -504,6 +504,7 @@ describe("Server Configuration and Startup", () => {
         timestamp: expect.any(String),
         version: expect.any(String),
         message: "Financial Modeling Prep MCP server is running",
+        serverMode: "LEGACY",
         toolSets: "all",
       });
     });
@@ -595,7 +596,8 @@ describe("Server Configuration and Startup", () => {
 
     describe("Configuration Sources", () => {
       it("should enable Dynamic Mode via Smithery config", () => {
-        const config = { port: 3000 };
+        // Server must be started with dynamic mode enabled for clients to get dynamic behavior
+        const config = { port: 3000, dynamicToolDiscovery: true };
 
         startServer(config);
 
@@ -612,6 +614,28 @@ describe("Server Configuration and Startup", () => {
           "test-token"
         );
         expect(registerAllTools).not.toHaveBeenCalled();
+      });
+
+      it("should ignore Dynamic Mode request when server is in LEGACY mode", () => {
+        // Server started without dynamic mode -> LEGACY mode
+        const config = { port: 3000 };
+
+        startServer(config);
+
+        const createMcpServerFn = vi.mocked(createStatelessServer).mock.calls[0][0];
+        createMcpServerFn({
+          config: { 
+            FMP_ACCESS_TOKEN: "test-token",
+            DYNAMIC_TOOL_DISCOVERY: "true" // Client requests dynamic but server ignores it
+          },
+        });
+
+        // Should use LEGACY mode (all tools), not dynamic mode
+        expect(registerAllTools).toHaveBeenCalledWith(
+          expect.any(Object),
+          "test-token"
+        );
+        expect(registerMetaTools).not.toHaveBeenCalled();
       });
 
       it("should enable Static Mode via Smithery config", () => {

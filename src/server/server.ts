@@ -4,12 +4,12 @@ import { registerAllTools, registerToolsBySet } from "../tools/index.js";
 import { getServerVersion } from "../utils/getServerVersion.js";
 import { 
   validateToolSets, 
-  validateDynamicToolDiscoveryConfig, 
+  validateDynamicToolDiscoveryConfig,
   parseCommaSeparatedToolSets 
 } from "../utils/validation.js";
 import type { Request, Response } from "express";
 import type { Server } from "node:http";
-import type { TOOL_SETS, ToolSet } from "../constants/index.js";
+import type { ToolSet } from "../constants/index.js";
 import { registerMetaTools } from "../tools/meta-tools.js";
 
 const VERSION = getServerVersion();
@@ -26,6 +26,7 @@ interface ServerConfig {
 
 /**
  * Create MCP server function used by the stateless server
+ * Note: Server mode is determined at startup, not per-client
  */
 function createMcpServer({
   config,
@@ -38,14 +39,9 @@ function createMcpServer({
   accessToken?: string;
   dynamicToolDiscovery?: boolean;
 }) {
-  console.log("Creating MCP server instance with configuration:", {
-    TOOL_SETS: config?.FMP_TOOL_SETS,
-    DYNAMIC_TOOL_DISCOVERY: config?.DYNAMIC_TOOL_DISCOVERY,
-  });
-
   const accessToken = resolveAccessToken(serverAccessToken, config);
-  const finalToolSets = parseToolSets(toolSets, config);
-  const dynamicToolDiscovery = parseDynamicToolDiscovery(serverDynamicToolDiscovery, config);
+  const finalToolSets = parseToolSets(toolSets, config); // Still need to parse and validate toolSets
+  const dynamicToolDiscovery = serverDynamicToolDiscovery; // No client override
 
   const mcpServer = new McpServer({
     name: "Financial Modeling Prep MCP",
@@ -98,6 +94,11 @@ function createMcpServer({
 }
 
 /**
+ * Server mode enumeration
+ */
+type ServerMode = 'DYNAMIC' | 'STATIC' | 'LEGACY';
+
+/**
  * Start the server with the given configuration
  * @param config - Server configuration
  * @returns HTTP server instance
@@ -105,19 +106,37 @@ function createMcpServer({
 export function startServer(config: ServerConfig): Server {
   const { port, toolSets, accessToken, dynamicToolDiscovery } = config;
 
-  // Create the MCP server instance ONCE at startup
-  let mcpServerInstance: ReturnType<typeof createMcpServer> | null = null;
+  // Determine server mode at startup - this decision applies to ALL connections
+  const serverMode = resolveServerMode(dynamicToolDiscovery, toolSets);
+
+  // Global server instance for dynamic mode (singleton required for state persistence)
+  let dynamicMcpServerInstance: ReturnType<typeof createMcpServer> | null = null;
   
   const { app } = createStatelessServer((params) => {
-    if (!mcpServerInstance) {
-      mcpServerInstance = createMcpServer({
+    if (serverMode === 'DYNAMIC') {
+      // DYNAMIC MODE: Use singleton pattern (required for persistent toolset state)
+      if (!dynamicMcpServerInstance) {
+        console.log("✅ Creating persistent DYNAMIC server instance...");
+        dynamicMcpServerInstance = createMcpServer({
+          ...params,
+          toolSets: undefined, // Dynamic mode starts with no toolsets
+          accessToken: resolveAccessToken(accessToken, params.config),
+          dynamicToolDiscovery: true,
+        });
+      }
+      return dynamicMcpServerInstance;
+      
+    } else {
+      // STATIC/LEGACY MODE: Create fresh instances (truly stateless)
+      // Smithery and other clients get fresh instances per connection
+      console.log(`⚙️ Creating fresh ${serverMode} server instance...`);
+      return createMcpServer({
         ...params,
-        toolSets,
-        accessToken,
-        dynamicToolDiscovery,
+        toolSets: serverMode === 'STATIC' ? toolSets : undefined,
+        accessToken: resolveAccessToken(accessToken, params.config),
+        dynamicToolDiscovery: false,
       });
     }
-    return mcpServerInstance;
   });
 
   app.get("/healthcheck", (req: Request, res: Response) => {
@@ -126,13 +145,15 @@ export function startServer(config: ServerConfig): Server {
       timestamp: new Date().toISOString(),
       version: VERSION,
       message: "Financial Modeling Prep MCP server is running",
-      toolSets: toolSets || "all",
+      serverMode: serverMode,
+      toolSets: serverMode === 'STATIC' ? toolSets : serverMode === 'DYNAMIC' ? 'dynamic' : 'all',
     });
   });
 
   const server = app.listen(port, () => {
     console.log(`Financial Modeling Prep MCP server started on port ${port}`);
-    console.log(`Health endpoint available at http://localhost:${port}/health`);
+    console.log(`Server Mode: ${serverMode}`);
+    console.log(`Health endpoint available at http://localhost:${port}/healthcheck`);
     console.log(`MCP endpoint available at http://localhost:${port}/mcp`);
   });
 
@@ -187,21 +208,30 @@ function parseToolSets(
 }
 
 /**
- * Parses dynamic tool discovery setting with priority: server parameter > Smithery config
- * Uses validation utilities for consistent validation
- * @param serverDynamicToolDiscovery - Dynamic tool discovery setting provided directly to server
- * @param config - Configuration object from Smithery or environment
- * @returns Boolean indicating if dynamic tool discovery is enabled
+ * Determine the server mode based on startup configuration
+ * Server-level configuration takes precedence over client configuration
+ * @param serverDynamicToolDiscovery - Dynamic tool discovery from server startup
+ * @param serverToolSets - Tool sets from server startup
+ * @returns The determined server mode
  */
-function parseDynamicToolDiscovery(
+function resolveServerMode(
   serverDynamicToolDiscovery?: boolean,
-  config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string; DYNAMIC_TOOL_DISCOVERY?: string }
-): boolean {
-  // Server parameter takes precedence
-  if (serverDynamicToolDiscovery !== undefined) {
-    return validateDynamicToolDiscoveryConfig(serverDynamicToolDiscovery);
+  serverToolSets?: ToolSet[]
+): ServerMode {
+  // Validate and normalize dynamic tool discovery setting
+  const isDynamic = validateDynamicToolDiscoveryConfig(serverDynamicToolDiscovery);
+  
+  // Server explicitly requested dynamic mode
+  if (isDynamic === true) {
+    return 'DYNAMIC';
   }
   
-  // Check Smithery/environment config
-  return validateDynamicToolDiscoveryConfig(config?.DYNAMIC_TOOL_DISCOVERY);
+  // Server specified specific toolsets (static mode)
+  if (serverToolSets && serverToolSets.length > 0) {
+    return 'STATIC';
+  }
+  
+  // Default to legacy mode (all tools)
+  return 'LEGACY';
 }
+
