@@ -10,7 +10,6 @@ import {
 import type { Request, Response } from "express";
 import type { Server } from "node:http";
 import type { ToolSet } from "../constants/index.js";
-import { getDynamicToolsetManager } from "../dynamic-toolset-manager/index.js";
 import { registerMetaTools } from "../tools/meta-tools.js";
 
 const VERSION = getServerVersion();
@@ -102,15 +101,20 @@ function createMcpServer({
 export function startServer(config: ServerConfig): Server {
   const { port, toolSets, accessToken, dynamicToolDiscovery } = config;
 
-  // Create the stateless server with tool sets configuration
-  const { app } = createStatelessServer((params) =>
-    createMcpServer({
-      ...params,
-      toolSets,
-      accessToken,
-      dynamicToolDiscovery,
-    })
-  );
+  // Create the MCP server instance ONCE at startup
+  let mcpServerInstance: ReturnType<typeof createMcpServer> | null = null;
+  
+  const { app } = createStatelessServer((params) => {
+    if (!mcpServerInstance) {
+      mcpServerInstance = createMcpServer({
+        ...params,
+        toolSets,
+        accessToken,
+        dynamicToolDiscovery,
+      });
+    }
+    return mcpServerInstance;
+  });
 
   app.get("/healthcheck", (req: Request, res: Response) => {
     res.status(200).json({

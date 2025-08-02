@@ -12,7 +12,7 @@ import { TOOL_SETS } from "../constants/toolSets.js";
  */
 export function registerMetaTools(server: McpServer, accessToken?: string): void {
   console.log('Server starting in DYNAMIC mode - Registering meta-tools');
-  
+
   // Get the singleton DynamicToolsetManager instance
   const dynamicToolsetManager = getDynamicToolsetManager(server, accessToken);
   const availableToolsets = dynamicToolsetManager.getAvailableToolsets();

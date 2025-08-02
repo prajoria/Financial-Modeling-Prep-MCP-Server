@@ -29,7 +29,8 @@ Usage: npm start [options]
 Options:
   --port <number>              Server port (default: 3000)
   --fmp-token <token>          FMP API access token
-  --tool-sets <sets>           Comma-separated list of tool sets to load
+  --fmp-tool-sets <sets>       Comma-separated list of tool sets to load
+  --tool-sets <sets>           Alternative format for tool sets
   --dynamic-tool-discovery     Enable dynamic toolset management (meta-tools, BETA)
   --help, -h                   Show this help message
 
@@ -44,10 +45,10 @@ Available Tool Sets:
 
   console.log(`
 Examples:
-  npm start                                    # Load all tools (253 tools)
-  npm start -- --tool-sets search,company     # Load only search and company tools
-  npm start -- --tool-sets quotes,charts      # Load only quotes and charts tools
-  npm start -- --dynamic-tool-discovery       # Start with meta-tools only (dynamic mode)
+  npm start                                         # Load all tools (253 tools)
+  npm start -- --fmp-tool-sets search,company      # Load only search and company tools
+  npm start -- --fmp-tool-sets quotes,charts       # Load only quotes and charts tools
+  npm start -- --dynamic-tool-discovery            # Start with meta-tools only (dynamic mode)
   npm start -- --port 4000 --tool-sets crypto,forex  # Custom port with crypto and forex tools
 
 Environment Variables:

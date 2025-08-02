@@ -22,7 +22,7 @@ const fmpToken = argv["fmp-token"] || process.env.FMP_ACCESS_TOKEN;
 // Parse toolSets argument from command line or environment variable
 let toolSets: ToolSet[] = [];
 const toolSetsInput =
-  argv["tool-sets"] || argv["toolSets"] || process.env.FMP_TOOL_SETS;
+  argv["fmp-tool-sets"] || argv["tool-sets"] || argv["toolSets"] || process.env.FMP_TOOL_SETS;
 if (toolSetsInput && typeof toolSetsInput === "string") {
   toolSets = toolSetsInput.split(",").map((s) => s.trim()) as ToolSet[];
 }
@@ -44,7 +44,7 @@ if (invalidToolSets.length > 0) {
   process.exit(1);
 }
 
-startServer({ port, toolSets, dynamicToolDiscovery });
+startServer({ port, toolSets, accessToken: fmpToken, dynamicToolDiscovery });
 
 // Log startup information
 if (fmpToken) {
