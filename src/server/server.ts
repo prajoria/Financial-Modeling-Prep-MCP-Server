@@ -5,6 +5,7 @@ import { getServerVersion } from "../utils/getServerVersion.js";
 import type { Request, Response } from "express";
 import type { Server } from "node:http";
 import type { ToolSet } from "../constants/index.js";
+import { getDynamicToolsetManager } from "../dynamic-toolset-manager/index.js";
 
 const VERSION = getServerVersion();
 
@@ -71,10 +72,16 @@ function createMcpServer({
 
   // Three-mode tool registration: Dynamic, Static, or Legacy
   if (dynamicToolDiscovery === true) {
-    // Dynamic Mode: Register only meta-tools initially, toolsets enabled on-demand
-    // TODO: Implement registerDynamicMetaTools in Step 4
-    console.log("Dynamic mode enabled - meta-tools will be registered in Step 4");
-    // registerDynamicMetaTools(mcpServer, accessToken);
+    // Dynamic Mode: Get singleton DynamicToolsetManager for runtime toolset management
+    const dynamicToolsetManager = getDynamicToolsetManager(mcpServer, accessToken);
+    console.log("Dynamic mode enabled - DynamicToolsetManager singleton initialized");
+    console.log(`Available toolsets: ${dynamicToolsetManager.getAvailableToolsets().join(', ')}`);
+    
+    // TODO: Register meta-tools (enable_toolset, disable_toolset) in Step 4
+    // These meta-tools will use dynamicToolsetManager.enableToolset() and dynamicToolsetManager.disableToolset()
+    
+    // Store manager instance for access by meta-tools (will be used in Step 4)
+    (mcpServer as any)._dynamicManager = dynamicToolsetManager;
   } else if (finalToolSets && finalToolSets.length > 0) {
     // Static Mode: Register specified toolsets at startup
     registerToolsBySet(mcpServer, finalToolSets, accessToken);
