@@ -116,9 +116,34 @@ The implementation must support three distinct modes:
     - *Configured as optional string parameter with descriptive title and help text*
     - *Matches the pattern used for FMP_TOOL_SETS configuration*
     - *Enables Smithery-based configuration of dynamic toolset feature*
-- [ ] Update documentation and help text to describe dynamic toolset feature and three-mode operation
-- [ ] Add validation and error handling for dynamic toolset operations
-- [ ] Final verification: ensure no breaking changes to existing Legacy and Static modes
+- [x] Update documentation and help text to describe dynamic toolset feature and three-mode operation
+    - *Added comprehensive "Dynamic Toolset Management (BETA)" section to README.md with BETA warning*
+    - *Added feature to Table of Contents and included detailed explanation of meta-tools workflow*
+    - *Added configuration examples in HTTP Server section (Command Line and Environment Variable)*
+    - *Added configuration examples in Development Setup section for development workflow*
+    - *Added Docker usage examples with DYNAMIC_TOOL_DISCOVERY environment variable*
+    - *Documented all three server modes: Dynamic, Static, and Legacy with clear explanations*
+    - *Added example workflow showing AI assistant enabling toolsets on-demand*
+    - *Updated showHelp function with dynamic toolset option and moved to dedicated utility file*
+- [x] Add validation and error handling for dynamic toolset operations
+    - *Enhanced input validation and sanitization in `DynamicToolsetManager.enableToolset()` and `disableToolset()`*
+    - *Added timeout protection for module loading operations (10 second timeout)*
+    - *Improved error recovery with state cleanup on failures*
+    - *Enhanced notification error handling to prevent operation failures*
+    - *Added configuration validation in `parseToolSets()` with malformed input filtering*
+    - *Added comprehensive validation in `parseDynamicToolDiscovery()` with type checking*
+    - *Enhanced error messages with detailed context and available options*
+    - *Added graceful handling of null/undefined inputs and edge cases*
+- [x] Final verification: ensure no breaking changes to existing Legacy and Static modes
+    - *Extracted validation and sanitization functions to pure helper utilities in `src/utils/validation.ts`*
+    - *Refactored `server.ts` to use `validateToolSets()`, `validateDynamicToolDiscoveryConfig()`, and `parseCommaSeparatedToolSets()`*
+    - *Refactored `DynamicToolsetManager.ts` to use `validateAndSanitizeToolsetName()` and `validateToolsetModules()`*
+    - *All server tests (31) and dynamic toolset manager tests (20) passing - total 51 tests successful*
+    - *Build process completes without errors - TypeScript compilation successful*
+    - *Legacy Mode: Verified all tools registration works without changes*
+    - *Static Mode: Verified selective toolset loading works with enhanced validation*
+    - *Dynamic Mode: Verified meta-tools and runtime toolset management work correctly*
+    - *Backward compatibility maintained across all three operational modes*
 
 ## Testing Strategy
 

@@ -2,6 +2,11 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { createStatelessServer } from "@smithery/sdk/server/stateless.js";
 import { registerAllTools, registerToolsBySet } from "../tools/index.js";
 import { getServerVersion } from "../utils/getServerVersion.js";
+import { 
+  validateToolSets, 
+  validateDynamicToolDiscoveryConfig, 
+  parseCommaSeparatedToolSets 
+} from "../utils/validation.js";
 import type { Request, Response } from "express";
 import type { Server } from "node:http";
 import type { ToolSet } from "../constants/index.js";
@@ -141,6 +146,7 @@ function resolveAccessToken(
 
 /**
  * Parses tool sets with priority: server parameter > Smithery config
+ * Uses validation utilities for consistent validation and sanitization
  * @param toolSets - Tool sets provided directly to server
  * @param config - Configuration object from Smithery or environment
  * @returns Array of parsed tool sets, empty array if none specified
@@ -149,14 +155,24 @@ function parseToolSets(
   toolSets?: ToolSet[],
   config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string; DYNAMIC_TOOL_DISCOVERY?: string }
 ): ToolSet[] {
-  // Use server-provided tool sets if available
+  // Use server-provided tool sets if available and validate them
   let finalToolSets = toolSets || [];
+  
+  // Validate server-provided tool sets using validation utilities
+  if (finalToolSets.length > 0) {
+    const validation = validateToolSets(finalToolSets);
+    
+    // Log warnings for invalid toolsets
+    if (validation.invalid.length > 0) {
+      console.warn(`Invalid tool sets found in server config, ignoring:`, validation.invalid);
+    }
+    
+    finalToolSets = validation.valid;
+  }
   
   // Parse tool sets from Smithery config if provided and no server tool sets were specified
   if (config?.FMP_TOOL_SETS && finalToolSets.length === 0) {
-    finalToolSets = config.FMP_TOOL_SETS.split(",").map((s) =>
-      s.trim()
-    ) as ToolSet[];
+    finalToolSets = parseCommaSeparatedToolSets(config.FMP_TOOL_SETS);
   }
   
   return finalToolSets;
@@ -164,6 +180,7 @@ function parseToolSets(
 
 /**
  * Parses dynamic tool discovery setting with priority: server parameter > Smithery config
+ * Uses validation utilities for consistent validation
  * @param serverDynamicToolDiscovery - Dynamic tool discovery setting provided directly to server
  * @param config - Configuration object from Smithery or environment
  * @returns Boolean indicating if dynamic tool discovery is enabled
@@ -172,5 +189,11 @@ function parseDynamicToolDiscovery(
   serverDynamicToolDiscovery?: boolean,
   config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string; DYNAMIC_TOOL_DISCOVERY?: string }
 ): boolean {
-  return serverDynamicToolDiscovery ?? (config?.DYNAMIC_TOOL_DISCOVERY === "true");
+  // Server parameter takes precedence
+  if (serverDynamicToolDiscovery !== undefined) {
+    return validateDynamicToolDiscoveryConfig(serverDynamicToolDiscovery);
+  }
+  
+  // Check Smithery/environment config
+  return validateDynamicToolDiscoveryConfig(config?.DYNAMIC_TOOL_DISCOVERY);
 }

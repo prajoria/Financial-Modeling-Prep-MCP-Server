@@ -1,11 +1,19 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { TOOL_SETS, type ToolSet, type ToolSetDefinition } from "../constants/toolSets.js";
 import { getModulesForToolSets } from "../constants/index.js";
+import { 
+  validateAndSanitizeToolsetName, 
+  validateToolsetModules 
+} from "../utils/validation.js";
+import { ModuleLoader } from "../types/index.js";
+import { loadModuleWithTimeout } from "../utils/loadModuleWithTimeout.js";
+
 
 /**
  * Module registration function mapping - imported from tools/index.ts pattern
+ * Each entry maps a module name to a function that dynamically imports and returns the registration function
  */
-const MODULE_REGISTRATIONS = {
+const MODULE_REGISTRATIONS: Record<string, ModuleLoader> = {
   search: async () => (await import("../tools/search.js")).registerSearchTools,
   directory: async () => (await import("../tools/directory.js")).registerDirectoryTools,
   analyst: async () => (await import("../tools/analyst.js")).registerAnalystTools,
@@ -34,7 +42,7 @@ const MODULE_REGISTRATIONS = {
   "sec-filings": async () => (await import("../tools/sec-filings.js")).registerSECFilingsTools,
   "government-trading": async () => (await import("../tools/government-trading.js")).registerGovernmentTradingTools,
   bulk: async () => (await import("../tools/bulk.js")).registerBulkTools,
-} as const;
+};
 
 /**
  * Dynamic Toolset Manager following GitHub MCP Server pattern
@@ -124,64 +132,95 @@ export class DynamicToolsetManager {
    * @returns Success status and message
    */
   async enableToolset(toolsetName: ToolSet): Promise<{ success: boolean; message: string }> {
-    // Check if toolset is already active
-    if (this.activeToolsets.has(toolsetName)) {
+    // Validate and sanitize toolset name using validation utilities
+    const validation = validateAndSanitizeToolsetName(toolsetName, this.getAvailableToolsets());
+    
+    if (!validation.isValid || !validation.sanitized) {
       return {
         success: false,
-        message: `Toolset '${toolsetName}' is already enabled.`
+        message: validation.error || 'Unknown validation error'
       };
     }
 
-    // Check if toolset exists
-    const toolsetDefinition = TOOL_SETS[toolsetName];
-    if (!toolsetDefinition) {
+    const sanitizedToolsetName = validation.sanitized;
+    
+    // Check if toolset is already active
+    if (this.activeToolsets.has(sanitizedToolsetName)) {
       return {
         success: false,
-        message: `Toolset '${toolsetName}' not found. Available toolsets: ${this.getAvailableToolsets().join(', ')}`
+        message: `Toolset '${sanitizedToolsetName}' is already enabled.`
       };
     }
 
     try {
-      // Get modules for this toolset
-      const modulesToLoad = getModulesForToolSets([toolsetName]);
+      // Validate that modules exist for this toolset using validation utilities
+      const moduleValidation = validateToolsetModules([sanitizedToolsetName], getModulesForToolSets);
       
-      // Register each required module
-      for (const moduleName of modulesToLoad) {
-        // Skip if module is already registered
-        if (this.registeredModules.has(moduleName)) {
-          continue;
-        }
-
-        const moduleLoader = MODULE_REGISTRATIONS[moduleName as keyof typeof MODULE_REGISTRATIONS];
-        if (moduleLoader) {
-          const registrationFunction = await moduleLoader();
-          registrationFunction(this.server, this.accessToken);
-          this.registeredModules.add(moduleName);
-        } else {
-          console.warn(`Unknown module: ${moduleName}`);
-        }
+      if (!moduleValidation.isValid || !moduleValidation.modules) {
+        return {
+          success: false,
+          message: moduleValidation.error || 'Unknown module validation error'
+        };
       }
 
-      // Mark toolset as active
-      this.activeToolsets.add(toolsetName);
+      const modulesToLoad = moduleValidation.modules;
+      
+      // Register each required module with timeout protection
+      const moduleLoadPromises = modulesToLoad.map(async (moduleName) => {
+        // Skip if module is already registered
+        if (this.registeredModules.has(moduleName)) {
+          return;
+        }
 
-      // Send notification that tool list has changed
-      await this.server.server.notification({
-        method: "notifications/tools/list_changed"
+        const moduleLoader = MODULE_REGISTRATIONS[moduleName];
+        if (moduleLoader) {
+          try {
+            // Load module with timeout protection using properly typed helper function
+            const registrationFunction = await loadModuleWithTimeout(moduleLoader, moduleName);
+            
+            registrationFunction(this.server, this.accessToken);
+            this.registeredModules.add(moduleName);
+          } catch (moduleError) {
+            console.error(`Failed to load module ${moduleName}:`, moduleError);
+            throw new Error(`Module loading failed for ${moduleName}: ${moduleError instanceof Error ? moduleError.message : 'Unknown error'}`);
+          }
+        } else {
+          console.warn(`Unknown module: ${moduleName} for toolset: ${sanitizedToolsetName}`);
+        }
       });
 
-      console.log(`Dynamic toolset enabled: ${toolsetName} (${modulesToLoad.length} modules)`);
+      // Wait for all modules to load
+      await Promise.all(moduleLoadPromises);
+
+      // Mark toolset as active
+      this.activeToolsets.add(sanitizedToolsetName);
+
+      // Send notification that tool list has changed
+      try {
+        await this.server.server.notification({
+          method: "notifications/tools/list_changed"
+        });
+      } catch (notificationError) {
+        console.warn(`Failed to send tool list change notification:`, notificationError);
+        // Don't fail the entire operation for notification errors
+      }
+
+      console.log(`Dynamic toolset enabled: ${sanitizedToolsetName} (${modulesToLoad.length} modules)`);
       
       return {
         success: true,
-        message: `Toolset '${toolsetName}' enabled successfully. Loaded ${modulesToLoad.length} modules: ${modulesToLoad.join(', ')}`
+        message: `Toolset '${sanitizedToolsetName}' enabled successfully. Loaded ${modulesToLoad.length} modules: ${modulesToLoad.join(', ')}`
       };
 
     } catch (error) {
-      console.error(`Failed to enable toolset ${toolsetName}:`, error);
+      console.error(`Failed to enable toolset ${sanitizedToolsetName}:`, error);
+      
+      // Cleanup on failure - remove from active toolsets if it was added
+      this.activeToolsets.delete(sanitizedToolsetName);
+      
       return {
         success: false,
-        message: `Failed to enable toolset '${toolsetName}': ${error instanceof Error ? error.message : 'Unknown error'}`
+        message: `Failed to enable toolset '${sanitizedToolsetName}': ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }
@@ -193,20 +232,37 @@ export class DynamicToolsetManager {
    * @returns Success status and message
    */
   async disableToolset(toolsetName: ToolSet): Promise<{ success: boolean; message: string }> {
-    // Check if toolset is active
-    if (!this.activeToolsets.has(toolsetName)) {
+    // Validate and sanitize toolset name using validation utilities
+    const validation = validateAndSanitizeToolsetName(toolsetName, this.getAvailableToolsets());
+    
+    if (!validation.isValid || !validation.sanitized) {
+      // Provide more specific error message for disable operation
+      const activeToolsets = Array.from(this.activeToolsets).join(', ') || 'none';
+      const baseMessage = validation.error || 'Unknown validation error';
       return {
         success: false,
-        message: `Toolset '${toolsetName}' is not currently active.`
+        message: baseMessage.includes('Available toolsets:') 
+          ? baseMessage.replace('Available toolsets:', `Active toolsets: ${activeToolsets}. Available toolsets:`)
+          : `${baseMessage} Active toolsets: ${activeToolsets}`
+      };
+    }
+
+    const sanitizedToolsetName = validation.sanitized;
+    
+    // Check if toolset is active
+    if (!this.activeToolsets.has(sanitizedToolsetName)) {
+      return {
+        success: false,
+        message: `Toolset '${sanitizedToolsetName}' is not currently active. Active toolsets: ${Array.from(this.activeToolsets).join(', ') || 'none'}`
       };
     }
 
     try {
       // Get modules for this toolset
-      const modulesToDisable = getModulesForToolSets([toolsetName]);
+      const modulesToDisable = getModulesForToolSets([sanitizedToolsetName]);
       
       // Check if any other active toolsets use these modules
-      const otherActiveToolsets = Array.from(this.activeToolsets).filter(ts => ts !== toolsetName);
+      const otherActiveToolsets = Array.from(this.activeToolsets).filter(ts => ts !== sanitizedToolsetName);
       const otherModules = new Set(getModulesForToolSets(otherActiveToolsets));
       
       // Track which modules can be safely unregistered
@@ -222,25 +278,25 @@ export class DynamicToolsetManager {
       }
 
       // Mark toolset as inactive
-      this.activeToolsets.delete(toolsetName);
+      this.activeToolsets.delete(sanitizedToolsetName);
 
       // Send notification that tool list has changed
       await this.server.server.notification({
         method: "notifications/tools/list_changed"
       });
 
-      console.log(`Dynamic toolset disabled: ${toolsetName} (${modulesToUnregister.length} modules unregistered)`);
+      console.log(`Dynamic toolset disabled: ${sanitizedToolsetName} (${modulesToUnregister.length} modules unregistered)`);
       
       return {
         success: true,
-        message: `Toolset '${toolsetName}' disabled successfully. Note: Tools remain available until server restart due to MCP SDK limitations.`
+        message: `Toolset '${sanitizedToolsetName}' disabled successfully. Note: Tools remain available until server restart due to MCP SDK limitations.`
       };
 
     } catch (error) {
-      console.error(`Failed to disable toolset ${toolsetName}:`, error);
+      console.error(`Failed to disable toolset ${sanitizedToolsetName}:`, error);
       return {
         success: false,
-        message: `Failed to disable toolset '${toolsetName}': ${error instanceof Error ? error.message : 'Unknown error'}`
+        message: `Failed to disable toolset '${sanitizedToolsetName}': ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }

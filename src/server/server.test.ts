@@ -39,6 +39,8 @@ describe("Server Configuration and Startup", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {}); // Suppress validation warnings during tests
+    vi.spyOn(console, "error").mockImplementation(() => {}); // Suppress error logs during tests
 
     // Get the mock app from createStatelessServer
     mockApp = {

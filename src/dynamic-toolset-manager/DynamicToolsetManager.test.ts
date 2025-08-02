@@ -45,11 +45,15 @@ vi.mock("../constants/index.js", () => ({
 describe("DynamicToolsetManager", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(console, "log").mockImplementation(() => {}); // Suppress console logs during tests
+    vi.spyOn(console, "warn").mockImplementation(() => {}); // Suppress warnings during tests
+    vi.spyOn(console, "error").mockImplementation(() => {}); // Suppress errors during tests
     // Reset singleton instance before each test
     DynamicToolsetManager.resetInstance();
   });
 
   afterEach(() => {
+    vi.restoreAllMocks(); // Restore console methods after each test
     DynamicToolsetManager.resetInstance();
   });
 
@@ -232,7 +236,7 @@ describe("DynamicToolsetManager", () => {
       const result = await manager.enableToolset("" as ToolSet);
       
       expect(result.success).toBe(false);
-      expect(result.message).toContain("not found");
+      expect(result.message).toContain("Invalid toolset name provided");
     });
 
     it("should handle null/undefined toolset names", async () => {
