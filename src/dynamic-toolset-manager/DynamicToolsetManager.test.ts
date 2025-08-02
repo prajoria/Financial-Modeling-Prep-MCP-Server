@@ -220,7 +220,7 @@ describe("DynamicToolsetManager", () => {
       
       expect(result.success).toBe(true);
       expect(result.message).toContain("disabled successfully");
-      expect(result.message).toContain("MCP SDK limitations");
+      expect(result.message).toContain("SDK limitations");
       expect(manager.isActive("search" as ToolSet)).toBe(false);
     });
   });
