@@ -38,7 +38,6 @@ function createMcpServer({
   accessToken?: string;
   dynamicToolDiscovery?: boolean;
 }) {
-  // Parse configuration using helper functions
   const accessToken = resolveAccessToken(serverAccessToken, config);
   const finalToolSets = parseToolSets(toolSets, config);
   const dynamicToolDiscovery = parseDynamicToolDiscovery(serverDynamicToolDiscovery, config);
