@@ -132,7 +132,6 @@ export class DynamicToolsetManager {
    * @returns Success status and message
    */
   async enableToolset(toolsetName: ToolSet): Promise<{ success: boolean; message: string }> {
-    // Validate and sanitize toolset name using validation utilities
     const validation = validateAndSanitizeToolsetName(toolsetName, this.getAvailableToolsets());
     
     if (!validation.isValid || !validation.sanitized) {
@@ -153,7 +152,7 @@ export class DynamicToolsetManager {
     }
 
     try {
-      // Validate that modules exist for this toolset using validation utilities
+      // Validate that modules exist for this toolset
       const moduleValidation = validateToolsetModules([sanitizedToolsetName], getModulesForToolSets);
       
       if (!moduleValidation.isValid || !moduleValidation.modules) {
@@ -165,7 +164,6 @@ export class DynamicToolsetManager {
 
       const modulesToLoad = moduleValidation.modules;
       
-      // Register each required module with timeout protection
       const moduleLoadPromises = modulesToLoad.map(async (moduleName) => {
         // Skip if module is already registered
         if (this.registeredModules.has(moduleName)) {
@@ -175,7 +173,6 @@ export class DynamicToolsetManager {
         const moduleLoader = MODULE_REGISTRATIONS[moduleName];
         if (moduleLoader) {
           try {
-            // Load module with timeout protection using properly typed helper function
             const registrationFunction = await loadModuleWithTimeout(moduleLoader, moduleName);
             
             registrationFunction(this.server, this.accessToken);
@@ -232,11 +229,9 @@ export class DynamicToolsetManager {
    * @returns Success status and message
    */
   async disableToolset(toolsetName: ToolSet): Promise<{ success: boolean; message: string }> {
-    // Validate and sanitize toolset name using validation utilities
     const validation = validateAndSanitizeToolsetName(toolsetName, this.getAvailableToolsets());
     
     if (!validation.isValid || !validation.sanitized) {
-      // Provide more specific error message for disable operation
       const activeToolsets = Array.from(this.activeToolsets).join(', ') || 'none';
       const baseMessage = validation.error || 'Unknown validation error';
       return {
