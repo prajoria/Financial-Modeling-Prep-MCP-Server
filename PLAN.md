@@ -68,7 +68,14 @@ The implementation must support three distinct modes:
     - *Added bonus `get_toolset_status` meta-tool for debugging and status checking*
     - *Integrated with server.ts to register meta-tools in Dynamic Mode*
     - *Follows MCP SDK API pattern: server.tool(name, description, schema, handler)*
-- [ ] Implement `disable_toolset` meta-tool for dynamically unloading toolset modules with state tracking
+- [x] Implement `disable_toolset` meta-tool for dynamically unloading toolset modules with state tracking
+    - *Added `disable_toolset` meta-tool to `src/tools/meta-tools.ts`*
+    - *Uses singleton DynamicToolsetManager for toolset deactivation*
+    - *Provides detailed success/error messages with proper MCP response format*
+    - *Handles state tracking and module dependency checking*
+    - *Includes comprehensive error handling and logging*
+    - *Sends `notifications/tools/list_changed` when toolsets are disabled*
+    - *Shows active toolsets in tool description for user guidance*
 - [ ] Ensure meta-tools send `notifications/tools/list_changed` after registration/unregistration
 - [ ] Update server creation logic with three-mode compatibility (Legacy/Static/Dynamic)
 - [ ] Add `DYNAMIC_TOOL_DISCOVERY` environment variable and CLI `--dynamic-tool-discovery` support

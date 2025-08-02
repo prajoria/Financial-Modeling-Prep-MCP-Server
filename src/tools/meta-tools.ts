@@ -36,7 +36,7 @@ export function registerMetaTools(server: McpServer, accessToken?: string): void
         const result = await dynamicToolsetManager.enableToolset(toolsetName);
         
         if (result.success) {
-          console.log(`✅ Successfully enabled toolset: ${toolsetName}`);
+          console.log(`Successfully enabled toolset: ${toolsetName}`);
           return {
             content: [
               {
@@ -46,7 +46,7 @@ export function registerMetaTools(server: McpServer, accessToken?: string): void
             ]
           };
         } else {
-          console.log(`❌ Failed to enable toolset: ${toolsetName} - ${result.message}`);
+          console.log(`Failed to enable toolset: ${toolsetName} - ${result.message}`);
           return {
             content: [
               {
@@ -59,7 +59,59 @@ export function registerMetaTools(server: McpServer, accessToken?: string): void
         }
       } catch (error) {
         const errorMessage = `Unexpected error enabling toolset '${toolsetName}': ${error instanceof Error ? error.message : 'Unknown error'}`;
-        console.error(`❌ ${errorMessage}`, error);
+        console.error(`${errorMessage}`, error);
+        return {
+          content: [
+            {
+              type: "text",
+              text: errorMessage
+            }
+          ],
+          isError: true
+        };
+      }
+    }
+  );
+
+  // Register disable_toolset meta-tool
+  server.tool(
+    'disable_toolset',
+    `Disables a specific group of tools (a toolset). Active toolsets:\n• ${toolsetDescriptionList}`,
+    {
+      toolsetName: z.enum(availableToolsets as [ToolSet, ...ToolSet[]]).describe('The name of the toolset to disable.')
+    },
+    async ({ toolsetName }: { toolsetName: ToolSet }) => {
+      try {
+        console.log(`Meta-tool called: disable_toolset(${toolsetName})`);
+        
+        // Use the singleton manager to disable the toolset
+        const result = await dynamicToolsetManager.disableToolset(toolsetName);
+        
+        if (result.success) {
+          console.log(`Successfully disabled toolset: ${toolsetName}`);
+          return {
+            content: [
+              {
+                type: "text",
+                text: result.message
+              }
+            ]
+          };
+        } else {
+          console.log(`Failed to disable toolset: ${toolsetName} - ${result.message}`);
+          return {
+            content: [
+              {
+                type: "text", 
+                text: result.message
+              }
+            ],
+            isError: true
+          };
+        }
+      } catch (error) {
+        const errorMessage = `Unexpected error disabling toolset '${toolsetName}': ${error instanceof Error ? error.message : 'Unknown error'}`;
+        console.error(`${errorMessage}`, error);
         return {
           content: [
             {
@@ -113,7 +165,7 @@ export function registerMetaTools(server: McpServer, accessToken?: string): void
         };
       } catch (error) {
         const errorMessage = `Error getting toolset status: ${error instanceof Error ? error.message : 'Unknown error'}`;
-        console.error(`❌ ${errorMessage}`, error);
+        console.error(`${errorMessage}`, error);
         return {
           content: [
             {
@@ -127,7 +179,7 @@ export function registerMetaTools(server: McpServer, accessToken?: string): void
     }
   );
 
-  console.log(`✅ Meta-tools registered: enable_toolset, get_toolset_status`);
+  console.log(`Meta-tools registered: enable_toolset, disable_toolset, get_toolset_status`);
 }
 
 /**
