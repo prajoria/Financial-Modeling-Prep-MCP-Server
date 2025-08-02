@@ -183,20 +183,23 @@ export function registerMetaTools(server: McpServer, accessToken?: string): void
 }
 
 /**
- * Builds a formatted list of toolset descriptions for display in tool help text
+ * Builds a decision-focused list of toolset descriptions optimized for LLM understanding
+ * Uses "IF you need to" format to help LLMs make better toolset selection decisions
  * @param toolsets - Array of toolset names to format
- * @returns Formatted string with toolset names, display names, and descriptions
+ * @returns Formatted string with decision-focused descriptions and capability details
  * 
  * @example
  * ```typescript
  * const toolsets = ['search', 'quotes'];
- * const result = buildToolsetDescriptionList(toolsets);
- * // Returns: "search (Search & Directory): Search for stocks, company information, and directory services\n• quotes (Real-time Quotes): Real-time stock quotes, price changes, and market data"
+ * const result = generateToolsetDescriptionList(toolsets);
+ * // Returns: "search - IF you need to: Find companies, lookup symbols, discover investments → INCLUDES: Company search, symbol lookup, exchange directory (2 modules)\n• quotes - IF you need to: Check current prices, monitor market activity → INCLUDES: Real-time quotes, price changes, trading volumes (1 module)"
  * ```
  */
 function generateToolsetDescriptionList(toolsets: ToolSet[]): string {
   return toolsets.map(toolset => {
     const def = TOOL_SETS[toolset];
-    return `${toolset} (${def.name}): ${def.description}`;
+    const moduleCount = def.modules.length;
+    
+    return `${toolset} - IF you need to: ${def.decisionCriteria} → INCLUDES: ${def.description} (${moduleCount} module${moduleCount !== 1 ? 's' : ''})`;
   }).join('\n• ');
 }

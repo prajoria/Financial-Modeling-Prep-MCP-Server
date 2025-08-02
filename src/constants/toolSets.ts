@@ -32,6 +32,7 @@ export type ToolSet =
 export interface ToolSetDefinition {
   name: string;
   description: string;
+  decisionCriteria: string;
   modules: string[];
 }
 
@@ -44,6 +45,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
     name: "Search & Directory",
     description:
       "Search for stocks, company information, and directory services",
+    decisionCriteria: "Find companies, lookup symbols, discover investments",
     modules: ["search", "directory"],
   },
 
@@ -52,6 +54,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
     name: "Company Profile & Info",
     description:
       "Company profiles, executives, employees, and core business information",
+    decisionCriteria: "Get company details, executive info, business profiles",
     modules: ["company"],
   },
 
@@ -59,6 +62,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   quotes: {
     name: "Real-time Quotes",
     description: "Real-time stock quotes, price changes, and market data",
+    decisionCriteria: "Check current prices, monitor market activity, track price changes",
     modules: ["quotes"],
   },
 
@@ -67,6 +71,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
     name: "Financial Statements",
     description:
       "Income statements, balance sheets, cash flow, ratios, and financial analysis",
+    decisionCriteria: "Analyze financial performance, assess company health, review financial statements",
     modules: ["statements"],
   },
 
@@ -75,6 +80,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
     name: "Financial Calendar",
     description:
       "Earnings calendar, dividends, IPOs, stock splits, and corporate events",
+    decisionCriteria: "Track earnings dates, corporate events, dividend schedules",
     modules: ["calendar", "earnings-transcript"],
   },
 
@@ -82,6 +88,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   charts: {
     name: "Price Charts & History",
     description: "Historical price data, charts, and market movements",
+    decisionCriteria: "View price history, analyze trends, examine market movements",
     modules: ["chart"],
   },
 
@@ -89,6 +96,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   news: {
     name: "Financial News",
     description: "Market news, press releases, and financial articles",
+    decisionCriteria: "Access market news, press releases, financial articles",
     modules: ["news"],
   },
 
@@ -97,6 +105,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
     name: "Analyst Coverage",
     description:
       "Analyst estimates, price targets, ratings, and recommendations",
+    decisionCriteria: "Get analyst ratings, price targets, research recommendations",
     modules: ["analyst"],
   },
 
@@ -105,6 +114,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
     name: "Market Performance",
     description:
       "Sector performance, market movements, gainers, losers, and most active stocks",
+    decisionCriteria: "Monitor sector performance, find gainers/losers, track market activity",
     modules: ["market-performance", "market-hours"],
   },
 
@@ -112,6 +122,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   "insider-trades": {
     name: "Insider Trading",
     description: "Corporate insider trading activity and ownership changes",
+    decisionCriteria: "Track insider trading activity, ownership changes",
     modules: ["insider-trades"],
   },
 
@@ -119,6 +130,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   institutional: {
     name: "Institutional Holdings",
     description: "13F filings, institutional ownership, and fund holdings",
+    decisionCriteria: "View institutional holdings, 13F filings, fund ownership",
     modules: ["form-13f"],
   },
 
@@ -126,6 +138,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   indexes: {
     name: "Market Indexes",
     description: "Stock market indexes, constituents, and index performance",
+    decisionCriteria: "Access index data, constituents, benchmark performance",
     modules: ["indexes"],
   },
 
@@ -133,6 +146,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   economics: {
     name: "Economic Data",
     description: "Treasury rates, economic indicators, and macroeconomic data",
+    decisionCriteria: "Get economic indicators, treasury rates, macro data",
     modules: ["economics", "cot"],
   },
 
@@ -140,6 +154,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   crypto: {
     name: "Cryptocurrency",
     description: "Cryptocurrency prices, charts, and market data",
+    decisionCriteria: "Access cryptocurrency prices, crypto market data",
     modules: ["crypto"],
   },
 
@@ -147,6 +162,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   forex: {
     name: "Foreign Exchange",
     description: "Currency pairs, forex rates, and foreign exchange data",
+    decisionCriteria: "Get currency exchange rates, forex market data",
     modules: ["forex"],
   },
 
@@ -154,6 +170,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   commodities: {
     name: "Commodities",
     description: "Commodity prices, futures, and commodity market data",
+    decisionCriteria: "Track commodity prices, futures, raw materials",
     modules: ["commodity"],
   },
 
@@ -161,6 +178,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   "etf-funds": {
     name: "ETFs & Mutual Funds",
     description: "ETF and mutual fund holdings, performance, and information",
+    decisionCriteria: "Analyze ETF/fund holdings, performance, fund data",
     modules: ["fund", "fundraisers"],
   },
 
@@ -168,6 +186,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   esg: {
     name: "ESG & Sustainability",
     description: "Environmental, Social, and Governance ratings and data",
+    decisionCriteria: "Access ESG ratings, sustainability data, environmental scores",
     modules: ["esg"],
   },
 
@@ -175,6 +194,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   "technical-indicators": {
     name: "Technical Indicators",
     description: "Technical analysis indicators like RSI, SMA, EMA, and more",
+    decisionCriteria: "Calculate technical indicators, RSI, moving averages",
     modules: ["technical-indicators"],
   },
 
@@ -182,6 +202,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   senate: {
     name: "Government Trading",
     description: "Congressional and Senate trading disclosures",
+    decisionCriteria: "Track government trading, congressional disclosures",
     modules: ["government-trading"],
   },
 
@@ -189,6 +210,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   "sec-filings": {
     name: "SEC Filings",
     description: "SEC filings, regulatory documents, and corporate disclosures",
+    decisionCriteria: "Access SEC filings, regulatory documents, 8-K/10-K forms",
     modules: ["sec-filings"],
   },
 
@@ -196,6 +218,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   earnings: {
     name: "Earnings & Transcripts",
     description: "Earnings reports, call transcripts, and earnings analysis",
+    decisionCriteria: "Get earnings transcripts, call recordings, earnings analysis",
     modules: ["earnings-transcript"],
   },
 
@@ -203,6 +226,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   dcf: {
     name: "DCF Valuation",
     description: "Discounted cash flow models and company valuations",
+    decisionCriteria: "Perform DCF valuation, calculate intrinsic value",
     modules: ["dcf"],
   },
 
@@ -210,6 +234,7 @@ export const TOOL_SETS: Record<ToolSet, ToolSetDefinition> = {
   bulk: {
     name: "Bulk Data",
     description: "Bulk data downloads for large-scale analysis",
+    decisionCriteria: "Download bulk data, large datasets, batch operations",
     modules: ["bulk"],
   },
 };
