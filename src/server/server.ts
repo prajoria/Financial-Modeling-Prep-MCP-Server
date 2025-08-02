@@ -32,19 +32,10 @@ function createMcpServer({
   accessToken?: string;
   dynamicToolDiscovery?: boolean;
 }) {
-  // Use server access token if provided, otherwise fall back to config
-  const accessToken = serverAccessToken || config?.FMP_ACCESS_TOKEN;
-
-  // Parse tool sets from Smithery config if provided and no tool sets were specified
-  let finalToolSets = toolSets || [];
-  if (config?.FMP_TOOL_SETS && finalToolSets.length === 0) {
-    finalToolSets = config.FMP_TOOL_SETS.split(",").map((s) =>
-      s.trim()
-    ) as ToolSet[];
-  }
-
-  // Parse dynamic tool discovery setting - prioritize server config over Smithery config
-  const dynamicToolDiscovery = serverDynamicToolDiscovery ?? (config?.DYNAMIC_TOOL_DISCOVERY === "true");
+  // Parse configuration using helper functions
+  const accessToken = resolveAccessToken(serverAccessToken, config);
+  const finalToolSets = parseToolSets(toolSets, config);
+  const dynamicToolDiscovery = parseDynamicToolDiscovery(serverDynamicToolDiscovery, config);
 
   const mcpServer = new McpServer({
     name: "Financial Modeling Prep MCP",
@@ -128,7 +119,9 @@ export function startServer(config: ServerConfig): Server {
     console.log(`Health endpoint available at http://localhost:${port}/health`);
     console.log(`MCP endpoint available at http://localhost:${port}/mcp`);
 
-    if (toolSets && toolSets.length > 0) {
+    if (dynamicToolDiscovery) {
+      console.log("Dynamic tool discovery enabled");
+    } else if (toolSets && toolSets.length > 0) {
       console.log(`Tool sets enabled: ${toolSets.join(", ")}`);
     } else {
       console.log("All tool sets enabled (default)");
@@ -136,4 +129,53 @@ export function startServer(config: ServerConfig): Server {
   });
 
   return server;
+}
+
+/**
+ * Resolves the access token with priority: server parameter > Smithery config
+ * @param serverAccessToken - Access token provided directly to server
+ * @param config - Configuration object from Smithery or environment
+ * @returns The resolved access token or undefined if not found
+ */
+function resolveAccessToken(
+  serverAccessToken?: string,
+  config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string; DYNAMIC_TOOL_DISCOVERY?: string }
+): string | undefined {
+  return serverAccessToken || config?.FMP_ACCESS_TOKEN;
+}
+
+/**
+ * Parses tool sets with priority: server parameter > Smithery config
+ * @param toolSets - Tool sets provided directly to server
+ * @param config - Configuration object from Smithery or environment
+ * @returns Array of parsed tool sets, empty array if none specified
+ */
+function parseToolSets(
+  toolSets?: ToolSet[],
+  config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string; DYNAMIC_TOOL_DISCOVERY?: string }
+): ToolSet[] {
+  // Use server-provided tool sets if available
+  let finalToolSets = toolSets || [];
+  
+  // Parse tool sets from Smithery config if provided and no server tool sets were specified
+  if (config?.FMP_TOOL_SETS && finalToolSets.length === 0) {
+    finalToolSets = config.FMP_TOOL_SETS.split(",").map((s) =>
+      s.trim()
+    ) as ToolSet[];
+  }
+  
+  return finalToolSets;
+}
+
+/**
+ * Parses dynamic tool discovery setting with priority: server parameter > Smithery config
+ * @param serverDynamicToolDiscovery - Dynamic tool discovery setting provided directly to server
+ * @param config - Configuration object from Smithery or environment
+ * @returns Boolean indicating if dynamic tool discovery is enabled
+ */
+function parseDynamicToolDiscovery(
+  serverDynamicToolDiscovery?: boolean,
+  config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string; DYNAMIC_TOOL_DISCOVERY?: string }
+): boolean {
+  return serverDynamicToolDiscovery ?? (config?.DYNAMIC_TOOL_DISCOVERY === "true");
 }
