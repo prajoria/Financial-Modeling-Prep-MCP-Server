@@ -30,7 +30,7 @@ Options:
   --port <number>              Server port (default: 3000)
   --fmp-token <token>          FMP API access token
   --tool-sets <sets>           Comma-separated list of tool sets to load
-  --dynamic-tool-discovery     Enable dynamic toolset management (meta-tools)
+  --dynamic-tool-discovery     Enable dynamic toolset management (meta-tools, BETA)
   --help, -h                   Show this help message
 
 Available Tool Sets:

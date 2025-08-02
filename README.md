@@ -8,6 +8,7 @@ A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabl
   - [Production via Smithery Registry](#production-via-smithery-registry)
   - [HTTP Server](#http-server)
 - [Selective Tool Loading](#selective-tool-loading)
+- [Dynamic Toolset Management (BETA)](#dynamic-toolset-management-beta)
 - [Available Tools](#available-tools)
   - [Search Tools](#search-tools)
   - [Directory and Symbol Lists](#directory-and-symbol-lists)
@@ -79,6 +80,107 @@ While MCP clients can filter tools automatically, large tool sets may impact per
 | `dcf` | DCF Valuation | Discounted cash flow models, valuations |
 | `bulk` | Bulk Data | Large-scale data downloads for analysis |
 
+## Dynamic Toolset Management (BETA)
+
+**🚧 This feature is currently in BETA. API and behavior may change in future versions.**
+
+The Dynamic Toolset Management feature allows you to enable and disable tool categories at runtime instead of pre-configuring them at startup. This provides more flexibility and can help optimize performance by loading only the tools you need when you need them.
+
+### How It Works
+
+When dynamic toolset management is enabled, the server starts with only **3 meta-tools**:
+
+- `enable_toolset` - Enable a specific toolset during runtime
+- `disable_toolset` - Disable a previously enabled toolset  
+- `get_toolset_status` - Check which toolsets are currently active
+
+AI assistants can then use these meta-tools to dynamically load and unload specific tool categories as needed for different tasks.
+
+### Configuration Options
+
+**Command Line:**
+```bash
+# Enable dynamic toolset management
+node dist/index.js --dynamic-tool-discovery
+
+# Or use environment variable
+DYNAMIC_TOOL_DISCOVERY=true node dist/index.js
+
+# With npm
+npm start -- --dynamic-tool-discovery
+```
+
+**Environment Variable:**
+```bash
+export DYNAMIC_TOOL_DISCOVERY=true
+npm start
+```
+
+**Docker:**
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  fmp-mcp:
+    image: your-image-name
+    ports:
+      - "3000:3000"
+    environment:
+      - FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
+      - DYNAMIC_TOOL_DISCOVERY=true  # Enable dynamic toolsets
+```
+
+### Server Modes
+
+The server supports three operational modes:
+
+1. **Dynamic Mode** (`DYNAMIC_TOOL_DISCOVERY=true`)
+   - Starts with 3 meta-tools only
+   - Tools are loaded on-demand via meta-tools
+   - Best for: Flexible, task-specific tool usage
+
+2. **Static Mode** (`FMP_TOOL_SETS=search,company,quotes`)
+   - Pre-loads specific toolsets at startup
+   - Tools are available immediately
+   - Best for: Known, consistent tool requirements
+
+3. **Legacy Mode** (default, no configuration)
+   - Loads all 253+ tools at startup
+   - All tools available immediately
+   - Best for: Maximum compatibility, no configuration needed
+
+### Example Workflow
+
+1. **Start server with dynamic mode:**
+   ```bash
+   DYNAMIC_TOOL_DISCOVERY=true npm start
+   ```
+
+2. **AI assistant enables needed toolsets:**
+   ```
+   AI: I need to search for companies and get quotes
+   → calls enable_toolset("search")
+   → calls enable_toolset("quotes")
+   ```
+
+3. **AI assistant uses the enabled tools:**
+   ```
+   → calls searchSymbol("AAPL")
+   → calls getQuote("AAPL")
+   ```
+
+4. **AI assistant can disable unused toolsets:**
+   ```
+   → calls disable_toolset("search")
+   ```
+
+### Benefits
+
+- **Performance**: Start faster with fewer tools loaded initially
+- **Flexibility**: Load only the tools needed for current tasks
+- **Resource Efficiency**: Reduce memory usage by disabling unused toolsets
+- **Task-Oriented**: Perfect for AI assistants that work on specific financial analysis tasks
+
 ## Usage
 
 ### Production via Smithery Registry
@@ -123,6 +225,26 @@ The server will start on port 3000 by default. You can change the port with the 
 PORT=4000 npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN
 ```
 
+**Selective Tool Loading:**
+
+```bash
+# Load only specific toolsets (static mode)
+npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN --tool-sets=search,company,quotes
+
+# Or with environment variable
+FMP_TOOL_SETS=search,company,quotes npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN
+```
+
+**Dynamic Toolset Management (BETA):**
+
+```bash
+# Enable dynamic toolset management
+npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN --dynamic-tool-discovery
+
+# Or with environment variable
+DYNAMIC_TOOL_DISCOVERY=true npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN
+```
+
 To send requests to the server, use the `/mcp` endpoint with JSON-RPC formatted requests.
 
 ### Docker Usage
@@ -150,6 +272,7 @@ services:
     environment:
       - FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
       - FMP_TOOL_SETS=COMMA_SEPARATED_TOOL_SETS # Optional
+      - DYNAMIC_TOOL_DISCOVERY=true # Optional (BETA)
       - PORT=3000
 ```
 
@@ -166,6 +289,7 @@ Create a `.env` file:
 ```
 FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
 PORT=3000
+DYNAMIC_TOOL_DISCOVERY=true  # Optional (BETA)
 ```
 
 And reference it in your `docker-compose.yml`:
@@ -589,6 +713,26 @@ The development server will start on port 3000 by default. You can configure the
 
 ```bash
 PORT=4000 FMP_ACCESS_TOKEN=your_api_key npm run dev
+```
+
+**Selective Tool Loading in Development:**
+
+```bash
+# Load only specific toolsets in development (static mode)
+FMP_TOOL_SETS=search,company,quotes FMP_ACCESS_TOKEN=your_api_key npm run dev
+
+# Or with command line flag
+npm run dev -- --fmp-token=your_api_key --tool-sets=search,company,quotes
+```
+
+**Dynamic Toolset Management in Development (BETA):**
+
+```bash
+# Enable dynamic toolset management in development
+DYNAMIC_TOOL_DISCOVERY=true FMP_ACCESS_TOKEN=your_api_key npm run dev
+
+# Or with command line flag
+npm run dev -- --fmp-token=your_api_key --dynamic-tool-discovery
 ```
 
 ### Running Tests
