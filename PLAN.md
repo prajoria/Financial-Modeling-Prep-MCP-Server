@@ -7,7 +7,8 @@ This plan outlines the steps to migrate to stateful server using Smithery SDK's 
 - Wrong import from `@smithery/sdk/server/mcp.js` instead of `@modelcontextprotocol/sdk/server/mcp.js`
 - Using `StatefulServerParams` which doesn't exist, should be `CreateServerArg` from stateful.js
 - Function signature mismatch for server creation
-- Missing toolsets in config schema
+- Missing `FMP_TOOL_SETS` in config schema (needed for STATIC_TOOL_SETS mode)
+- Missing helper functions for server modes: `resolveSessionMode`, `parseCommaSeparatedToolSets`, `registerToolsBySet`, `registerAllTools`
 - **CRITICAL: DynamicToolsetManager singleton pattern breaks session isolation**
   - Current singleton shares state (`activeToolsets`, `registeredModules`) across all sessions
   - In stateful server architecture, each session needs its own isolated manager instance
@@ -23,16 +24,21 @@ This plan outlines the steps to migrate to stateful server using Smithery SDK's 
 - [ ] Fix SessionCache imports to use correct relative paths
 - [ ] Update all relative imports to include proper file extensions
 
-### Phase 2: Create MCP Server Factory Class
+### Phase 2: Create MCP Server Factory Class & Complete Server Modes
 - [ ] Create `McpServerFactory.ts` class to handle MCP server creation logic
 - [ ] Move `createMcpServer` function logic into the factory class
-- [ ] Add proper config schema with FMP_ACCESS_TOKEN, FMP_TOOL_SETS, and DYNAMIC_TOOL_DISCOVERY
+- [ ] **Add `FMP_TOOL_SETS` to config schema** (currently missing, needed for STATIC_TOOL_SETS mode)
+- [ ] **Implement missing helper functions**:
+  - `resolveSessionMode(sessionConfig)` - determines server mode from config
+  - `parseCommaSeparatedToolSets(toolSetsString)` - parses FMP_TOOL_SETS
+- [ ] **Import missing functions**: `registerToolsBySet`, `registerAllTools` from tools module
 - [ ] Make factory methods pure and testable
 - [ ] Add proper TypeScript interfaces for server creation options
 
 ### Phase 3: Fix Stateful Server Implementation  
 - [ ] Keep using `createStatefulServer` from `@smithery/sdk/server/stateful.js` (already correct)
 - [ ] Fix `StatefulMcpServer` class to work properly with stateful paradigm (rename to `McpServerService`)
+- [ ] **Preserve existing server modes support** (DYNAMIC_TOOL_DISCOVERY, STATIC_TOOL_SETS, ALL_TOOLS)
 - [ ] Implement proper session management using SessionCache with stateful server
 - [ ] Update `_getSessionResources` to work with correct `CreateServerArg` interface
 - [ ] Add proper error handling for session creation and management
@@ -55,10 +61,11 @@ This plan outlines the steps to migrate to stateful server using Smithery SDK's 
   - Remove singleton export patterns
   - Update all imports throughout codebase
 
-### Phase 5: Update Server Configuration and Schema
-- [ ] Add `FMP_TOOL_SETS` to the config schema in server creation
-- [ ] Update config schema descriptions to match current functionality
+### Phase 5: Complete Server Configuration and Schema
+- [ ] Add `FMP_TOOL_SETS` to the config schema in server creation (required for STATIC_TOOL_SETS mode)
+- [ ] Update config schema descriptions to match current server modes functionality
 - [ ] Add proper validation for toolset names in config
+- [ ] Ensure all three server modes (DYNAMIC/STATIC/ALL_TOOLS) are properly documented in schema
 - [ ] Ensure backward compatibility with existing configuration patterns
 
 ### Phase 6: Refactor Index.ts with Main Function Pattern
@@ -92,9 +99,15 @@ This plan outlines the steps to migrate to stateful server using Smithery SDK's 
 
 **Key Architectural Changes:**
 - **Keep Stateful**: Using `createStatefulServer` from `@smithery/sdk/server/stateful.js`
+- **Multi-Mode Support**: Three server modes now supported per session
 - **Singleton → Instance**: DynamicToolsetManager becomes per-session instance
 - **Pure Functions**: Server creation logic extracted to factory class
 - **Session Management**: SessionCache handles multi-client support in stateful environment
+
+**Server Modes (PRESERVE & COMPLETE):**
+- **DYNAMIC_TOOL_DISCOVERY**: Creates DynamicToolsetManager + meta-tools for runtime toolset control
+- **STATIC_TOOL_SETS**: Registers only specified toolsets from `FMP_TOOL_SETS` config
+- **ALL_TOOLS**: Registers all available tools (legacy compatibility mode)
 
 **Environment Variable Support:**
 - Maintain existing CLI args: `--fmp-token`, `--fmp-tool-sets`, `--dynamic-tool-discovery`, `--port`

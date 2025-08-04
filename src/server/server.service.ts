@@ -127,33 +127,48 @@ export class StatefulMcpServer {
   private _getSessionResources(params: StatefulServerParams): McpServer {
     const { sessionId, config: sessionConfig } = params;
 
-    // 1. Try to get existing resources from the cache
     const cached = this.cache.get(sessionId);
     if (cached) {
       console.log(`[Server] Reusing cached resources for session: ${sessionId}`);
       return cached.mcpServer;
     }
 
-    // 2. If not cached (or expired), create brand new resources
     console.log(`[Server] Creating new resources for session: ${sessionId}`);
-    
-    // Create a new, isolated McpServer for this session
     const mcpServer = createMcpServer({ sessionId, config: sessionConfig });
-    
-    // Determine the correct access token for this session
     const accessToken = resolveAccessToken(this.serverOptions.accessToken, sessionConfig);
-    
-    // Create a new, non-singleton manager specifically for this session's server instance
-    const toolManager = new DynamicToolsetManager(mcpServer, accessToken);
 
-    // Register the meta-tools (enable_toolset, etc.) on the session's server.
-    // These tools will operate on this session's dedicated toolManager.
-    // This assumes `registerMetaTools` is adapted to accept a manager instance.
-    registerMetaTools(mcpServer, toolManager);
+    // NEW: Determine mode and register tools accordingly
+    const mode = resolveSessionMode(sessionConfig);
+    let toolManager: DynamicToolsetManager | undefined = undefined;
 
-    // 3. Store the newly created resources in the cache for future requests
+    console.log(`[Server] Session ${sessionId} operating in ${mode} mode.`);
+
+    switch (mode) {
+      case 'DYNAMIC_TOOL_DISCOVERY':
+        // For dynamic mode, create a manager and register meta-tools
+        toolManager = new DynamicToolsetManager(mcpServer, accessToken);
+        registerMetaTools(mcpServer, toolManager); // Assumes this is adapted
+        break;
+      
+      case 'STATIC_TOOL_SETS':
+        // For static mode, parse the list and register only those toolsets
+        const toolSets = parseCommaSeparatedToolSets(sessionConfig.FMP_TOOL_SETS);
+        console.log(`[Server] Loading static toolsets for session ${sessionId}: ${toolSets.join(', ')}`);
+        registerToolsBySet(mcpServer, toolSets, accessToken);
+        break;
+
+      case 'ALL_TOOLS':
+      default:
+        // For legacy mode, register all available tools
+        console.log(`[Server] Loading all tools for session ${sessionId} (Legacy Mode).`);
+        registerAllTools(mcpServer, accessToken);
+        break;
+    }
+
+    // Cache the resources. Note that toolManager will be undefined for non-dynamic modes.
     this.cache.set(sessionId, { mcpServer, toolManager });
 
     return mcpServer;
   }
+
 }
