@@ -1,5 +1,7 @@
 # Financial Modeling Prep MCP (Model Context Protocol) Server
 
+[![smithery badge](https://smithery.ai/badge/@imbenrabi/financial-modeling-prep-mcp-server)](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)
+
 A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabling AI assistants to access and analyze financial data, stock information, company fundamentals, and market insights.
 
 ## Table of Contents
@@ -188,8 +190,6 @@ The server supports three operational modes:
 For production environments, you can use this MCP server through the Smithery registry, which provides hosted and managed MCP servers:
 
 **[🚀 View on Smithery](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)**
-
-[![smithery badge](https://smithery.ai/badge/@imbenrabi/financial-modeling-prep-mcp-server)](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)
 
 Smithery is a platform that helps developers find and ship AI-native services designed to communicate with AI agents. All services follow the Model Context Protocol (MCP) specification and provide:
 
