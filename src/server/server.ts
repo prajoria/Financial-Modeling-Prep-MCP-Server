@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { createStatelessServer } from "@smithery/sdk/server/stateless.js";
+import { createStatefulServer } from "@smithery/sdk/server/stateful.js";
 import { registerAllTools, registerToolsBySet } from "../tools/index.js";
 import { getServerVersion } from "../utils/getServerVersion.js";
 import { 
