@@ -26,10 +26,13 @@ interface ServerConfig {
   sessionStore?: StatefulServerOptions['sessionStore'];
 }
 
+// Session metadata storage
+const sessionMetadata = new Map<string, { mode: ServerMode; toolSets?: ToolSet[]; timestamp: Date }>();
+
 /**
  * Create MCP server function used by the stateful server
- * Note: Server mode is determined at startup, not per-client
- * Each session gets its own server instance
+ * Note: Server mode can now be determined per-session based on session config
+ * Each session gets its own server instance with potentially different modes
  */
 function createMcpServer({
   sessionId,
@@ -46,16 +49,26 @@ function createMcpServer({
 }) {
   const accessToken = resolveAccessToken(serverAccessToken, config);
   const finalToolSets = parseToolSets(toolSets, config);
-  const dynamicToolDiscovery = serverDynamicToolDiscovery;
+  
+  // Determine session-specific mode (can override server defaults)
+  const sessionMode = resolveSessionMode(serverDynamicToolDiscovery, config, toolSets, finalToolSets);
+  const sessionDynamicToolDiscovery = sessionMode === 'DYNAMIC_TOOL_DISCOVERY';
 
-  console.log(`🔗 Creating MCP server instance for session: ${sessionId}`);
+  // Store session metadata
+  sessionMetadata.set(sessionId, {
+    mode: sessionMode,
+    toolSets: sessionMode === 'STATIC_TOOL_SETS' ? finalToolSets : undefined,
+    timestamp: new Date(),
+  });
+
+  console.log(`🔗 Creating MCP server instance for session: ${sessionId} with mode: ${sessionMode}`);
 
   const mcpServer = new McpServer({
     name: "Financial Modeling Prep MCP",
     version: VERSION,
     capabilities: {
       // Enable dynamic tool list changes when in dynamic mode
-      tools: { listChanged: dynamicToolDiscovery === true },
+      tools: { listChanged: sessionDynamicToolDiscovery === true },
     },
     configSchema: {
       type: "object",
@@ -82,8 +95,8 @@ function createMcpServer({
     },
   });
 
-  // Three-mode tool registration: Dynamic, Static, or Legacy
-  if (dynamicToolDiscovery === true) {
+  // Three-mode tool registration: Dynamic, Static, or Legacy (per session)
+  if (sessionDynamicToolDiscovery === true) {
     // Dynamic Mode: Each session gets its own dynamic toolset manager
     registerMetaTools(mcpServer, accessToken);
     console.log(`Session ${sessionId} - Mode: DYNAMIC_TOOL_DISCOVERY - Runtime toolset management enabled`);
@@ -113,44 +126,95 @@ type ServerMode = 'DYNAMIC_TOOL_DISCOVERY' | 'STATIC_TOOL_SETS' | 'ALL_TOOLS';
 export function startServer(config: ServerConfig): Server {
   const { port, toolSets, accessToken, dynamicToolDiscovery, sessionStore } = config;
 
-  // Determine server mode at startup - this decision applies to ALL connections
-  const serverMode = resolveServerMode(dynamicToolDiscovery, toolSets);
-
-  console.log(`🚀 Starting STATEFUL server with mode: ${serverMode}`);
+  // Server mode is now determined per-session, not globally
+  console.log(`🚀 Starting STATEFUL server with per-session mode determination`);
   
   const { app } = createStatefulServer((params) => {
     const { sessionId, config: sessionConfig } = params;
     
-    console.log(`📦 Creating server instance for session: ${sessionId} in ${serverMode} mode`);
+    console.log(`📦 Creating server instance for session: ${sessionId}`);
     
     return createMcpServer({
       sessionId,
       config: sessionConfig,
-      toolSets: serverMode === 'STATIC_TOOL_SETS' ? toolSets : undefined,
-      accessToken: resolveAccessToken(accessToken, sessionConfig),
-      dynamicToolDiscovery: serverMode === 'DYNAMIC_TOOL_DISCOVERY',
+      toolSets, // Pass server-level toolsets as default
+      accessToken,
+      dynamicToolDiscovery, // Pass server-level setting as default
     });
   }, {
     sessionStore, // Pass optional session store
   });
 
+  // Enhanced health check with session information
   app.get("/healthcheck", (req: Request, res: Response) => {
+    const activeSessions = Array.from(sessionMetadata.entries()).map(([sessionId, metadata]) => ({
+      sessionId,
+      mode: metadata.mode,
+      toolSets: metadata.toolSets?.length || (metadata.mode === 'ALL_TOOLS' ? '250+' : 'dynamic'),
+      timestamp: metadata.timestamp.toISOString(),
+    }));
+
     res.status(200).json({
       status: "ok",
       timestamp: new Date().toISOString(),
       version: VERSION,
       message: "Financial Modeling Prep MCP server is running (STATEFUL)",
-      serverMode: serverMode,
-      toolSets: serverMode === 'STATIC_TOOL_SETS' ? toolSets : serverMode === 'DYNAMIC_TOOL_DISCOVERY' ? 'dynamic-tool-discovery' : 'all-tools',
       sessionManagement: "stateful",
+      activeSessions: activeSessions.length,
+      sessions: activeSessions,
+      serverDefaults: {
+        toolSets,
+        dynamicToolDiscovery,
+      },
+    });
+  });
+
+  // New endpoint to get session-specific information
+  app.get("/sessions/:sessionId", (req: Request, res: Response) => {
+    const { sessionId } = req.params;
+    const sessionInfo = sessionMetadata.get(sessionId);
+    
+    if (!sessionInfo) {
+      return res.status(404).json({
+        error: "Session not found",
+        sessionId,
+      });
+    }
+    
+    res.json({
+      sessionId,
+      mode: sessionInfo.mode,
+      toolSets: sessionInfo.toolSets,
+      toolCount: sessionInfo.toolSets?.length || (sessionInfo.mode === 'ALL_TOOLS' ? '250+' : 'dynamic'),
+      timestamp: sessionInfo.timestamp.toISOString(),
+      uptime: Date.now() - sessionInfo.timestamp.getTime(),
+    });
+  });
+
+  // New endpoint to list all active sessions
+  app.get("/sessions", (req: Request, res: Response) => {
+    const sessions = Array.from(sessionMetadata.entries()).map(([sessionId, metadata]) => ({
+      sessionId,
+      mode: metadata.mode,
+      toolSets: metadata.toolSets,
+      toolCount: metadata.toolSets?.length || (metadata.mode === 'ALL_TOOLS' ? '250+' : 'dynamic'),
+      timestamp: metadata.timestamp.toISOString(),
+      uptime: Date.now() - metadata.timestamp.getTime(),
+    }));
+
+    res.json({
+      totalSessions: sessions.length,
+      sessions,
     });
   });
 
   const server = app.listen(port, () => {
     console.log(`💎 Financial Modeling Prep MCP server (STATEFUL) started on port ${port}`);
-    console.log(`🎯 Server Mode: ${serverMode}`);
-    console.log(`🏥 Health endpoint available at http://localhost:${port}/healthcheck`);
-    console.log(`🔌 MCP endpoint available at http://localhost:${port}/mcp`);
+    console.log(`🎯 Mode: Per-session determination enabled`);
+    console.log(`🏥 Health endpoint: http://localhost:${port}/healthcheck`);
+    console.log(`🔌 MCP endpoint: http://localhost:${port}/mcp`);
+    console.log(`📋 Sessions endpoint: http://localhost:${port}/sessions`);
+    console.log(`🔍 Session info: http://localhost:${port}/sessions/:sessionId`);
     console.log(`📊 Session management: ENABLED`);
   });
 
@@ -205,29 +269,64 @@ function parseToolSets(
 }
 
 /**
- * Determine the server mode based on startup configuration
- * Server-level configuration takes precedence over client configuration
- * @param serverDynamicToolDiscovery - Dynamic tool discovery from server startup
- * @param serverToolSets - Tool sets from server startup
- * @returns The determined server mode
+ * Determine the server mode based on session-specific configuration
+ * Session configuration can override server defaults
+ * @param serverDynamicToolDiscovery - Dynamic tool discovery from server startup (default)
+ * @param sessionConfig - Configuration from the session
+ * @param serverToolSets - Tool sets from server startup (default)
+ * @param sessionToolSets - Parsed tool sets from session config
+ * @returns The determined server mode for this session
  */
-function resolveServerMode(
+function resolveSessionMode(
   serverDynamicToolDiscovery?: boolean,
-  serverToolSets?: ToolSet[]
+  sessionConfig?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string; DYNAMIC_TOOL_DISCOVERY?: string },
+  serverToolSets?: ToolSet[],
+  sessionToolSets?: ToolSet[]
 ): ServerMode {
-  // Validate and normalize dynamic tool discovery setting
-  const isDynamic = validateDynamicToolDiscoveryConfig(serverDynamicToolDiscovery);
+  // Check for session-specific dynamic tool discovery override
+  let isDynamic = validateDynamicToolDiscoveryConfig(serverDynamicToolDiscovery);
   
-  // Server explicitly requested dynamic mode
+  // Session config can override server setting
+  if (sessionConfig?.DYNAMIC_TOOL_DISCOVERY !== undefined) {
+    const sessionDynamic = sessionConfig.DYNAMIC_TOOL_DISCOVERY.toLowerCase() === 'true';
+    isDynamic = validateDynamicToolDiscoveryConfig(sessionDynamic);
+  }
+  
+  // Session explicitly requested dynamic mode
   if (isDynamic === true) {
     return 'DYNAMIC_TOOL_DISCOVERY';
   }
   
-  // Server specified specific toolsets (static mode)
+  // Session has specific toolsets (takes precedence over server toolsets)
+  if (sessionToolSets && sessionToolSets.length > 0) {
+    return 'STATIC_TOOL_SETS';
+  }
+  
+  // Fall back to server-specified toolsets
   if (serverToolSets && serverToolSets.length > 0) {
     return 'STATIC_TOOL_SETS';
   }
   
   // Default to legacy mode (all tools) 
   return 'ALL_TOOLS';
+}
+
+/**
+ * Get session mode information
+ * @param sessionId - The session ID to look up
+ * @returns Session metadata or undefined if not found
+ */
+export function getSessionMode(sessionId: string) {
+  return sessionMetadata.get(sessionId);
+}
+
+/**
+ * Get all active sessions with their modes
+ * @returns Array of session information
+ */
+export function getAllSessionModes() {
+  return Array.from(sessionMetadata.entries()).map(([sessionId, metadata]) => ({
+    sessionId,
+    ...metadata,
+  }));
 }
