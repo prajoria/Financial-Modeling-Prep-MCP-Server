@@ -1,16 +1,16 @@
-# Plan: Migrate to Stateless Server with SessionCache and Class-Based Design
+# Plan: Migrate to Stateful Server with SessionCache and Class-Based Design
 
-This plan outlines the steps to migrate from stateful to stateless server using Smithery SDK, maintaining SessionCache for multiple client support, and implementing proper class-based design with pure functions.
+This plan outlines the steps to migrate to stateful server using Smithery SDK's `stateful.js`, maintaining SessionCache for multiple client support, and implementing proper class-based design with pure functions.
 
 ## Current Issues to Address
 - Import path issues (missing `.js` extensions)
 - Wrong import from `@smithery/sdk/server/mcp.js` instead of `@modelcontextprotocol/sdk/server/mcp.js`
-- Using `StatefulServerParams` which doesn't exist, should be `CreateServerArg`
+- Using `StatefulServerParams` which doesn't exist, should be `CreateServerArg` from stateful.js
 - Function signature mismatch for server creation
 - Missing toolsets in config schema
 - **CRITICAL: DynamicToolsetManager singleton pattern breaks session isolation**
   - Current singleton shares state (`activeToolsets`, `registeredModules`) across all sessions
-  - In stateless architecture, each session needs its own isolated manager instance
+  - In stateful server architecture, each session needs its own isolated manager instance
   - Meta-tools currently call `getDynamicToolsetManager()` which gets global singleton
   - Would cause toolset state to leak between different client sessions
 
@@ -19,7 +19,7 @@ This plan outlines the steps to migrate from stateful to stateless server using 
 ### Phase 1: Fix Import and Type Issues
 - [ ] Fix import paths in `server.service.ts` to use correct modules and add `.js` extensions
 - [ ] Update imports to use `@modelcontextprotocol/sdk` instead of `@smithery/sdk` for McpServer
-- [ ] Replace `StatefulServerParams` with `CreateServerArg` from stateless server
+- [ ] Replace `StatefulServerParams` with `CreateServerArg` from stateful server
 - [ ] Fix SessionCache imports to use correct relative paths
 - [ ] Update all relative imports to include proper file extensions
 
@@ -30,11 +30,11 @@ This plan outlines the steps to migrate from stateful to stateless server using 
 - [ ] Make factory methods pure and testable
 - [ ] Add proper TypeScript interfaces for server creation options
 
-### Phase 3: Migrate to Stateless Server Architecture  
-- [ ] Update `server.service.ts` to use `createStatelessServer` instead of `createStatefulServer`
-- [ ] Modify `StatefulMcpServer` class to work with stateless paradigm (rename to `McpServerService`)
-- [ ] Implement proper session management using SessionCache with stateless server
-- [ ] Update `_getSessionResources` to work with stateless server request pattern
+### Phase 3: Fix Stateful Server Implementation  
+- [ ] Keep using `createStatefulServer` from `@smithery/sdk/server/stateful.js` (already correct)
+- [ ] Fix `StatefulMcpServer` class to work properly with stateful paradigm (rename to `McpServerService`)
+- [ ] Implement proper session management using SessionCache with stateful server
+- [ ] Update `_getSessionResources` to work with correct `CreateServerArg` interface
 - [ ] Add proper error handling for session creation and management
 
 ### Phase 4: Refactor Dynamic Toolset Manager Integration (CRITICAL)
@@ -70,13 +70,13 @@ This plan outlines the steps to migrate from stateful to stateless server using 
 - [ ] Update startup logging to reflect new architecture
 
 ### Phase 7: Update Session Cache Integration
-- [ ] Ensure SessionCache works properly with stateless server architecture
-- [ ] Update cache entry structure if needed for stateless paradigm
+- [ ] Ensure SessionCache works properly with stateful server architecture
+- [ ] Update cache entry structure if needed for stateful paradigm
 - [ ] Add proper session cleanup and memory management
 - [ ] Test session isolation and proper resource cleanup
 
 ### Phase 8: Testing and Validation
-- [ ] Update existing tests to work with new stateless architecture
+- [ ] Update existing tests to work with stateful server architecture
 - [ ] Add tests for McpServerFactory class
 - [ ] Test session management and isolation
 - [ ] Validate environment variable and CLI argument handling
@@ -91,10 +91,10 @@ This plan outlines the steps to migrate from stateful to stateless server using 
 ## Migration Notes
 
 **Key Architectural Changes:**
-- **Stateful → Stateless**: Each request creates new server instance, but we cache them per session
+- **Keep Stateful**: Using `createStatefulServer` from `@smithery/sdk/server/stateful.js`
 - **Singleton → Instance**: DynamicToolsetManager becomes per-session instance
 - **Pure Functions**: Server creation logic extracted to factory class
-- **Session Management**: SessionCache handles multi-client support in stateless environment
+- **Session Management**: SessionCache handles multi-client support in stateful environment
 
 **Environment Variable Support:**
 - Maintain existing CLI args: `--fmp-token`, `--fmp-tool-sets`, `--dynamic-tool-discovery`, `--port`
@@ -123,5 +123,5 @@ registerMetaTools(server, manager); // Pass instance directly
 - `server.service.ts` → main server service class
 - `McpServerFactory.ts` → new factory class for server creation
 - `index.ts` → updated with main() function pattern  
-- `SessionCache.ts` → minor updates for stateless integration
+- `SessionCache.ts` → minor updates for stateful integration
 - Keep `server.ts` as reference during development
