@@ -47,7 +47,7 @@ export class McpServerFactory {
   private readonly version: string;
 
   constructor() {
-    this.version = getServerVersion();
+    this.version = getServerVersion();  
   }
 
   /**
@@ -59,14 +59,15 @@ export class McpServerFactory {
   public createServer(options: McpServerOptions): McpServerCreationResult {
     const { sessionId, config, serverAccessToken } = options;
 
-    // Create the base MCP server
-    const mcpServer = this._createMcpServerInstance();
-    
-    // Resolve access token and mode
+    // Resolve access token and mode first
     const accessToken = this._resolveAccessToken(serverAccessToken, config);
-    const mode = this.resolveSessionMode(config);
+    const mode = this._resolveSessionMode(config);
     
     console.log(`[McpServerFactory] Creating server for session ${sessionId} in ${mode} mode`);
+
+    // Create the base MCP server with appropriate capabilities
+    const isDynamicMode = mode === 'DYNAMIC_TOOL_DISCOVERY';
+    const mcpServer = this._createMcpServerInstance(isDynamicMode);
 
     // Register tools based on mode
     const toolManager = this._registerToolsForMode(mcpServer, mode, config, accessToken);
@@ -83,30 +84,37 @@ export class McpServerFactory {
    * This method matches the SDK's CreateServerFn<SessionConfig> signature
    * @param arg - SDK's CreateServerArg<SessionConfig>
    * @returns McpServer instance
-   */
+   */ 
   public createServerFromSdkArg(arg: CreateServerArg<SessionConfig>): McpServer {
     const { sessionId, config } = arg;
     
-    // Create server using our factory method
-    const result = this.createServer({
-      sessionId,
-      config,
-      serverAccessToken: undefined // SDK doesn't provide server-level token
-    });
+    // Determine mode first to set appropriate capabilities
+    const mode = this._resolveSessionMode(config);
+    const isDynamicMode = mode === 'DYNAMIC_TOOL_DISCOVERY';
     
-    return result.mcpServer;
+    // Create server with appropriate capabilities
+    const mcpServer = this._createMcpServerInstance(isDynamicMode);
+    
+    // Register tools based on mode
+    const accessToken = this._resolveAccessToken(undefined, config);
+    this._registerToolsForMode(mcpServer, mode, config, accessToken);
+    
+    return mcpServer;
   }
 
   /**
    * Creates a new, isolated McpServer instance with proper configuration schema
+   * @param isDynamicMode - Whether this server instance supports dynamic tool changes
    * @returns Configured McpServer instance
    */
-  private _createMcpServerInstance(): McpServer {
+  private _createMcpServerInstance(isDynamicMode: boolean = false): McpServer {
     return new McpServer({
       name: "Financial Modeling Prep MCP (Stateful)",
       version: this.version,
       capabilities: {
-        tools: { listChanged: true }, // Essential for dynamic mode
+        tools: { 
+          listChanged: isDynamicMode // Only enable dynamic tool changes in dynamic mode
+        },
       },
       configSchema: {
         type: "object",
@@ -149,7 +157,7 @@ export class McpServerFactory {
    * @param sessionConfig - Configuration from session
    * @returns Determined server mode
    */
-  private resolveSessionMode(sessionConfig?: SessionConfig): ServerMode {
+  private _resolveSessionMode(sessionConfig?: SessionConfig): ServerMode {
     // Check for dynamic tool discovery in session config
     const isDynamic = validateDynamicToolDiscoveryConfig(sessionConfig?.DYNAMIC_TOOL_DISCOVERY);
     

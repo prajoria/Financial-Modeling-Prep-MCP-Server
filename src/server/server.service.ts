@@ -1,5 +1,3 @@
-// src/server.ts
-
 import express from 'express';
 import type { Server as HttpServer } from 'node:http';
 import { createStatefulServer, type CreateServerArg } from "@smithery/sdk/server/stateful.js";
@@ -16,7 +14,7 @@ export interface ServerOptions {
  * Each session gets its own McpServer instance and its own DynamicToolsetManager,
  * allowing for unique, per-session tool configurations.
  */
-export class McpServerService {
+export class McpServer {
   private app: express.Application;
   private httpServer: HttpServer | null = null;
   private cache: SessionCache;
