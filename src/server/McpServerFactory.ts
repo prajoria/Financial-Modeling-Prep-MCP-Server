@@ -1,8 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CreateServerArg } from "@smithery/sdk/server/stateful.js";
 import { parseCommaSeparatedToolSets, validateDynamicToolDiscoveryConfig } from '../utils/validation.js';
-import { getDynamicToolsetManager } from '../dynamic-toolset-manager/index.js';
-import type { DynamicToolsetManager } from '../dynamic-toolset-manager/DynamicToolsetManager.js';
+import { DynamicToolsetManager } from '../dynamic-toolset-manager/DynamicToolsetManager.js';
 import { registerMetaTools } from '../tools/meta-tools.js';
 import { registerAllTools, registerToolsBySet } from '../tools/index.js';
 import { getServerVersion } from '../utils/getServerVersion.js';
@@ -61,16 +60,16 @@ export class McpServerFactory {
     const { sessionId, config, serverAccessToken } = options;
 
     // Create the base MCP server
-    const mcpServer = this.createMcpServerInstance();
+    const mcpServer = this._createMcpServerInstance();
     
     // Resolve access token and mode
-    const accessToken = this.resolveAccessToken(serverAccessToken, config);
+    const accessToken = this._resolveAccessToken(serverAccessToken, config);
     const mode = this.resolveSessionMode(config);
     
     console.log(`[McpServerFactory] Creating server for session ${sessionId} in ${mode} mode`);
 
     // Register tools based on mode
-    const toolManager = this.registerToolsForMode(mcpServer, mode, config, accessToken);
+    const toolManager = this._registerToolsForMode(mcpServer, mode, config, accessToken);
 
     return {
       mcpServer,
@@ -102,7 +101,7 @@ export class McpServerFactory {
    * Creates a new, isolated McpServer instance with proper configuration schema
    * @returns Configured McpServer instance
    */
-  private createMcpServerInstance(): McpServer {
+  private _createMcpServerInstance(): McpServer {
     return new McpServer({
       name: "Financial Modeling Prep MCP (Stateful)",
       version: this.version,
@@ -138,7 +137,7 @@ export class McpServerFactory {
    * @param sessionConfig - Configuration from session
    * @returns Resolved access token or undefined
    */
-  private resolveAccessToken(
+  private _resolveAccessToken(
     serverToken?: string, 
     sessionConfig?: SessionConfig
   ): string | undefined {
@@ -175,7 +174,7 @@ export class McpServerFactory {
    * @param accessToken - Resolved access token
    * @returns Tool manager instance (if applicable) 
    */
-  private registerToolsForMode(
+  private _registerToolsForMode(
     mcpServer: McpServer,
     mode: ServerMode,
     sessionConfig?: SessionConfig,
@@ -185,11 +184,11 @@ export class McpServerFactory {
 
     switch (mode) {
       case 'DYNAMIC_TOOL_DISCOVERY':
-        // For dynamic mode, create a manager and register meta-tools
-        // TODO: Fix in Phase 4 - DynamicToolsetManager still uses singleton pattern
-        toolManager = getDynamicToolsetManager(mcpServer, accessToken);
-        registerMetaTools(mcpServer, accessToken);
-        console.log(`[McpServerFactory] Registered meta-tools for dynamic mode`);
+        // For dynamic mode, create a new manager instance and register meta-tools
+        // Each session gets its own isolated DynamicToolsetManager instance
+        toolManager = new DynamicToolsetManager(mcpServer, accessToken);
+        registerMetaTools(mcpServer, toolManager);
+        console.log(`[McpServerFactory] Created isolated toolset manager and registered meta-tools for dynamic mode`);
         break;
       
       case 'STATIC_TOOL_SETS':
