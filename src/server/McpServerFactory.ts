@@ -5,6 +5,7 @@ import { DynamicToolsetManager } from '../dynamic-toolset-manager/DynamicToolset
 import { registerMetaTools } from '../tools/meta-tools.js';
 import { registerAllTools, registerToolsBySet } from '../tools/index.js';
 import { getServerVersion } from '../utils/getServerVersion.js';
+import type { ToolSet } from "../constants/index.js";
 
 /**
  * Server mode enumeration
@@ -86,9 +87,7 @@ export class McpServerFactory {
    * @returns McpServer instance
    */ 
   public createServerFromSdkArg(arg: CreateServerArg<SessionConfig>): McpServer {
-    const { sessionId, config } = arg;
-    
-    // Determine mode first to set appropriate capabilities
+    const { config } = arg;
     const mode = this._resolveSessionMode(config);
     const isDynamicMode = mode === 'DYNAMIC_TOOL_DISCOVERY';
     
@@ -158,7 +157,6 @@ export class McpServerFactory {
    * @returns Determined server mode
    */
   private _resolveSessionMode(sessionConfig?: SessionConfig): ServerMode {
-    // Check for dynamic tool discovery in session config
     const isDynamic = validateDynamicToolDiscoveryConfig(sessionConfig?.DYNAMIC_TOOL_DISCOVERY);
     
     if (isDynamic === true) {

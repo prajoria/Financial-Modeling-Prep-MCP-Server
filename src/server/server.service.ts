@@ -5,7 +5,7 @@ import { SessionCache, type CacheOptions } from '../session-cache/SessionCache.j
 import { McpServerFactory, type SessionConfig } from './McpServerFactory.js';
 
 export interface ServerOptions {
-  accessToken?: string; // A default FMP access token
+  accessToken?: string;
   cacheOptions?: CacheOptions;
 }
 
@@ -38,10 +38,14 @@ export class McpServer {
       console.warn("[McpServerService] ⚠️  Server is already running.");
       return;
     }
+
+    if (!this.serverOptions.accessToken) {
+      console.warn("[McpServerService] ⚠️ Server access token is required for operations - running dummy server");
+    }
     
     try {
       this.httpServer = this.app.listen(port, () => {
-        console.log(`[McpServerService] 🚀 Stateful MCP Server started successfully on port ${port}`);
+        console.log(`[McpServerService] 🚀 MCP Server started successfully on port ${port}`);
         console.log(`[McpServerService] 🧠 Session cache configured with maxSize: ${this.cache['maxSize']}, ttl: ${this.cache['ttl']}ms`);
         console.log(`[McpServerService] 🏥 Health endpoint available at http://localhost:${port}/health`);
         console.log(`[McpServerService] 🔌 MCP endpoint available at http://localhost:${port}/mcp`);
@@ -147,7 +151,7 @@ export class McpServer {
    * Compatible with SDK's CreateServerFn<SessionConfig> signature.
    */
   private _getSessionResources(params: CreateServerArg<SessionConfig>): any {
-    const { sessionId, config: sessionConfig } = params;
+    const { sessionId, config: sessionConfig} = params;
 
     try {
       // Check cache first

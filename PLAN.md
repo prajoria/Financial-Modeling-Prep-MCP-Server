@@ -61,20 +61,20 @@ This plan outlines the steps to migrate to stateful server using Smithery SDK's 
   - Remove singleton export patterns
   - Update all imports throughout codebase
 
-### Phase 5: Complete Server Configuration and Schema
-- [ ] Add `FMP_TOOL_SETS` to the config schema in server creation (required for STATIC_TOOL_SETS mode)
-- [ ] Update config schema descriptions to match current server modes functionality
-- [ ] Add proper validation for toolset names in config
-- [ ] Ensure all three server modes (DYNAMIC/STATIC/ALL_TOOLS) are properly documented in schema
-- [ ] Ensure backward compatibility with existing configuration patterns
+### Phase 5: Complete Server Configuration and Schema ✅ COMPLETED
+- [x] Add `FMP_TOOL_SETS` to the config schema in server creation (required for STATIC_TOOL_SETS mode)
+- [x] Update config schema descriptions to match current server modes functionality
+- [x] Add proper validation for toolset names in config
+- [x] Ensure all three server modes (DYNAMIC/STATIC/ALL_TOOLS) are properly documented in schema
+- [x] Ensure backward compatibility with existing configuration patterns
 
-### Phase 6: Refactor Index.ts with Main Function Pattern
-- [ ] Create `main()` function in `index.ts` that handles server startup
-- [ ] Update argument parsing to work with new server class
-- [ ] Maintain environment variable support (PORT, FMP_ACCESS_TOKEN, FMP_TOOL_SETS, DYNAMIC_TOOL_DISCOVERY)
-- [ ] Preserve command line argument handling for all existing options
-- [ ] Add proper error handling and graceful shutdown in main function
-- [ ] Update startup logging to reflect new architecture
+### Phase 6: Refactor Index.ts with Main Function Pattern ✅ COMPLETED
+- [x] Create `main()` function in `index.ts` that handles server startup
+- [x] Update argument parsing to work with new server class
+- [x] Maintain environment variable support (PORT, FMP_ACCESS_TOKEN, FMP_TOOL_SETS, DYNAMIC_TOOL_DISCOVERY)
+- [x] Preserve command line argument handling for all existing options
+- [x] Add proper error handling and graceful shutdown in main function
+- [x] Update startup logging to reflect new architecture
 
 ### Phase 7: Update Session Cache Integration
 - [ ] Ensure SessionCache works properly with stateful server architecture
