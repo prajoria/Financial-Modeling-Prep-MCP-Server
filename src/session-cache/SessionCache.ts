@@ -1,10 +1,10 @@
-import type { McpServer } from "@smithery/sdk/server/mcp.js";
-import type { DynamicToolsetManager } from "../dynamic-toolset-manager/DynamicToolsetManager.js"; // Adjust path
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { DynamicToolsetManager } from "../dynamic-toolset-manager/DynamicToolsetManager.js";
 
 // Define the structure of what we're caching for each session
 interface CacheEntry {
   mcpServer: McpServer;
-  toolManager: DynamicToolsetManager;
+  toolManager?: DynamicToolsetManager; // Optional - only used in DYNAMIC_TOOL_DISCOVERY mode
   lastAccessed: number;
 }
 

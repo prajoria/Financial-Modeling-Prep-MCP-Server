@@ -2,11 +2,14 @@
 
 import express from 'express';
 import type { Server as HttpServer } from 'node:http';
-import { createStatefulServer, type StatefulServerParams } from "@smithery/sdk/server/stateful.js";
+import { createStatefulServer, type CreateServerArg } from "@smithery/sdk/server/stateful.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { SessionCache, type CacheOptions } from './cache'; // Assuming cache.ts is in the same directory
-import { DynamicToolsetManager } from './dynamic-toolset-manager'; // Assuming this is the refactored, non-singleton class
-import { registerMetaTools } from './meta-tools'; // Assuming this is adapted to accept a manager instance
+import { SessionCache, type CacheOptions } from '../session-cache/SessionCache.js';
+import { parseCommaSeparatedToolSets, validateDynamicToolDiscoveryConfig, validateToolSets } from '../utils/validation.js';
+import { ToolSet } from '../constants/toolSets.js';
+import { DynamicToolsetManager, getDynamicToolsetManager } from '../dynamic-toolset-manager/index.js';
+import { registerMetaTools } from '../tools/meta-tools.js';
+import { registerAllTools, registerToolsBySet } from '../tools/index.js';
 
 // --- Helper Function Implementations ---
 // (These were previously declared placeholders)
@@ -30,6 +33,11 @@ function createMcpServer(options: { sessionId: string; config?: any }): McpServe
           type: "string",
           title: "FMP Access Token",
           description: "Financial Modeling Prep API access token",
+        },
+        FMP_TOOL_SETS: {
+          type: "string",
+          title: "Tool Sets (Optional)",
+          description: "Comma-separated list of tool sets to load (e.g., 'search,company,quotes'). If not specified, all tools will be loaded.",
         },
         DYNAMIC_TOOL_DISCOVERY: {
           type: "string",
@@ -124,7 +132,7 @@ export class StatefulMcpServer {
    * The core logic for getting or creating session resources.
    * This function is passed to the stateful server handler and is called for each request.
    */
-  private _getSessionResources(params: StatefulServerParams): McpServer {
+  private _getSessionResources(params: CreateServerArg): any {
     const { sessionId, config: sessionConfig } = params;
 
     const cached = this.cache.get(sessionId);
@@ -145,14 +153,16 @@ export class StatefulMcpServer {
 
     switch (mode) {
       case 'DYNAMIC_TOOL_DISCOVERY':
-        // For dynamic mode, create a manager and register meta-tools
-        toolManager = new DynamicToolsetManager(mcpServer, accessToken);
-        registerMetaTools(mcpServer, toolManager); // Assumes this is adapted
+            // For dynamic mode, create a manager and register meta-tools
+        // TODO: Fix in Phase 4 - DynamicToolsetManager still uses singleton pattern
+        toolManager = getDynamicToolsetManager(mcpServer, accessToken);
+        registerMetaTools(mcpServer, accessToken);
         break;
       
       case 'STATIC_TOOL_SETS':
         // For static mode, parse the list and register only those toolsets
-        const toolSets = parseCommaSeparatedToolSets(sessionConfig.FMP_TOOL_SETS);
+        const toolSetsString = (sessionConfig?.FMP_TOOL_SETS as string) || '';
+        const toolSets = parseCommaSeparatedToolSets(toolSetsString);
         console.log(`[Server] Loading static toolsets for session ${sessionId}: ${toolSets.join(', ')}`);
         registerToolsBySet(mcpServer, toolSets, accessToken);
         break;
@@ -172,3 +182,95 @@ export class StatefulMcpServer {
   }
 
 }
+
+
+  
+  /**
+   * Parses tool sets with priority: server parameter > session config
+   * Uses validation utilities for consistent validation and sanitization
+   * @param toolSets - Tool sets provided directly to server
+   * @param config - Configuration object from session or environment
+   * @returns Array of parsed tool sets, empty array if none specified
+   */
+  function parseToolSets(
+    toolSets?: ToolSet[],
+    config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string; DYNAMIC_TOOL_DISCOVERY?: string }
+  ): ToolSet[] {
+    // Use server-provided tool sets if available and validate them
+    let finalToolSets = toolSets || [];
+    
+    // Validate server-provided tool sets using validation utilities
+    if (finalToolSets.length > 0) {
+      const validation = validateToolSets(finalToolSets);
+      
+      // Log warnings for invalid toolsets
+      if (validation.invalid.length > 0) {
+        console.warn(`Invalid tool sets found in server config, ignoring:`, validation.invalid);
+      }
+      
+      finalToolSets = validation.valid;
+    }
+    
+    // Parse tool sets from session config if provided and no server tool sets were specified
+    if (config?.FMP_TOOL_SETS && finalToolSets.length === 0) {
+      finalToolSets = parseCommaSeparatedToolSets(config.FMP_TOOL_SETS);
+    }
+    
+    return finalToolSets;
+  }
+
+  /**
+ * Server mode enumeration
+ */
+type ServerMode = 'DYNAMIC_TOOL_DISCOVERY' | 'STATIC_TOOL_SETS' | 'ALL_TOOLS';
+
+/**
+ * Determine the server mode based on session configuration
+ * @param sessionConfig - Configuration object from session
+ * @returns The determined server mode
+ */
+function resolveSessionMode(sessionConfig?: any): ServerMode {
+  // Check for dynamic tool discovery in session config
+  const isDynamic = validateDynamicToolDiscoveryConfig(sessionConfig?.DYNAMIC_TOOL_DISCOVERY);
+  
+  if (isDynamic === true) {
+    return 'DYNAMIC_TOOL_DISCOVERY';
+  }
+  
+  // Check if specific toolsets are provided in session config
+  if (sessionConfig?.FMP_TOOL_SETS && typeof sessionConfig.FMP_TOOL_SETS === 'string') {
+    return 'STATIC_TOOL_SETS';
+  }
+  
+  // Default to legacy mode (all tools)
+  return 'ALL_TOOLS';
+}
+  
+  /**
+   * Determine the server mode based on startup configuration
+   * Server-level configuration takes precedence over client configuration
+   * @param serverDynamicToolDiscovery - Dynamic tool discovery from server startup
+   * @param serverToolSets - Tool sets from server startup
+   * @returns The determined server mode
+   */
+  function resolveServerMode(
+    serverDynamicToolDiscovery?: boolean,
+    serverToolSets?: ToolSet[]
+  ): ServerMode {
+    // Validate and normalize dynamic tool discovery setting
+    const isDynamic = validateDynamicToolDiscoveryConfig(serverDynamicToolDiscovery);
+    
+    // Server explicitly requested dynamic mode
+    if (isDynamic === true) {
+      return 'DYNAMIC_TOOL_DISCOVERY';
+    }
+    
+    // Server specified specific toolsets (static mode)
+    if (serverToolSets && serverToolSets.length > 0) {
+      return 'STATIC_TOOL_SETS';
+    }
+    
+    // Default to legacy mode (all tools) 
+    return 'ALL_TOOLS';
+  }
+  
