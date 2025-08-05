@@ -2,10 +2,10 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CreateServerArg } from "@smithery/sdk/server/stateful.js";
 import { parseCommaSeparatedToolSets, validateDynamicToolDiscoveryConfig } from '../utils/validation.js';
 import { getDynamicToolsetManager } from '../dynamic-toolset-manager/index.js';
+import type { DynamicToolsetManager } from '../dynamic-toolset-manager/DynamicToolsetManager.js';
 import { registerMetaTools } from '../tools/meta-tools.js';
 import { registerAllTools, registerToolsBySet } from '../tools/index.js';
 import { getServerVersion } from '../utils/getServerVersion.js';
-import type { ToolSet } from '../constants/toolSets.js';
 
 /**
  * Server mode enumeration
@@ -13,15 +13,21 @@ import type { ToolSet } from '../constants/toolSets.js';
 export type ServerMode = 'DYNAMIC_TOOL_DISCOVERY' | 'STATIC_TOOL_SETS' | 'ALL_TOOLS';
 
 /**
+ * Session configuration type matching the SDK's CreateServerArg config
+ */
+export interface SessionConfig {
+  FMP_ACCESS_TOKEN?: string;
+  FMP_TOOL_SETS?: string;
+  DYNAMIC_TOOL_DISCOVERY?: string;
+}
+
+/**
  * Configuration options for server creation
+ * Compatible with SDK's CreateServerArg<T> where T = SessionConfig
  */
 export interface McpServerOptions {
   sessionId: string;
-  config?: {
-    FMP_ACCESS_TOKEN?: string;
-    FMP_TOOL_SETS?: string;
-    DYNAMIC_TOOL_DISCOVERY?: string;
-  };
+  config?: SessionConfig;
   serverAccessToken?: string;
 }
 
@@ -30,7 +36,7 @@ export interface McpServerOptions {
  */
 export interface McpServerCreationResult {
   mcpServer: McpServer;
-  toolManager?: any; // Will be DynamicToolsetManager in Phase 4
+  toolManager?: DynamicToolsetManager; // Only present in DYNAMIC_TOOL_DISCOVERY mode
   mode: ServerMode;
 }
 
@@ -47,6 +53,7 @@ export class McpServerFactory {
 
   /**
    * Creates a new MCP server with the appropriate configuration and tools
+   * Compatible with SDK's CreateServerFn<SessionConfig> signature
    * @param options - Server creation options
    * @returns Server creation result with server, manager, and mode
    */
@@ -70,6 +77,25 @@ export class McpServerFactory {
       toolManager,
       mode
     };
+  }
+
+  /**
+   * Creates a server from SDK's CreateServerArg - for direct SDK compatibility
+   * This method matches the SDK's CreateServerFn<SessionConfig> signature
+   * @param arg - SDK's CreateServerArg<SessionConfig>
+   * @returns McpServer instance
+   */
+  public createServerFromSdkArg(arg: CreateServerArg<SessionConfig>): McpServer {
+    const { sessionId, config } = arg;
+    
+    // Create server using our factory method
+    const result = this.createServer({
+      sessionId,
+      config,
+      serverAccessToken: undefined // SDK doesn't provide server-level token
+    });
+    
+    return result.mcpServer;
   }
 
   /**
@@ -114,7 +140,7 @@ export class McpServerFactory {
    */
   private resolveAccessToken(
     serverToken?: string, 
-    sessionConfig?: McpServerOptions['config']
+    sessionConfig?: SessionConfig
   ): string | undefined {
     return sessionConfig?.FMP_ACCESS_TOKEN || serverToken;
   }
@@ -124,7 +150,7 @@ export class McpServerFactory {
    * @param sessionConfig - Configuration from session
    * @returns Determined server mode
    */
-  private resolveSessionMode(sessionConfig?: McpServerOptions['config']): ServerMode {
+  private resolveSessionMode(sessionConfig?: SessionConfig): ServerMode {
     // Check for dynamic tool discovery in session config
     const isDynamic = validateDynamicToolDiscoveryConfig(sessionConfig?.DYNAMIC_TOOL_DISCOVERY);
     
@@ -152,10 +178,10 @@ export class McpServerFactory {
   private registerToolsForMode(
     mcpServer: McpServer,
     mode: ServerMode,
-    sessionConfig?: McpServerOptions['config'],
+    sessionConfig?: SessionConfig,
     accessToken?: string
-  ): any {
-    let toolManager: any = undefined;
+  ): DynamicToolsetManager | undefined {
+    let toolManager: DynamicToolsetManager | undefined = undefined;
 
     switch (mode) {
       case 'DYNAMIC_TOOL_DISCOVERY':
@@ -172,6 +198,7 @@ export class McpServerFactory {
         const toolSets = parseCommaSeparatedToolSets(toolSetsString);
         console.log(`[McpServerFactory] Loading static toolsets: ${toolSets.join(', ')}`);
         registerToolsBySet(mcpServer, toolSets, accessToken);
+        // toolManager remains undefined for static mode
         break;
 
       case 'ALL_TOOLS':
@@ -179,6 +206,7 @@ export class McpServerFactory {
         // For legacy mode, register all available tools
         console.log(`[McpServerFactory] Loading all tools (Legacy Mode)`);
         registerAllTools(mcpServer, accessToken);
+        // toolManager remains undefined for legacy mode
         break;
     }
 
