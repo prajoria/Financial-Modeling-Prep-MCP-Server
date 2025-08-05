@@ -3,8 +3,7 @@
 import minimist from "minimist";
 import { getAvailableToolSets, ToolSet } from "./constants/index.js";
 import { showHelp } from "./utils/showHelp.js";
-import { McpServer } from "./server/server.service.js";
-import { validateDynamicToolDiscoveryConfig } from "./utils/validation.js";
+import { McpServer } from "./server/server.js";
 
 // Parse command line arguments
 const argv = minimist(process.argv.slice(2));

@@ -1,11 +1,10 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { CreateServerArg } from "@smithery/sdk/server/stateful.js";
 import { parseCommaSeparatedToolSets, validateDynamicToolDiscoveryConfig } from '../utils/validation.js';
 import { DynamicToolsetManager } from '../dynamic-toolset-manager/DynamicToolsetManager.js';
 import { registerMetaTools } from '../tools/meta-tools.js';
 import { registerAllTools, registerToolsBySet } from '../tools/index.js';
 import { getServerVersion } from '../utils/getServerVersion.js';
-import type { ToolSet } from "../constants/index.js";
+import type { CreateServerArg } from "@smithery/sdk/server/stateful.js";
 
 /**
  * Server mode enumeration

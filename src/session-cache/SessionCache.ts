@@ -78,7 +78,10 @@ export class SessionCache {
    * Stops the periodic pruning of the cache.
    */
   stop(): void {
-    clearInterval(this.pruneInterval);
+    if (this.pruneInterval) {
+      clearInterval(this.pruneInterval);
+      this.pruneInterval = null as any;
+    }
   }
 
   /**

@@ -1,233 +1,233 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { createStatefulServer } from "@smithery/sdk/server/stateful.js";
-import type { StatefulServerOptions } from "@smithery/sdk/server/stateful.js";
-import { registerAllTools, registerToolsBySet } from "../tools/index.js";
-import { getServerVersion } from "../utils/getServerVersion.js";
-import { 
-  validateToolSets, 
-  validateDynamicToolDiscoveryConfig,
-  parseCommaSeparatedToolSets 
-} from "../utils/validation.js";
-import type { Request, Response } from "express";
-import type { Server } from "node:http";
-import type { ToolSet } from "../constants/index.js";
-import { registerMetaTools } from "../tools/meta-tools.js";
+import express from 'express';
+import type { Server as HttpServer } from 'node:http';
+import { createStatefulServer, type CreateServerArg } from "@smithery/sdk/server/stateful.js";
+import { SessionCache, type CacheOptions } from '../session-cache/SessionCache.js';
+import { McpServerFactory, type SessionConfig } from './McpServerFactory.js';
 
-const VERSION = getServerVersion();
-
-/**
- * ServerConfig interface for configuring the MCP server
- */
-interface ServerConfig {
-  port: number;
-  toolSets?: ToolSet[];
+export interface ServerOptions {
   accessToken?: string;
-  dynamicToolDiscovery?: boolean;
-  sessionStore?: StatefulServerOptions['sessionStore'];
+  cacheOptions?: CacheOptions;
 }
 
 /**
- * Create MCP server function used by the stateful server
- * Note: Server mode is determined at startup, not per-client
- * Each session gets its own server instance
+ * A stateful MCP Server service that manages isolated sessions using a dedicated cache.
+ * Each session gets its own McpServer instance and its own DynamicToolsetManager,
+ * allowing for unique, per-session tool configurations.
  */
-function createMcpServer({
-  sessionId,
-  config,
-  toolSets,
-  accessToken: serverAccessToken,
-  dynamicToolDiscovery: serverDynamicToolDiscovery,
-}: {
-  sessionId: string;
-  config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string; DYNAMIC_TOOL_DISCOVERY?: string };
-  toolSets?: ToolSet[];
-  accessToken?: string;
-  dynamicToolDiscovery?: boolean;
-}) {
-  const accessToken = resolveAccessToken(serverAccessToken, config);
-  const finalToolSets = parseToolSets(toolSets, config);
-  const dynamicToolDiscovery = serverDynamicToolDiscovery;
+export class McpServer {
+  private app: express.Application;
+  private httpServer: HttpServer | null = null;
+  private cache: SessionCache;
+  private serverOptions: ServerOptions;
+  private serverFactory: McpServerFactory;
 
-  console.log(`🔗 Creating MCP server instance for session: ${sessionId}`);
-
-  const mcpServer = new McpServer({
-    name: "Financial Modeling Prep MCP",
-    version: VERSION,
-    capabilities: {
-      // Enable dynamic tool list changes when in dynamic mode
-      tools: { listChanged: dynamicToolDiscovery === true },
-    },
-    configSchema: {
-      type: "object",
-      required: ["FMP_ACCESS_TOKEN"],
-      properties: {
-        FMP_ACCESS_TOKEN: {
-          type: "string",
-          title: "FMP Access Token",
-          description: "Financial Modeling Prep API access token",
-        },
-        FMP_TOOL_SETS: {
-          type: "string",
-          title: "Tool Sets (Optional)",
-          description:
-            "Comma-separated list of tool sets to load (e.g., 'search,company,quotes'). If not specified, all tools will be loaded.",
-        },
-        DYNAMIC_TOOL_DISCOVERY: {
-          type: "string",
-          title: "Dynamic Tool Discovery (Optional)",
-          description:
-            "Enable dynamic toolset management. Set to 'true' to use meta-tools for runtime toolset loading. Default is 'false'.",
-        },
-      },
-    },
-  });
-
-  // Three-mode tool registration: Dynamic, Static, or Legacy
-  if (dynamicToolDiscovery === true) {
-    // Dynamic Mode: Each session gets its own dynamic toolset manager
-    registerMetaTools(mcpServer, accessToken);
-    console.log(`Session ${sessionId} - Mode: DYNAMIC_TOOL_DISCOVERY - Runtime toolset management enabled`);
-  } else if (finalToolSets && finalToolSets.length > 0) {
-    // Static Mode: Register specified toolsets at startup for this session
-    registerToolsBySet(mcpServer, finalToolSets, accessToken);
-    console.log(`Session ${sessionId} - Mode: STATIC_TOOL_SETS - Pre-configured toolsets (${finalToolSets.length}): ${finalToolSets.join(', ')}`);
-  } else {
-    // Legacy Mode: Register all tools for backward compatibility for this session
-    registerAllTools(mcpServer, accessToken);
-    console.log(`Session ${sessionId} - Mode: ALL_TOOLS - All tools registered at startup (250+ tools)`);
+  constructor(options: ServerOptions = {}) {
+    this.serverOptions = options;
+    this.cache = new SessionCache(options.cacheOptions);
+    this.serverFactory = new McpServerFactory();
+    this.app = express();
+    this._setupRoutes();
   }
 
-  return mcpServer.server;
-}
+  /**
+   * Starts the HTTP server on the specified port.
+   * @param port - The port number to listen on
+   */
+  public start(port: number): void {
+    if (this.httpServer) {
+      console.warn("[McpServerService] ⚠️  Server is already running.");
+      return;
+    }
 
-/**
- * Server mode enumeration
- */
-type ServerMode = 'DYNAMIC_TOOL_DISCOVERY' | 'STATIC_TOOL_SETS' | 'ALL_TOOLS';
-
-/**
- * Start the server with the given configuration
- * @param config - Server configuration
- * @returns HTTP server instance
- */
-export function startServer(config: ServerConfig): Server {
-  const { port, toolSets, accessToken, dynamicToolDiscovery, sessionStore } = config;
-
-  // Determine server mode at startup - this decision applies to ALL connections
-  const serverMode = resolveServerMode(dynamicToolDiscovery, toolSets);
-
-  console.log(`🚀 Starting STATEFUL server with mode: ${serverMode}`);
-  
-  const { app } = createStatefulServer((params) => {
-    const { sessionId, config: sessionConfig } = params;
-    
-    console.log(`📦 Creating server instance for session: ${sessionId} in ${serverMode} mode`);
-    
-    return createMcpServer({
-      sessionId,
-      config: sessionConfig,
-      toolSets: serverMode === 'STATIC_TOOL_SETS' ? toolSets : undefined,
-      accessToken: resolveAccessToken(accessToken, sessionConfig),
-      dynamicToolDiscovery: serverMode === 'DYNAMIC_TOOL_DISCOVERY',
-    });
-  }, {
-    sessionStore, // Pass optional session store
-  });
-
-  app.get("/healthcheck", (req: Request, res: Response) => {
-    res.status(200).json({
-      status: "ok",
-      timestamp: new Date().toISOString(),
-      version: VERSION,
-      message: "Financial Modeling Prep MCP server is running (STATEFUL)",
-      serverMode: serverMode,
-      toolSets: serverMode === 'STATIC_TOOL_SETS' ? toolSets : serverMode === 'DYNAMIC_TOOL_DISCOVERY' ? 'dynamic-tool-discovery' : 'all-tools',
-      sessionManagement: "stateful",
-    });
-  });
-
-  const server = app.listen(port, () => {
-    console.log(`💎 Financial Modeling Prep MCP server (STATEFUL) started on port ${port}`);
-    console.log(`🎯 Server Mode: ${serverMode}`);
-    console.log(`🏥 Health endpoint available at http://localhost:${port}/healthcheck`);
-    console.log(`🔌 MCP endpoint available at http://localhost:${port}/mcp`);
-    console.log(`📊 Session management: ENABLED`);
-  });
-
-  return server;
-}
-
-/**
- * Resolves the access token with priority: server parameter > session config
- * @param serverAccessToken - Access token provided directly to server
- * @param config - Configuration object from session or environment
- * @returns The resolved access token or undefined if not found
- */
-function resolveAccessToken(
-  serverAccessToken?: string,
-  config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string; DYNAMIC_TOOL_DISCOVERY?: string }
-): string | undefined {
-  return serverAccessToken || config?.FMP_ACCESS_TOKEN;
-}
-
-/**
- * Parses tool sets with priority: server parameter > session config
- * Uses validation utilities for consistent validation and sanitization
- * @param toolSets - Tool sets provided directly to server
- * @param config - Configuration object from session or environment
- * @returns Array of parsed tool sets, empty array if none specified
- */
-function parseToolSets(
-  toolSets?: ToolSet[],
-  config?: { FMP_ACCESS_TOKEN?: string; FMP_TOOL_SETS?: string; DYNAMIC_TOOL_DISCOVERY?: string }
-): ToolSet[] {
-  // Use server-provided tool sets if available and validate them
-  let finalToolSets = toolSets || [];
-  
-  // Validate server-provided tool sets using validation utilities
-  if (finalToolSets.length > 0) {
-    const validation = validateToolSets(finalToolSets);
-    
-    // Log warnings for invalid toolsets
-    if (validation.invalid.length > 0) {
-      console.warn(`Invalid tool sets found in server config, ignoring:`, validation.invalid);
+    if (!this.serverOptions.accessToken) {
+      console.warn("[McpServerService] ⚠️ Server access token is required for operations - running dummy server");
     }
     
-    finalToolSets = validation.valid;
-  }
-  
-  // Parse tool sets from session config if provided and no server tool sets were specified
-  if (config?.FMP_TOOL_SETS && finalToolSets.length === 0) {
-    finalToolSets = parseCommaSeparatedToolSets(config.FMP_TOOL_SETS);
-  }
-  
-  return finalToolSets;
-}
+    try {
+      this.httpServer = this.app.listen(port, () => {
+        console.log(`[McpServerService] 🚀 MCP Server started successfully on port ${port}`);
+        console.log(`[McpServerService] 🧠 Session cache configured with maxSize: ${this.cache['maxSize']}, ttl: ${this.cache['ttl']}ms`);
+        console.log(`[McpServerService] 🏥 Health endpoint available at http://localhost:${port}/health`);
+        console.log(`[McpServerService] 🔌 MCP endpoint available at http://localhost:${port}/mcp`);
+      });
 
-/**
- * Determine the server mode based on startup configuration
- * Server-level configuration takes precedence over client configuration
- * @param serverDynamicToolDiscovery - Dynamic tool discovery from server startup
- * @param serverToolSets - Tool sets from server startup
- * @returns The determined server mode
- */
-function resolveServerMode(
-  serverDynamicToolDiscovery?: boolean,
-  serverToolSets?: ToolSet[]
-): ServerMode {
-  // Validate and normalize dynamic tool discovery setting
-  const isDynamic = validateDynamicToolDiscoveryConfig(serverDynamicToolDiscovery);
-  
-  // Server explicitly requested dynamic mode
-  if (isDynamic === true) {
-    return 'DYNAMIC_TOOL_DISCOVERY';
+      this.httpServer.on('error', (error) => {
+        console.error(`[McpServerService] ❌ Server failed to start:`, error);
+        this.httpServer = null;
+      });
+
+    } catch (error) {
+      console.error(`[McpServerService] ❌ Failed to start server on port ${port}:`, error);
+      throw error;
+    }
   }
-  
-  // Server specified specific toolsets (static mode)
-  if (serverToolSets && serverToolSets.length > 0) {
-    return 'STATIC_TOOL_SETS';
+
+  /**
+   * Stops the HTTP server and the cache's background cleanup tasks.
+   * Performs graceful shutdown with proper cleanup.
+   */
+  public stop(): void {
+    try {
+      console.log("[McpServerService] 🛑 Initiating server shutdown...");
+      
+      // Stop the cache's background cleanup tasks first
+      this.cache.stop();
+      console.log("[McpServerService] ✅ Session cache stopped");
+      
+      // Close the HTTP server
+      if (this.httpServer) {
+        this.httpServer.close(() => {
+          console.log("[McpServerService] ✅ Stateful MCP Server stopped successfully");
+        });
+        this.httpServer = null;
+      } else {
+        console.log("[McpServerService] ℹ️  Server was not running");
+      }
+      
+    } catch (error) {
+      console.error("[McpServerService] ❌ Error during server shutdown:", error);
+      // Ensure cleanup even if errors occur
+      this.httpServer = null;
+      throw error;
+    }
   }
-  
-  // Default to legacy mode (all tools) 
-  return 'ALL_TOOLS';
+
+  /**
+   * Sets up the Express routes, including the main stateful MCP handler.
+   */
+  private _setupRoutes(): void {
+    try {
+      // createStatefulServer provides the middleware that handles session creation and routing.
+      // We pass it our core logic function for handling session resources.
+      const { app: mcpApp } = createStatefulServer(
+        (params) => this._getSessionResources(params)
+      );
+      this.app.use(mcpApp); // Mount the stateful server middleware
+
+      // Add comprehensive health check endpoint
+      this.app.get('/health', (req, res) => {
+        try {
+          const cacheSize = this.cache['cache']?.size || 0;
+          const uptime = process.uptime();
+          
+          res.status(200).json({ 
+            status: 'ok',
+            timestamp: new Date().toISOString(),
+            uptime: uptime,
+            sessionManagement: 'stateful',
+            activeCachedSessions: cacheSize,
+            cache: {
+              size: cacheSize,
+              maxSize: this.cache['maxSize'],
+              ttl: this.cache['ttl']
+            },
+            server: {
+              type: 'McpServerService',
+              version: process.env.npm_package_version || 'unknown'
+            }
+          });
+        } catch (error) {
+          console.error('[McpServerService] ❌ Health check error:', error);
+          res.status(500).json({
+            status: 'error',
+            timestamp: new Date().toISOString(),
+            error: 'Health check failed'
+          });
+        }
+      });
+
+      console.log('[McpServerService] ✅ Routes configured successfully');
+      
+    } catch (error) {
+      console.error('[McpServerService] ❌ Failed to setup routes:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * The core logic for getting or creating session resources.
+   * This function is passed to the stateful server handler and is called for each request.
+   * Implements proper error handling and logging for session management.
+   * Compatible with SDK's CreateServerFn<SessionConfig> signature.
+   */
+  private _getSessionResources(params: CreateServerArg<SessionConfig>): any {
+    const { sessionId, config: sessionConfig} = params;
+
+    try {
+      // Check cache first
+      const cached = this.cache.get(sessionId);
+      if (cached) {
+        console.log(`[McpServerService] ✅ Reusing cached resources for session: ${sessionId}`);
+        return cached.mcpServer;
+      }
+
+      // Create new server using factory's SDK-compatible method
+      console.log(`[McpServerService] 🔧 Creating new resources for session: ${sessionId}`);
+      const mcpServer = this.serverFactory.createServerFromSdkArg(params);
+
+      // Get the creation result for caching (we need to recreate it for the toolManager)
+      const result = this.serverFactory.createServer({
+        sessionId,
+        config: sessionConfig,
+        serverAccessToken: this.serverOptions.accessToken
+      });
+
+      console.log(`[McpServerService] ✅ Session ${sessionId} created successfully with mode: ${result.mode}`);
+
+      // Cache the resources
+      this.cache.set(sessionId, { 
+        mcpServer, 
+        toolManager: result.toolManager 
+      });
+
+      return mcpServer;
+
+    } catch (error) {
+      console.error(`[McpServerService] ❌ Failed to create resources for session ${sessionId}:`, error);
+      
+      // Log detailed error information for debugging
+      if (error instanceof Error) {
+        console.error(`[McpServerService] Error details: ${error.message}`);
+        console.error(`[McpServerService] Stack trace:`, error.stack);
+      }
+      
+      // Re-throw to let the stateful server handle the error appropriately
+      throw error;
+    }
+  }
+
+  /**
+   * Gets the current server status and statistics
+   * @returns Server status information
+   */
+  public getStatus() {
+    return {
+      running: this.httpServer !== null,
+      activeSessions: this.cache['cache']?.size || 0,
+      cacheConfig: {
+        maxSize: this.cache['maxSize'],
+        ttl: this.cache['ttl']
+      },
+      serverOptions: {
+        hasAccessToken: !!this.serverOptions.accessToken
+      }
+    };
+  }
+
+  /**
+   * Gets the Express application instance (useful for testing)
+   * @returns Express application
+   */
+  public getApp(): express.Application {
+    return this.app;
+  }
+
+  /**
+   * Checks if the server is currently running
+   * @returns True if server is running
+   */
+  public isRunning(): boolean {
+    return this.httpServer !== null;
+  }
+
 }
