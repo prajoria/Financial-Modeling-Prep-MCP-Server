@@ -2,7 +2,7 @@ import express from 'express';
 import type { Server as HttpServer } from 'node:http';
 import { createStatefulServer, type CreateServerArg } from "@smithery/sdk/server/stateful.js";
 import { SessionCache, type CacheOptions } from '../session-cache/SessionCache.js';
-import { McpServerFactory, type SessionConfig } from './McpServerFactory.js';
+import { McpServerFactory, type SessionConfig } from '../mcp-server-factory/McpServerFactory.js';
 
 export interface ServerOptions {
   accessToken?: string;
