@@ -4,6 +4,8 @@ import { DynamicToolsetManager } from '../dynamic-toolset-manager/DynamicToolset
 import { registerMetaTools } from '../tools/meta-tools.js';
 import { registerAllTools, registerToolsBySet } from '../tools/index.js';
 import { getServerVersion } from '../utils/getServerVersion.js';
+import { ServerModeEnforcer } from '../server-mode-enforcer/index.js';
+import { ToolSet } from "../constants/toolSets.js";
 
 /**
  * Server mode enumeration
@@ -129,11 +131,26 @@ export class McpServerFactory {
   }
 
   /**
-   * Determines the server mode based on session configuration
+   * Determines the server mode based on server-level enforcement and session configuration
    * @param sessionConfig - Configuration from session
    * @returns Determined server mode
    */
   private _resolveSessionMode(sessionConfig?: SessionConfig): ServerMode {
+    // Check for server-level mode enforcement first
+    try {
+      const enforcer = ServerModeEnforcer.getInstance();
+      const serverModeOverride = enforcer.serverModeOverride;
+      
+      if (serverModeOverride) {
+        console.log(`[McpServerFactory] Server-level mode enforced: ${serverModeOverride}`);
+        return serverModeOverride;
+      }
+    } catch (error) {
+      // ServerModeEnforcer not initialized, continue with session-based resolution
+      console.log('[McpServerFactory] No server-level mode enforcement, using session-based mode resolution');
+    }
+
+    // Fall back to session-based mode resolution
     const isDynamic = validateDynamicToolDiscoveryConfig(sessionConfig?.DYNAMIC_TOOL_DISCOVERY);
     
     if (isDynamic === true) {
@@ -142,7 +159,15 @@ export class McpServerFactory {
     
     // Check if specific toolsets are provided in session config
     if (sessionConfig?.FMP_TOOL_SETS && typeof sessionConfig.FMP_TOOL_SETS === 'string') {
-      return 'STATIC_TOOL_SETS';
+      // Validate the toolsets before deciding on STATIC_TOOL_SETS mode
+      const validToolSets = parseCommaSeparatedToolSets(sessionConfig.FMP_TOOL_SETS);
+      
+      if (validToolSets.length > 0) {
+        return 'STATIC_TOOL_SETS';
+      } else {
+        console.warn(`[McpServerFactory] No valid toolsets found in session config FMP_TOOL_SETS: "${sessionConfig.FMP_TOOL_SETS}". Falling back to ALL_TOOLS mode.`);
+        return 'ALL_TOOLS';
+      }
     }
     
     // Default to legacy mode (all tools)
@@ -175,10 +200,27 @@ export class McpServerFactory {
         break;
       
       case 'STATIC_TOOL_SETS':
-        // For static mode, parse the list and register only those toolsets
-        const toolSetsString = (sessionConfig?.FMP_TOOL_SETS as string) || '';
-        const toolSets = parseCommaSeparatedToolSets(toolSetsString);
-        console.log(`[McpServerFactory] Loading static toolsets: ${toolSets.join(', ')}`);
+        // For static mode, check server-level enforcement first, then session config
+        let toolSets: ToolSet[] = [];
+        let source = 'session';
+        
+        try {
+          const enforcer = ServerModeEnforcer.getInstance();
+          if (enforcer.serverModeOverride === 'STATIC_TOOL_SETS') {
+            toolSets = enforcer.toolSets;
+            source = 'server-level';
+          }
+        } catch (error) {
+          // ServerModeEnforcer not available, fall back to session config
+        }
+        
+        // If no server-level toolsets, parse from session config
+        if (toolSets.length === 0) {
+          const toolSetsString = (sessionConfig?.FMP_TOOL_SETS as string) || '';
+          toolSets = parseCommaSeparatedToolSets(toolSetsString);
+        }
+        
+        console.log(`[McpServerFactory] Loading static toolsets from ${source}: ${toolSets.join(', ')}`);
         registerToolsBySet(mcpServer, toolSets, accessToken);
         // toolManager remains undefined for static mode
         break;

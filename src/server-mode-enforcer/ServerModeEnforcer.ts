@@ -4,13 +4,17 @@ import { getAvailableToolSets, type ToolSet } from '../constants/index.js';
 
 /**
  * Simple server mode enforcer that checks environment variables and CLI arguments
- * for server-level mode overrides.
+ * for server-level mode overrides. Uses singleton pattern for global access.
  * 
  * Precedence: CLI arguments > Environment variables
  * 
  * @example
  * ```typescript
- * const enforcer = new ServerModeEnforcer(process.env, minimist(process.argv.slice(2)));
+ * // Initialize in main()
+ * ServerModeEnforcer.initialize(process.env, minimist(process.argv.slice(2)));
+ * 
+ * // Access from factory
+ * const enforcer = ServerModeEnforcer.getInstance();
  * const override = enforcer.serverModeOverride;
  * if (override) {
  *   console.log(`Server mode enforced: ${override}`);
@@ -18,13 +22,49 @@ import { getAvailableToolSets, type ToolSet } from '../constants/index.js';
  * ```
  */
 export class ServerModeEnforcer {
+  private static instance: ServerModeEnforcer | null = null;
+  
   private readonly _serverModeOverride: ServerMode | null;
+  private readonly _toolSets: ToolSet[] = [];
 
-  constructor(
+  private constructor(
     envVars: Record<string, string | undefined>,
     cliArgs: Record<string, unknown>
   ) {
-    this._serverModeOverride = this._determineOverride(envVars, cliArgs);
+    const result = this._determineOverride(envVars, cliArgs);
+    this._serverModeOverride = result.mode;
+    this._toolSets = result.toolSets || [];
+  }
+
+  /**
+   * Initialize the singleton instance with environment variables and CLI arguments
+   */
+  public static initialize(
+    envVars: Record<string, string | undefined>,
+    cliArgs: Record<string, unknown>
+  ): void {
+    if (ServerModeEnforcer.instance) {
+      console.warn('[ServerModeEnforcer] Already initialized, ignoring subsequent initialization');
+      return;
+    }
+    ServerModeEnforcer.instance = new ServerModeEnforcer(envVars, cliArgs);
+  }
+
+  /**
+   * Get the singleton instance
+   */
+  public static getInstance(): ServerModeEnforcer {
+    if (!ServerModeEnforcer.instance) {
+      throw new Error('[ServerModeEnforcer] Instance not initialized. Call ServerModeEnforcer.initialize() first.');
+    }
+    return ServerModeEnforcer.instance;
+  }
+
+  /**
+   * Reset the singleton instance (for testing)
+   */
+  public static reset(): void {
+    ServerModeEnforcer.instance = null;
   }
 
   /**
@@ -35,20 +75,28 @@ export class ServerModeEnforcer {
   }
 
   /**
+   * Gets the validated toolsets when mode is STATIC_TOOL_SETS
+   */
+  public get toolSets(): ToolSet[] {
+    return [...this._toolSets]; // Return copy to prevent mutation
+  }
+
+  /**
    * Determines if there's a server-level mode override from CLI args or env vars
    */
   private _determineOverride(
     envVars: Record<string, string | undefined>,
     cliArgs: Record<string, unknown>
-  ): ServerMode | null {
+  ): { mode: ServerMode | null; toolSets?: ToolSet[] } {
     // Check CLI arguments first (highest precedence)
+
     // Support multiple CLI argument variations for dynamic tool discovery
     const dynamicToolDiscovery =
       cliArgs['dynamic-tool-discovery'] === true ||
       cliArgs['dynamicToolDiscovery'] === true;
     
     if (dynamicToolDiscovery) {
-      return 'DYNAMIC_TOOL_DISCOVERY';
+      return { mode: 'DYNAMIC_TOOL_DISCOVERY' };
     }
     
     // Support multiple CLI argument variations for tool sets
@@ -60,24 +108,24 @@ export class ServerModeEnforcer {
     if (toolSetsInput && typeof toolSetsInput === 'string') {
       const toolSets = this._parseAndValidateToolSets(toolSetsInput);
       if (toolSets.length > 0) {
-        return 'STATIC_TOOL_SETS';
+        return { mode: 'STATIC_TOOL_SETS', toolSets };
       }
     }
 
     // Check environment variables second
     if (envVars.DYNAMIC_TOOL_DISCOVERY && validateDynamicToolDiscoveryConfig(envVars.DYNAMIC_TOOL_DISCOVERY)) {
-      return 'DYNAMIC_TOOL_DISCOVERY';
+      return { mode: 'DYNAMIC_TOOL_DISCOVERY' };
     }
     
     if (envVars.FMP_TOOL_SETS) {
       const toolSets = this._parseAndValidateToolSets(envVars.FMP_TOOL_SETS as string);
       if (toolSets.length > 0) {
-        return 'STATIC_TOOL_SETS';
+        return { mode: 'STATIC_TOOL_SETS', toolSets };
       }
     }
 
     // No override needed
-    return null;
+    return { mode: null };
   }
 
   /**

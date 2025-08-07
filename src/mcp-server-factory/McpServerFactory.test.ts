@@ -219,6 +219,26 @@ describe("McpServerFactory", () => {
 
       expect(result.mode).toBe("ALL_TOOLS");
     });
+
+    it("should fallback to ALL_TOOLS when FMP_TOOL_SETS contains only invalid toolsets", () => {
+      // Mock parseCommaSeparatedToolSets to return empty array (indicating all toolsets were invalid)
+      mockParseCommaSeparatedToolSets.mockReturnValue([]);
+
+      const options: McpServerOptions = {
+        sessionId: "test-session",
+        config: {
+          FMP_TOOL_SETS: "invalid,nonexistent,badtool",
+        },
+      };
+
+      const result = factory.createServer(options);
+
+      expect(result.mode).toBe("ALL_TOOLS");
+      expect(mockParseCommaSeparatedToolSets).toHaveBeenCalledWith("invalid,nonexistent,badtool");
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        '[McpServerFactory] No valid toolsets found in session config FMP_TOOL_SETS: "invalid,nonexistent,badtool". Falling back to ALL_TOOLS mode.'
+      );
+    });
   });
 
   describe("Error Handling", () => {
