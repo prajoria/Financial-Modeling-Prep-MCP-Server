@@ -3,7 +3,6 @@ import express from 'express';
 import { FmpMcpServer, type ServerOptions } from "./FmpMcpServer.js"
 import * as statefulSdk from "@smithery/sdk/server/stateful.js";
 
-// Mock external dependencies
 vi.mock("@smithery/sdk/server/stateful.js", () => ({
   createStatefulServer: vi.fn(),
 }));

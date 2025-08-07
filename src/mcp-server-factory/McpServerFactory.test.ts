@@ -3,7 +3,6 @@ import { McpServerFactory, type ServerMode, type SessionConfig, type McpServerOp
 import * as validation from "../utils/validation.js";
 import { ServerModeEnforcer } from "../server-mode-enforcer/index.js";
 
-// Mock the external dependencies
 vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
   McpServer: vi.fn().mockImplementation((config) => ({
     name: config.name,
