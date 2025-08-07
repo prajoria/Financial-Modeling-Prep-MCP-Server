@@ -35,29 +35,29 @@ export class McpServer {
    */
   public start(port: number): void {
     if (this.httpServer) {
-      console.warn("[McpServerService] ⚠️  Server is already running.");
+      console.warn("[McpServer] ⚠️  Server is already running.");
       return;
     }
 
     if (!this.serverOptions.accessToken) {
-      console.warn("[McpServerService] ⚠️ Server access token is required for operations - running dummy server");
+      console.warn("[McpServer] ⚠️ Server access token is required for operations - running dummy server");
     }
     
     try {
       this.httpServer = this.app.listen(port, () => {
-        console.log(`[McpServerService] 🚀 MCP Server started successfully on port ${port}`);
-        console.log(`[McpServerService] 🧠 Session cache configured with maxSize: ${this.cache['maxSize']}, ttl: ${this.cache['ttl']}ms`);
-        console.log(`[McpServerService] 🏥 Health endpoint available at http://localhost:${port}/health`);
-        console.log(`[McpServerService] 🔌 MCP endpoint available at http://localhost:${port}/mcp`);
+        console.log(`[McpServer] 🚀 MCP Server started successfully on port ${port}`);
+        console.log(`[McpServer] 🧠 Session cache configured with maxSize: ${this.cache['maxSize']}, ttl: ${this.cache['ttl']}ms`);
+        console.log(`[McpServer] 🏥 Health endpoint available at http://localhost:${port}/health`);
+        console.log(`[McpServer] 🔌 MCP endpoint available at http://localhost:${port}/mcp`);
       });
 
       this.httpServer.on('error', (error) => {
-        console.error(`[McpServerService] ❌ Server failed to start:`, error);
+        console.error(`[McpServer] ❌ Server failed to start:`, error);
         this.httpServer = null;
       });
 
     } catch (error) {
-      console.error(`[McpServerService] ❌ Failed to start server on port ${port}:`, error);
+      console.error(`[McpServer] ❌ Failed to start server on port ${port}:`, error);
       throw error;
     }
   }
@@ -68,24 +68,24 @@ export class McpServer {
    */
   public stop(): void {
     try {
-      console.log("[McpServerService] 🛑 Initiating server shutdown...");
+      console.log("[McpServer] 🛑 Initiating server shutdown...");
       
       // Stop the cache's background cleanup tasks first
       this.cache.stop();
-      console.log("[McpServerService] ✅ Session cache stopped");
+      console.log("[McpServer] ✅ Session cache stopped");
       
       // Close the HTTP server
       if (this.httpServer) {
         this.httpServer.close(() => {
-          console.log("[McpServerService] ✅ Stateful MCP Server stopped successfully");
+          console.log("[McpServer] ✅ Stateful MCP Server stopped successfully");
         });
         this.httpServer = null;
       } else {
-        console.log("[McpServerService] ℹ️  Server was not running");
+        console.log("[McpServer] ℹ️  Server was not running");
       }
       
     } catch (error) {
-      console.error("[McpServerService] ❌ Error during server shutdown:", error);
+      console.error("[McpServer] ❌ Error during server shutdown:", error);
       // Ensure cleanup even if errors occur
       this.httpServer = null;
       throw error;
@@ -122,12 +122,12 @@ export class McpServer {
               ttl: this.cache['ttl']
             },
             server: {
-              type: 'McpServerService',
+              type: 'McpServer',
               version: process.env.npm_package_version || 'unknown'
             }
           });
         } catch (error) {
-          console.error('[McpServerService] ❌ Health check error:', error);
+          console.error('[McpServer] ❌ Health check error:', error);
           res.status(500).json({
             status: 'error',
             timestamp: new Date().toISOString(),
@@ -136,10 +136,10 @@ export class McpServer {
         }
       });
 
-      console.log('[McpServerService] ✅ Routes configured successfully');
+      console.log('[McpServer] ✅ Routes configured successfully');
       
     } catch (error) {
-      console.error('[McpServerService] ❌ Failed to setup routes:', error);
+      console.error('[McpServer] ❌ Failed to setup routes:', error);
       throw error;
     }
   }
@@ -157,12 +157,12 @@ export class McpServer {
       // Check cache first
       const cached = this.cache.get(sessionId);
       if (cached) {
-        console.log(`[McpServerService] ✅ Reusing cached resources for session: ${sessionId}`);
+        console.log(`[McpServer] ✅ Reusing cached resources for session: ${sessionId}`);
         return cached.mcpServer;
       }
 
       // Create new server using factory's SDK-compatible method
-      console.log(`[McpServerService] 🔧 Creating new resources for session: ${sessionId}`);
+      console.log(`[McpServer] 🔧 Creating new resources for session: ${sessionId}`);
       const mcpServer = this.serverFactory.createServerFromSdkArg(params);
 
       // Get the creation result for caching (we need to recreate it for the toolManager)
@@ -172,7 +172,7 @@ export class McpServer {
         serverAccessToken: this.serverOptions.accessToken
       });
 
-      console.log(`[McpServerService] ✅ Session ${sessionId} created successfully with mode: ${result.mode}`);
+      console.log(`[McpServer] ✅ Session ${sessionId} created successfully with mode: ${result.mode}`);
 
       // Cache the resources
       this.cache.set(sessionId, { 
@@ -183,12 +183,12 @@ export class McpServer {
       return mcpServer;
 
     } catch (error) {
-      console.error(`[McpServerService] ❌ Failed to create resources for session ${sessionId}:`, error);
+      console.error(`[McpServer] ❌ Failed to create resources for session ${sessionId}:`, error);
       
       // Log detailed error information for debugging
       if (error instanceof Error) {
-        console.error(`[McpServerService] Error details: ${error.message}`);
-        console.error(`[McpServerService] Stack trace:`, error.stack);
+        console.error(`[McpServer] Error details: ${error.message}`);
+        console.error(`[McpServer] Stack trace:`, error.stack);
       }
       
       // Re-throw to let the stateful server handle the error appropriately
