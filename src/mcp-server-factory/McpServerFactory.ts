@@ -84,6 +84,10 @@ export class McpServerFactory {
    * Creates a new, isolated McpServer instance with proper configuration schema
    * @param isDynamicMode - Whether this server instance supports dynamic tool changes
    * @returns Configured McpServer instance
+   * 
+   * Note: There's a known issue in @modelcontextprotocol/sdk v1.0.0 where the main
+   * capabilities.tools.listChanged field may not reflect the server configuration correctly.
+   * The serverInfo.capabilities.tools.listChanged field does reflect the correct value.
    */
   private _createMcpServerInstance(isDynamicMode: boolean = false): McpServer {
     return new McpServer({

@@ -30,3 +30,6 @@ coverage/
 # Logs
 logs/
 *.log 
+
+# Local CLI test scripts (not part of the main project)
+local-cli-tests/
