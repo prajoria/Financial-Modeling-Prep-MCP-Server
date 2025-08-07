@@ -99,6 +99,7 @@ export class FmpMcpServer {
   private _setupRoutes(): void {
     try {
       // Add middleware to handle legacy mode - requests without session config
+      // This will catch Smithery deployment scanning requests and provide ALL_TOOLS mode
       this.app.use(legacyConfigMiddleware);
 
       // createStatefulServer provides the middleware that handles session creation and routing.

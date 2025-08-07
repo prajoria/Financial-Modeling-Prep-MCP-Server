@@ -20,7 +20,7 @@ export function legacyConfigMiddleware(req: Request, res: Response, next: NextFu
   if (req.method === 'POST' && (req.url === '/' || req.url === '/mcp' || req.url.startsWith('/mcp'))) {
     // If no config query parameter exists, generate a default session config for legacy mode
     if (!req.query.config && !req.url.includes('config=')) {
-      const legacySessionId = crypto.randomBytes(16).toString('hex');
+      const generatedSessionId = crypto.randomBytes(16).toString('hex');
       const legacyConfig: SessionConfig = {
         // Leave all config properties undefined to trigger ALL_TOOLS mode (legacy default)
         FMP_ACCESS_TOKEN: undefined,
@@ -37,8 +37,13 @@ export function legacyConfigMiddleware(req: Request, res: Response, next: NextFu
       } else {
         req.url = `${req.url}?config=${encodeURIComponent(configBase64)}`;
       }
+
+      // Add the sessionId to the header only if it doesn't already exist
+      if (!req.headers['mcp-session-id']) {
+        req.headers['mcp-session-id'] = generatedSessionId;
+      }
       
-      console.log(`[FmpMcpServer] 🔧 Generated legacy session config for ALL_TOOLS mode - session: ${legacySessionId}`);
+      console.log(`[FmpMcpServer] 🔧 Generated legacy session config for ALL_TOOLS mode - session: ${generatedSessionId}`);
     }
   }
   next();
