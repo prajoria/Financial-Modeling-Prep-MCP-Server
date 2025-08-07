@@ -100,9 +100,6 @@ export class FmpMcpServer {
    */
   private _setupRoutes(): void {
     try {
-      // Add middleware to handle legacy mode - requests without session config
-      this.app.use(legacyConfigMiddleware);
-
       // createStatefulServer provides the middleware that handles session creation and routing.
       // We pass it our core logic function for handling session resources.
       const { app: mcpApp } = createStatefulServer(
