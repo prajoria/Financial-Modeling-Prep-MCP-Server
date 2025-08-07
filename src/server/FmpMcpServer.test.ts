@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import express from 'express';
-import { McpServer, type ServerOptions } from "./MCPServer.js"
+import { FmpMcpServer, type ServerOptions } from "./FmpMcpServer.js"
 import * as statefulSdk from "@smithery/sdk/server/stateful.js";
 
 // Mock external dependencies
@@ -49,8 +49,8 @@ const mockConsoleLog = vi.fn();
 const mockConsoleWarn = vi.fn();
 const mockConsoleError = vi.fn();
 
-describe("McpServer", () => {
-  let server: McpServer;
+describe("FmpMcpServer", () => {
+  let server: FmpMcpServer;
   let mockCreateStatefulServer: any;
   let mockExpressApp: any;
   let consoleLogSpy: any;
@@ -88,9 +88,9 @@ describe("McpServer", () => {
 
   describe("Constructor", () => {
     it("should create server with default options", () => {
-      server = new McpServer();
+      server = new FmpMcpServer();
 
-      expect(server).toBeInstanceOf(McpServer);
+      expect(server).toBeInstanceOf(FmpMcpServer);
       const status = server.getStatus();
       expect(status.serverOptions.hasAccessToken).toBe(false);
     });
@@ -104,9 +104,9 @@ describe("McpServer", () => {
         },
       };
 
-      server = new McpServer(options);
+      server = new FmpMcpServer(options);
 
-      expect(server).toBeInstanceOf(McpServer);
+      expect(server).toBeInstanceOf(FmpMcpServer);
       const status = server.getStatus();
       expect(status.serverOptions.hasAccessToken).toBe(true);
       
@@ -117,7 +117,7 @@ describe("McpServer", () => {
     });
 
     it("should setup routes during construction", () => {
-      server = new McpServer();
+      server = new FmpMcpServer();
 
       expect(mockCreateStatefulServer).toHaveBeenCalledTimes(1);
       expect(mockCreateStatefulServer).toHaveBeenCalledWith(expect.any(Function));
@@ -126,7 +126,7 @@ describe("McpServer", () => {
 
   describe("Server Lifecycle", () => {
     beforeEach(() => {
-      server = new McpServer({ accessToken: "test-token" });
+      server = new FmpMcpServer({ accessToken: "test-token" });
     });
 
     it("should start server successfully", async () => {
@@ -144,7 +144,7 @@ describe("McpServer", () => {
     });
 
     it("should warn when starting server without access token", async () => {
-      server = new McpServer(); // No access token
+      server = new FmpMcpServer(); // No access token
       const port = 3002;
       
       server.start(port);
@@ -152,7 +152,7 @@ describe("McpServer", () => {
       await new Promise(resolve => setTimeout(resolve, 100));
       
       expect(mockConsoleWarn).toHaveBeenCalledWith(
-        "[McpServer] ⚠️ Server access token is required for operations - running dummy server"
+        "[FmpMcpServer] ⚠️ Server access token is required for operations - running dummy server"
       );
     });
 
@@ -167,7 +167,7 @@ describe("McpServer", () => {
       server.start(port);
       
       expect(mockConsoleWarn).toHaveBeenCalledWith(
-        "[McpServer] ⚠️  Server is already running."
+        "[FmpMcpServer] ⚠️  Server is already running."
       );
     });
 
@@ -182,7 +182,7 @@ describe("McpServer", () => {
       
       expect(server.isRunning()).toBe(false);
       expect(mockConsoleLog).toHaveBeenCalledWith(
-        "[McpServer] 🛑 Initiating server shutdown..."
+        "[FmpMcpServer] 🛑 Initiating server shutdown..."
       );
     });
 
@@ -190,7 +190,7 @@ describe("McpServer", () => {
       server.stop();
 
       expect(mockConsoleLog).toHaveBeenCalledWith(
-        "[McpServer] ℹ️  Server was not running"
+        "[FmpMcpServer] ℹ️  Server was not running"
       );
     });
 
@@ -211,7 +211,7 @@ describe("McpServer", () => {
 
   describe("Health Endpoint", () => {
     beforeEach(() => {
-      server = new McpServer({ accessToken: "test-token" });
+      server = new FmpMcpServer({ accessToken: "test-token" });
     });
 
     it("should setup health endpoint route", () => {
@@ -248,7 +248,7 @@ describe("McpServer", () => {
           ttl: mockCache.ttl
         },
         server: {
-          type: 'McpServer',
+          type: 'FmpMcpServer',
           version: process.env.npm_package_version || 'unknown'
         }
       };
@@ -256,7 +256,7 @@ describe("McpServer", () => {
       // Test the health check logic by verifying the expected response structure
       expect(expectedResponse.status).toBe('ok');
       expect(expectedResponse.sessionManagement).toBe('stateful');
-      expect(expectedResponse.server.type).toBe('McpServer');
+      expect(expectedResponse.server.type).toBe('FmpMcpServer');
       expect(expectedResponse.cache).toHaveProperty('maxSize');
       expect(expectedResponse.cache).toHaveProperty('ttl');
       expect(expectedResponse.cache).toHaveProperty('size');
@@ -339,17 +339,17 @@ describe("McpServer", () => {
     let mockServerFactory: any;
 
     beforeEach(() => {
-      server = new McpServer({ accessToken: "test-token" });
+      server = new FmpMcpServer({ accessToken: "test-token" });
       mockSessionCache = (server as any).cache;
       mockServerFactory = (server as any).serverFactory;
     });
 
     it("should return cached session resources when available", () => {
       const sessionId = "test-session-1";
-      const mockMcpServer = { name: "cached-server" };
+      const mockFmpMcpServer = { name: "cached-server" };
       
       mockSessionCache.get.mockReturnValue({
-        mcpServer: mockMcpServer,
+        mcpServer: mockFmpMcpServer,
         toolManager: undefined
       });
 
@@ -360,7 +360,7 @@ describe("McpServer", () => {
 
       const result = (server as any)._getSessionResources(params);
 
-      expect(result).toBe(mockMcpServer);
+      expect(result).toBe(mockFmpMcpServer);
       expect(mockSessionCache.get).toHaveBeenCalledWith(sessionId);
       expect(mockConsoleLog).toHaveBeenCalledWith(
         `[McpServer] ✅ Reusing cached resources for session: ${sessionId}`
@@ -369,13 +369,13 @@ describe("McpServer", () => {
 
     it("should create new session resources when not cached", () => {
       const sessionId = "test-session-2";
-      const mockMcpServer = { name: "new-server" };
+      const mockFmpMcpServer = { name: "new-server" };
       
       mockSessionCache.get.mockReturnValue(null);
-      mockServerFactory.createServerFromSdkArg.mockReturnValue(mockMcpServer);
+      mockServerFactory.createServerFromSdkArg.mockReturnValue(mockFmpMcpServer);
       mockServerFactory.createServer.mockReturnValue({
         mode: "DYNAMIC_TOOL_DISCOVERY",
-        mcpServer: mockMcpServer,
+        mcpServer: mockFmpMcpServer,
         toolManager: { id: "tool-manager" }
       });
 
@@ -386,10 +386,10 @@ describe("McpServer", () => {
 
       const result = (server as any)._getSessionResources(params);
 
-      expect(result).toBe(mockMcpServer);
+      expect(result).toBe(mockFmpMcpServer);
       expect(mockServerFactory.createServerFromSdkArg).toHaveBeenCalledWith(params);
       expect(mockSessionCache.set).toHaveBeenCalledWith(sessionId, {
-        mcpServer: mockMcpServer,
+        mcpServer: mockFmpMcpServer,
         toolManager: { id: "tool-manager" }
       });
       expect(mockConsoleLog).toHaveBeenCalledWith(
@@ -421,7 +421,7 @@ describe("McpServer", () => {
 
   describe("Status and Utility Methods", () => {
     beforeEach(() => {
-      server = new McpServer({
+      server = new FmpMcpServer({
         accessToken: "test-token",
         cacheOptions: { maxSize: 75, ttl: 2000000 }
       });
@@ -466,11 +466,11 @@ describe("McpServer", () => {
         throw new Error("Route setup failed");
       });
 
-      expect(() => new McpServer()).toThrow("Route setup failed");
+      expect(() => new FmpMcpServer()).toThrow("Route setup failed");
     });
 
     it("should handle shutdown errors gracefully", () => {
-      server = new McpServer({ accessToken: "test-token" });
+      server = new FmpMcpServer({ accessToken: "test-token" });
       
       // Mock the cache stop method to throw an error
       const mockCache = (server as any).cache;
@@ -480,13 +480,13 @@ describe("McpServer", () => {
 
       expect(() => server.stop()).toThrow("Cache stop failed");
       expect(mockConsoleError).toHaveBeenCalledWith(
-        "[McpServer] ❌ Error during server shutdown:",
+        "[FmpMcpServer] ❌ Error during server shutdown:",
         expect.any(Error)
       );
     });
 
     it("should handle cache stop method properly during normal shutdown", () => {
-      server = new McpServer({ accessToken: "test-token" });
+      server = new FmpMcpServer({ accessToken: "test-token" });
       
       // Verify the cache stop method is called during normal shutdown
       const mockCache = (server as any).cache;
@@ -496,7 +496,7 @@ describe("McpServer", () => {
       
       expect(stopSpy).toHaveBeenCalledTimes(1);
       expect(mockConsoleLog).toHaveBeenCalledWith(
-        "[McpServer] ✅ Session cache stopped"
+        "[FmpMcpServer] ✅ Session cache stopped"
       );
     });
   });
@@ -600,7 +600,7 @@ describe("CLI Integration", () => {
 
   describe("Signal Handling Setup", () => {
     it("should setup signal handlers correctly", () => {
-      const mockMcpServer = {
+      const mockFmpMcpServer = {
         stop: vi.fn()
       };
 
@@ -613,7 +613,7 @@ describe("CLI Integration", () => {
       // Simulate the main function signal handler setup
       const handleShutdown = () => {
         console.log('\n🔌 Shutting down server...');
-        mockMcpServer.stop();
+        mockFmpMcpServer.stop();
         process.exit(0);
       };
 
@@ -625,7 +625,7 @@ describe("CLI Integration", () => {
 
       // Test that the handler function works
       handleShutdown();
-      expect(mockMcpServer.stop).toHaveBeenCalled();
+      expect(mockFmpMcpServer.stop).toHaveBeenCalled();
       expect(mockProcessExit).toHaveBeenCalledWith(0);
     });
   });

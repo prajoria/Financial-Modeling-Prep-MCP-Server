@@ -3,7 +3,7 @@
 import minimist from "minimist";
 import { getAvailableToolSets, ToolSet } from "./constants/index.js";
 import { showHelp } from "./utils/showHelp.js";
-import { McpServer } from "./server/MCPServer.js";
+import { FmpMcpServer } from "./server/FmpMcpServer.js";
 
 // Parse command line arguments
 const argv = minimist(process.argv.slice(2));
@@ -19,7 +19,7 @@ function main() {
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
   const fmpToken = argv["fmp-token"] || process.env.FMP_ACCESS_TOKEN;
 
-  const mcpServer = new McpServer(
+  const mcpServer = new FmpMcpServer(
     {
       accessToken: fmpToken,
       cacheOptions: {

@@ -1,8 +1,8 @@
 import express from 'express';
 import type { Server as HttpServer } from 'node:http';
 import { createStatefulServer, type CreateServerArg } from "@smithery/sdk/server/stateful.js";
-import { SessionCache, type CacheOptions } from '../session-cache/SessionCache.js';
-import { McpServerFactory, type SessionConfig } from '../mcp-server-factory/McpServerFactory.js';
+import { SessionCache, type CacheOptions } from '../session-cache/index.js';
+import { McpServerFactory, type SessionConfig } from '../mcp-server-factory/index.js';
 
 export interface ServerOptions {
   accessToken?: string;
@@ -14,7 +14,7 @@ export interface ServerOptions {
  * Each session gets its own McpServer instance and its own DynamicToolsetManager,
  * allowing for unique, per-session tool configurations.
  */
-export class McpServer {
+export class FmpMcpServer {
   private app: express.Application;
   private httpServer: HttpServer | null = null;
   private cache: SessionCache;
@@ -35,29 +35,29 @@ export class McpServer {
    */
   public start(port: number): void {
     if (this.httpServer) {
-      console.warn("[McpServer] ⚠️  Server is already running.");
+      console.warn("[FmpMcpServer] ⚠️  Server is already running.");
       return;
     }
 
     if (!this.serverOptions.accessToken) {
-      console.warn("[McpServer] ⚠️ Server access token is required for operations - running dummy server");
+      console.warn("[FmpMcpServer] ⚠️ Server access token is required for operations - running dummy server");
     }
     
     try {
       this.httpServer = this.app.listen(port, () => {
-        console.log(`[McpServer] 🚀 MCP Server started successfully on port ${port}`);
-        console.log(`[McpServer] 🧠 Session cache configured with maxSize: ${this.cache['maxSize']}, ttl: ${this.cache['ttl']}ms`);
-        console.log(`[McpServer] 🏥 Health endpoint available at http://localhost:${port}/healthcheck`);
-        console.log(`[McpServer] 🔌 MCP endpoint available at http://localhost:${port}/mcp`);
+        console.log(`[FmpMcpServer] 🚀 MCP Server started successfully on port ${port}`);
+        console.log(`[FmpMcpServer] 🧠 Session cache configured with maxSize: ${this.cache['maxSize']}, ttl: ${this.cache['ttl']}ms`);
+        console.log(`[FmpMcpServer] 🏥 Health endpoint available at http://localhost:${port}/healthcheck`);
+        console.log(`[FmpMcpServer] 🔌 MCP endpoint available at http://localhost:${port}/mcp`);
       });
 
       this.httpServer.on('error', (error) => {
-        console.error(`[McpServer] ❌ Server failed to start:`, error);
+        console.error(`[FmpMcpServer] ❌ Server failed to start:`, error);
         this.httpServer = null;
       });
 
     } catch (error) {
-      console.error(`[McpServer] ❌ Failed to start server on port ${port}:`, error);
+      console.error(`[FmpMcpServer] ❌ Failed to start server on port ${port}:`, error);
       throw error;
     }
   }
@@ -68,24 +68,24 @@ export class McpServer {
    */
   public stop(): void {
     try {
-      console.log("[McpServer] 🛑 Initiating server shutdown...");
+      console.log("[FmpMcpServer] 🛑 Initiating server shutdown...");
       
       // Stop the cache's background cleanup tasks first
       this.cache.stop();
-      console.log("[McpServer] ✅ Session cache stopped");
+      console.log("[FmpMcpServer] ✅ Session cache stopped");
       
       // Close the HTTP server
       if (this.httpServer) {
         this.httpServer.close(() => {
-          console.log("[McpServer] ✅ Stateful MCP Server stopped successfully");
+          console.log("[FmpMcpServer] ✅ Stateful MCP Server stopped successfully");
         });
         this.httpServer = null;
       } else {
-        console.log("[McpServer] ℹ️  Server was not running");
+        console.log("[FmpMcpServer] ℹ️  Server was not running");
       }
       
     } catch (error) {
-      console.error("[McpServer] ❌ Error during server shutdown:", error);
+      console.error("[FmpMcpServer] ❌ Error during server shutdown:", error);
       // Ensure cleanup even if errors occur
       this.httpServer = null;
       throw error;
@@ -122,7 +122,7 @@ export class McpServer {
               ttl: this.cache['ttl']
             },
             server: {
-              type: 'McpServer',
+              type: 'FmpMcpServer',
               version: process.env.npm_package_version || 'unknown'
             }
           });
