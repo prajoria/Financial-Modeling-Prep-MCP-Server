@@ -1241,4 +1241,4 @@ This helps us understand and resolve issues more quickly.
 
 ## License
 
-This project is licensed under the [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.en)
+This project is licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
