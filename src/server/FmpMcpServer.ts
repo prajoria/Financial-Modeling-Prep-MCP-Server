@@ -3,6 +3,7 @@ import type { Server as HttpServer } from 'node:http';
 import { createStatefulServer, type CreateServerArg } from "@smithery/sdk/server/stateful.js";
 import { SessionCache, type CacheOptions } from '../session-cache/index.js';
 import { McpServerFactory, type SessionConfig } from '../mcp-server-factory/index.js';
+import { legacyConfigMiddleware } from '../middleware/index.js';
 
 export interface ServerOptions {
   accessToken?: string;
@@ -97,6 +98,9 @@ export class FmpMcpServer {
    */
   private _setupRoutes(): void {
     try {
+      // Add middleware to handle legacy mode - requests without session config
+      this.app.use(legacyConfigMiddleware);
+
       // createStatefulServer provides the middleware that handles session creation and routing.
       // We pass it our core logic function for handling session resources.
       const { app: mcpApp } = createStatefulServer(
