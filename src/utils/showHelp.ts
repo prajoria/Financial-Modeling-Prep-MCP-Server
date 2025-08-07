@@ -27,12 +27,16 @@ Financial Modeling Prep MCP Server
 Usage: npm start [options]
 
 Options:
-  --port <number>              Server port (default: 3000)
-  --fmp-token <token>          FMP API access token
-  --fmp-tool-sets <sets>       Comma-separated list of tool sets to load
-  --tool-sets <sets>           Alternative format for tool sets
-  --dynamic-tool-discovery     Enable dynamic toolset management (meta-tools, BETA)
-  --help, -h                   Show this help message
+  --port <number>                   Server port (default: 3000)
+  --fmp-token <token>               FMP API access token
+  --dynamic-tool-discovery          Enable dynamic toolset management mode
+  --fmp-tool-sets <toolsets>        Comma-separated list of toolsets to load in static mode
+  --help, -h                        Show this help message
+
+Server Modes:
+  Dynamic Mode     Starts with 3 meta-tools, load toolsets on-demand
+  Static Mode      Pre-loads specific toolsets (use --fmp-tool-sets)
+  Legacy Mode      Loads all 253 tools (default)
 
 Available Tool Sets:
 `);
@@ -45,16 +49,23 @@ Available Tool Sets:
 
   console.log(`
 Examples:
-  npm start                                         # Load all tools (253 tools)
-  npm start -- --fmp-tool-sets search,company      # Load only search and company tools
-  npm start -- --fmp-tool-sets quotes,charts       # Load only quotes and charts tools
-  npm start -- --dynamic-tool-discovery            # Start with meta-tools only (dynamic mode)
-  npm start -- --port 4000 --tool-sets crypto,forex  # Custom port with crypto and forex tools
+  npm start                                    # Legacy mode (all tools)
+  npm start -- --port 4000                    # Custom port
+  npm start -- --dynamic-tool-discovery       # Dynamic mode
+  npm start -- --fmp-tool-sets search,company # Static mode with specific tools
+  npm start -- --fmp-token YOUR_TOKEN         # With API token
 
 Environment Variables:
-  PORT                     Server port
+  PORT                     Server port (default: 3000)
   FMP_ACCESS_TOKEN         Financial Modeling Prep API access token
-  FMP_TOOL_SETS            Comma-separated list of tool sets to load
-  DYNAMIC_TOOL_DISCOVERY   Enable dynamic toolset management (set to "true")
+  DYNAMIC_TOOL_DISCOVERY   Enable dynamic toolset management mode (true/false)
+  FMP_TOOL_SETS           Comma-separated list of toolsets for static mode
+
+Configuration Precedence:
+  1. CLI Arguments (highest priority)
+  2. Environment Variables
+  3. Session Configuration (lowest priority)
+
+Note: Server-level configurations override ALL session-level configurations.
 `);
 }

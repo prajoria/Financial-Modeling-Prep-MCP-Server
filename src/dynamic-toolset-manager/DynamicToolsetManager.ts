@@ -47,50 +47,22 @@ const MODULE_REGISTRATIONS: Record<string, ModuleLoader> = {
 /**
  * Dynamic Toolset Manager following GitHub MCP Server pattern
  * Wraps existing FMP toolset system to provide runtime enable/disable functionality
- * Implements singleton pattern to ensure single instance across the server
+ * Per-session instance pattern for proper session isolation
  */
 export class DynamicToolsetManager {
-  private static instance: DynamicToolsetManager | null = null;
-  
   private server: McpServer;
   private accessToken?: string;
   private activeToolsets: Set<ToolSet>;
   private registeredModules: Set<string>;
 
-  private constructor(server: McpServer, accessToken?: string) {
+  constructor(server: McpServer, accessToken?: string) {
     this.server = server;
     this.accessToken = accessToken;
     this.activeToolsets = new Set();
     this.registeredModules = new Set();
   }
 
-  /**
-   * Get the singleton instance of DynamicToolsetManager
-   * @param server - MCP server instance (required for first initialization)
-   * @param accessToken - Optional access token
-   * @returns The singleton instance
-   */
-  static getInstance(server: McpServer, accessToken?: string): DynamicToolsetManager {
-    if (!DynamicToolsetManager.instance) {
-      DynamicToolsetManager.instance = new DynamicToolsetManager(server, accessToken);
-    } else {
-      // Update server and accessToken if provided (for reinitialization scenarios)
-      if (server) {
-        DynamicToolsetManager.instance.server = server;
-      }
-      if (accessToken !== undefined) {
-        DynamicToolsetManager.instance.accessToken = accessToken;
-      }
-    }
-    return DynamicToolsetManager.instance;
-  }
 
-  /**
-   * Reset the singleton instance (useful for testing)
-   */
-  static resetInstance(): void {
-    DynamicToolsetManager.instance = null;
-  }
 
   /**
    * Get all available toolsets
@@ -313,7 +285,4 @@ export class DynamicToolsetManager {
   }
 }
 
-/**
- * Export the getInstance method for singleton access
- */
-export const getDynamicToolsetManager = DynamicToolsetManager.getInstance;
+
