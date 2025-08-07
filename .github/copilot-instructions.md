@@ -2,27 +2,28 @@
 
 ## Architecture Overview
 
-This is a **Model Context Protocol (MCP) server** that exposes 253+ financial tools across 24 categories using the Financial Modeling Prep API. The codebase uses a **stateful session-based architecture** with three operational modes:
+This is a **Model Context Protocol (MCP) server** that exposes 253+ financial tools across 24 categories using the Financial Modeling Prep API. The codebase uses a **stateful session-based architecture** powered by the Smithery SDK with three operational modes:
 
 - **Dynamic Mode**: Starts with 3 meta-tools, loads toolsets on-demand via `enable_toolset()` calls
-- **Static Mode**: Pre-loads specific toolsets at startup via `FMP_TOOL_SETS` environment variable
+- **Static Mode**: Pre-loads specific toolsets at startup via `FMP_TOOL_SETS` environment variable or CLI arg
 - **Legacy Mode**: Loads all 253 tools at startup (default)
 
 ## Key Components & Data Flow
 
 ### Core Architecture Pattern
 ```
-HTTP Request → McpServer → SessionCache → McpServerFactory → DynamicToolsetManager → Individual Tool Modules
+HTTP Request → FmpMcpServer → SessionCache → McpServerFactory → DynamicToolsetManager → Individual Tool Modules
 ```
 
-1. **`McpServer`** (`src/server/MCPServer.ts`): HTTP server wrapping Express with session management
-2. **`SessionCache`** (`src/session-cache/SessionCache.ts`): LRU cache with TTL for session isolation
+1. **`FmpMcpServer`** (`src/server/FmpMcpServer.ts`): Main HTTP server using Smithery SDK's stateful server wrapper
+2. **`SessionCache`** (`src/session-cache/SessionCache.ts`): LRU cache with TTL for session isolation  
 3. **`McpServerFactory`** (`src/mcp-server-factory/McpServerFactory.ts`): Creates MCP server instances per session
 4. **`DynamicToolsetManager`** (`src/dynamic-toolset-manager/DynamicToolsetManager.ts`): Runtime tool loading/unloading
-5. **Tool modules** (`src/tools/*.ts`): Individual tool registration functions following consistent patterns
+5. **`ServerModeEnforcer`** (`src/server-mode-enforcer/ServerModeEnforcer.ts`): Handles config precedence and mode validation
+6. **Tool modules** (`src/tools/*.ts`): Individual tool registration functions following consistent patterns
 
 ### Session Isolation Pattern
-Each client session gets its own `McpServer` instance and `DynamicToolsetManager`, cached by `sessionId`. Sessions are managed by the Smithery SDK's stateful server wrapper.
+Each client session gets its own `McpServer` instance and `DynamicToolsetManager`, cached by `sessionId`. Sessions are managed by the Smithery SDK's stateful server wrapper via `createStatefulServer()`.
 
 ## Development Workflows
 
@@ -32,7 +33,7 @@ Each client session gets its own `McpServer` instance and `DynamicToolsetManager
 - **Run Tests**: `npm test` (watch mode) or `npm run test:run` (single run)
 - **Coverage**: `npm run test:coverage`
 
-### Mock Pattern Example (from `MCPServer.test.ts`):
+### Mock Pattern Example (from `FmpMcpServer.test.ts`):
 ```typescript
 vi.mock("../session-cache/SessionCache.js", () => ({
   SessionCache: vi.fn().mockImplementation((options = {}) => ({
@@ -79,9 +80,12 @@ All API clients in `src/api/*/` extend `FMPClient` base class:
 - **Method naming**: Direct mapping to FMP API endpoints (e.g., `getProfile`, `getQuote`)
 
 ### Environment Configuration Precedence
-1. Command line arguments (`--fmp-token`, `--dynamic-tool-discovery`)
-2. Environment variables (`FMP_ACCESS_TOKEN`, `DYNAMIC_TOOL_DISCOVERY`)
-3. Default values
+Server follows strict configuration hierarchy:
+1. **Command line arguments** (`--fmp-token`, `--dynamic-tool-discovery`, `--fmp-tool-sets`, `--port`)
+2. **Environment variables** (`FMP_ACCESS_TOKEN`, `DYNAMIC_TOOL_DISCOVERY`, `FMP_TOOL_SETS`, `PORT`) 
+3. **Session configuration** (via HTTP query parameters - only when no server-level config)
+
+**Critical**: Server-level configurations (CLI args or env vars) override ALL session configurations globally.
 
 ## Critical Integration Points
 
@@ -113,10 +117,12 @@ Verify clients properly extract API keys from session context vs constructor par
 
 ## Key Files to Understand
 
-- `src/server/MCPServer.ts`: Main server lifecycle and session management
+- `src/server/FmpMcpServer.ts`: Main server lifecycle and Smithery SDK integration
 - `src/mcp-server-factory/McpServerFactory.ts`: Mode resolution and server creation logic
+- `src/server-mode-enforcer/ServerModeEnforcer.ts`: Configuration precedence and validation
 - `src/constants/toolSets.ts`: Complete tool organization structure
 - `src/tools/index.ts`: Static tool registration patterns
 - `src/dynamic-toolset-manager/DynamicToolsetManager.ts`: Runtime tool management
+- `src/index.ts`: CLI entry point with minimist argument parsing
 
 When adding new tools or modifying architecture, follow the established patterns for consistency and maintainability.

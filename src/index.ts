@@ -21,7 +21,7 @@ function main() {
   // This will also validate tool sets and exit if invalid ones are found
   ServerModeEnforcer.initialize(process.env, argv);
   
-  const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+  const PORT = argv.port || (process.env.PORT ? parseInt(process.env.PORT) : 3000);
   const fmpToken = argv["fmp-token"] || process.env.FMP_ACCESS_TOKEN;
 
   const mcpServer = new FmpMcpServer(
