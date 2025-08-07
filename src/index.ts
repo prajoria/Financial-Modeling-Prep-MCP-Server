@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 import minimist from "minimist";
-import { startServer } from "./server/server.js";
-import { type ToolSet, getAvailableToolSets } from "./constants/index.js";
+import { getAvailableToolSets } from "./constants/index.js";
 import { showHelp } from "./utils/showHelp.js";
 import { validateDynamicToolDiscoveryConfig } from "./utils/validation.js";
 
@@ -20,30 +19,17 @@ if (argv.help || argv.h) {
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 const fmpToken = argv["fmp-token"] || process.env.FMP_ACCESS_TOKEN;
 
-// Parse toolSets argument from command line or environment variable
-let toolSets: ToolSet[] = [];
-const toolSetsInput =
-  argv["fmp-tool-sets"] || argv["tool-sets"] || argv["toolSets"] || process.env.FMP_TOOL_SETS;
-if (toolSetsInput && typeof toolSetsInput === "string") {
-  toolSets = toolSetsInput.split(",").map((s) => s.trim()) as ToolSet[];
-}
+  const mcpServer = new FmpMcpServer(
+    {
+      accessToken: fmpToken,
+      cacheOptions: {
+        maxSize: 25,
+        ttl: 1000 * 60 * 60 * 2, // 2 hours
+      },
+    }
+  )
 
-// Parse dynamic tool discovery from command line or environment variable
-const dynamicToolDiscovery =
-  argv["dynamic-tool-discovery"] === true ||
-  argv["dynamicToolDiscovery"] === true ||
-  validateDynamicToolDiscoveryConfig(process.env.DYNAMIC_TOOL_DISCOVERY);
-
-// Validate tool sets
-const availableToolSets = getAvailableToolSets().map(({ key }) => key);
-const invalidToolSets = toolSets.filter(
-  (ts) => !availableToolSets.includes(ts)
-);
-if (invalidToolSets.length > 0) {
-  console.error(`Invalid tool sets: ${invalidToolSets.join(", ")}`);
-  console.error(`Available tool sets: ${availableToolSets.join(", ")}`);
-  process.exit(1);
-}
+  mcpServer.start(PORT);
 
 startServer({ port, toolSets, accessToken: fmpToken, dynamicToolDiscovery });
 

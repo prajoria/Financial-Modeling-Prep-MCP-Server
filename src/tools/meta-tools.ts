@@ -1,8 +1,8 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { getDynamicToolsetManager } from "../dynamic-toolset-manager/index.js";
-import type { ToolSet } from "../constants/index.js";
 import { TOOL_SETS } from "../constants/toolSets.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { DynamicToolsetManager } from "../dynamic-toolset-manager/DynamicToolsetManager.js";
+import type { ToolSet } from "../types/index.js";
 
 /**
  * Register meta-tools for dynamic toolset management

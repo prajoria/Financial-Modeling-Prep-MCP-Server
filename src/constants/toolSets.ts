@@ -1,40 +1,4 @@
-/**
- * Tool sets configuration based on Financial Modeling Prep API categories
- * Each set contains related functionality that users might want to access together
- */
-
-export type ToolSet =
-  | "search"
-  | "company"
-  | "quotes"
-  | "statements"
-  | "calendar"
-  | "charts"
-  | "news"
-  | "analyst"
-  | "market-performance"
-  | "insider-trades"
-  | "institutional"
-  | "indexes"
-  | "economics"
-  | "crypto"
-  | "forex"
-  | "commodities"
-  | "etf-funds"
-  | "esg"
-  | "technical-indicators"
-  | "senate"
-  | "sec-filings"
-  | "earnings"
-  | "dcf"
-  | "bulk";
-
-export interface ToolSetDefinition {
-  name: string;
-  description: string;
-  decisionCriteria: string;
-  modules: string[];
-}
+import { ToolSet, ToolSetDefinition } from "../types/index.js";
 
 /**
  * Comprehensive tool sets mapping based on FMP API structure

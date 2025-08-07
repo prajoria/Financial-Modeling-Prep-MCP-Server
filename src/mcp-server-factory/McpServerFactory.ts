@@ -5,7 +5,7 @@ import { registerMetaTools } from '../tools/meta-tools.js';
 import { registerAllTools, registerToolsBySet } from '../tools/index.js';
 import { getServerVersion } from '../utils/getServerVersion.js';
 import { ServerModeEnforcer } from '../server-mode-enforcer/index.js';
-import { ToolSet } from "../constants/toolSets.js";
+import type { ToolSet } from "../types/index.js";
 
 /**
  * Server mode enumeration
@@ -26,7 +26,6 @@ export interface SessionConfig {
  * Compatible with SDK's CreateServerArg<T> where T = SessionConfig
  */
 export interface McpServerOptions {
-  sessionId: string;
   config?: SessionConfig;
   serverAccessToken?: string;
 }
@@ -58,13 +57,13 @@ export class McpServerFactory {
    * @returns Server creation result with server, manager, and mode
    */
   public createServer(options: McpServerOptions): McpServerCreationResult {
-    const { sessionId, config, serverAccessToken } = options;
+    const { config, serverAccessToken } = options;
 
     // Resolve access token and mode first
     const accessToken = this._resolveAccessToken(serverAccessToken, config);
     const mode = this._resolveSessionMode(config);
     
-    console.log(`[McpServerFactory] Creating server for session ${sessionId} in ${mode} mode`);
+    console.log(`[McpServerFactory] Creating server in ${mode} mode`);
 
     // Create the base MCP server with appropriate capabilities
     const isDynamicMode = mode === 'DYNAMIC_TOOL_DISCOVERY';

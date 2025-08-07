@@ -1,0 +1,41 @@
+{
+  "result": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {
+      "tools": {
+        "listChanged": true
+      }
+    },
+    "serverInfo": {
+      "name": "Financial Modeling Prep MCP (Stateful)",
+      "version": "2.1.0",
+      "capabilities": {
+        "tools": {
+          "listChanged": true
+        }
+      },
+      "configSchema": {
+        "type": "object",
+        "properties": {
+          "FMP_ACCESS_TOKEN": {
+            "type": "string",
+            "title": "FMP Access Token",
+            "description": "Financial Modeling Prep API access token"
+          },
+          "FMP_TOOL_SETS": {
+            "type": "string",
+            "title": "Tool Sets (Optional)",
+            "description": "Comma-separated list of tool sets to load (e.g., 'search,company,quotes'). If not specified, all tools will be loaded."
+          },
+          "DYNAMIC_TOOL_DISCOVERY": {
+            "type": "string",
+            "title": "Dynamic Tool Discovery (Optional)",
+            "description": "Enable dynamic toolset management. Set to 'true' to use meta-tools."
+          }
+        }
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

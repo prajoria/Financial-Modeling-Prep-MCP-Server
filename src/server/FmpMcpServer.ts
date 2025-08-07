@@ -122,7 +122,7 @@ export class FmpMcpServer {
             timestamp: new Date().toISOString(),
             uptime: uptime,
             sessionManagement: 'stateful',
-            activeCachedSessions: cacheSize,
+            activeClients: cacheSize,
             cache: {
               size: cacheSize,
               maxSize: this.cache.getMaxSize(),
@@ -164,7 +164,7 @@ export class FmpMcpServer {
    * Compatible with SDK's CreateServerFn<SessionConfig> signature.
    */
   private _getSessionResources(params: CreateServerArg<SessionConfig>): any {
-    const { sessionId, config: sessionConfig} = params;
+    const { config: sessionConfig} = params;
 
     try {
       // Resolve access token and compute clientId
@@ -179,9 +179,8 @@ export class FmpMcpServer {
       }
 
       // Create new server using factory's comprehensive method
-      console.log(`[FmpMcpServer] 🔧 Creating new resources for client: ${clientId} (session: ${sessionId})`);
+      console.log(`[FmpMcpServer] 🔧 Creating new resources for client: ${clientId}`);
       const result = this.serverFactory.createServer({
-        sessionId,
         config: sessionConfig,
         serverAccessToken: this.serverOptions.accessToken
       });
@@ -197,7 +196,7 @@ export class FmpMcpServer {
       return result.mcpServer;
 
     } catch (error) {
-      console.error(`[FmpMcpServer] ❌ Failed to create resources for request (session ${sessionId}):`, error);
+      console.error(`[FmpMcpServer] ❌ Failed to create resources for request:`, error);
 
       // Log detailed error information for debugging
       if (error instanceof Error) {

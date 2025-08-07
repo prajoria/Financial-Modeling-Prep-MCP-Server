@@ -1,12 +1,12 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { TOOL_SETS, type ToolSet, type ToolSetDefinition } from "../constants/toolSets.js";
+import { TOOL_SETS } from "../constants/toolSets.js";
 import { getModulesForToolSets } from "../constants/index.js";
 import { 
   validateAndSanitizeToolsetName, 
   validateToolsetModules 
 } from "../utils/validation.js";
-import { ModuleLoader } from "../types/index.js";
 import { loadModuleWithTimeout } from "../utils/loadModuleWithTimeout.js";
+import type { ModuleLoader, ToolSet, ToolSetDefinition } from "../types/index.js";
 
 
 /**

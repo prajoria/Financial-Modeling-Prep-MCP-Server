@@ -21,6 +21,9 @@ vi.mock("../client-storage/index.js", () => {
       maxSize,
       ttl,
       storage: mockStorage,
+      getEntryCount: vi.fn(() => mockStorage.size),
+      getMaxSize: vi.fn(() => maxSize),
+      getTtl: vi.fn(() => ttl),
     };
   };
   const mockClientStorage = vi.fn().mockImplementation(createMockClientStorage);
@@ -235,7 +238,7 @@ describe("FmpMcpServer", () => {
         timestamp: mockTimestamp,
         uptime: mockUptime,
         sessionManagement: 'stateful',
-        activeCachedSessions: cacheSize,
+        activeClients: cacheSize,
         cache: {
           size: cacheSize,
           maxSize: mockCache.maxSize,
@@ -339,7 +342,6 @@ describe("FmpMcpServer", () => {
     });
 
     it("should return cached client resources when available", () => {
-      const sessionId = "test-session-1";
       const mockFmpMcpServer = { name: "cached-server" };
       const clientId = computeClientId("test-token");
 
@@ -349,7 +351,6 @@ describe("FmpMcpServer", () => {
       });
 
       const params = {
-        sessionId,
         config: { FMP_ACCESS_TOKEN: "session-token" },
       };
 
@@ -363,7 +364,6 @@ describe("FmpMcpServer", () => {
     });
 
     it("should create new client resources when not cached", () => {
-      const sessionId = "test-session-2";
       const mockFmpMcpServer = { name: "new-server" };
       const clientId = computeClientId("test-token");
 
@@ -375,7 +375,6 @@ describe("FmpMcpServer", () => {
       });
 
       const params = {
-        sessionId,
         config: { DYNAMIC_TOOL_DISCOVERY: "true" },
       };
 
@@ -383,7 +382,6 @@ describe("FmpMcpServer", () => {
 
       expect(result).toBe(mockFmpMcpServer);
       expect(mockServerFactory.createServer).toHaveBeenCalledWith({
-        sessionId,
         config: { DYNAMIC_TOOL_DISCOVERY: "true" },
         serverAccessToken: "test-token",
       });
@@ -392,12 +390,11 @@ describe("FmpMcpServer", () => {
         toolManager: { id: "tool-manager" },
       });
       expect(mockConsoleLog).toHaveBeenCalledWith(
-        `[FmpMcpServer] 🔧 Creating new resources for client: ${clientId} (session: ${sessionId})`
+        `[FmpMcpServer] 🔧 Creating new resources for client: ${clientId}`
       );
     });
 
     it("should handle creation errors", () => {
-      const sessionId = "test-session-error";
       const error = new Error("Factory creation failed");
 
       mockClientStorage.get.mockReturnValue(null);
@@ -406,13 +403,12 @@ describe("FmpMcpServer", () => {
       });
 
       const params = {
-        sessionId,
         config: {},
       };
 
       expect(() => (server as any)._getSessionResources(params)).toThrow(error);
       expect(mockConsoleError).toHaveBeenCalledWith(
-        `[FmpMcpServer] ❌ Failed to create resources for request (session ${sessionId}):`,
+        `[FmpMcpServer] ❌ Failed to create resources for request:`,
         error
       );
     });

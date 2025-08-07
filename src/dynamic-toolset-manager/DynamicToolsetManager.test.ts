@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { DynamicToolsetManager } from "./DynamicToolsetManager.js";
-import type { ToolSet } from "../constants/index.js";
+import type { ToolSet } from "../types/index.js";
 
 // Mock the MCP server with proper server interface
 const mockMcpServer = {

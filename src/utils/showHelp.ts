@@ -1,4 +1,4 @@
-import type { ToolSet, ToolSetDefinition } from "../constants/index.js";
+import type { ToolSet, ToolSetDefinition } from "../types/index.js";
 
 /**
  * Display help information for the Financial Modeling Prep MCP Server

@@ -27,8 +27,8 @@ import { registerEarningsTranscriptTools } from "./earnings-transcript.js";
 import { registerSECFilingsTools } from "./sec-filings.js";
 import { registerGovernmentTradingTools } from "./government-trading.js";
 import { registerBulkTools } from "./bulk.js";
-import type { ToolSet } from "../constants/index.js";
 import { getModulesForToolSets } from "../constants/index.js";
+import type { ToolSet } from "../types/index.js";
 
 /**
  * Module registration function mapping
