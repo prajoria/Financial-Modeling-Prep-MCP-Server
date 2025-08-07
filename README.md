@@ -6,17 +6,9 @@ A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabl
 
 ## Table of Contents
 
-- [Server Architecture](#server-architecture)
-- [Configuration & Mode Enforcement](#configuration--mode-enforcement)
-  - [Server Modes](#server-modes)
-  - [Configuration Precedence](#configuration-precedence)
 - [Usage](#usage)
   - [Production via Smithery Registry](#production-via-smithery-registry)
-  - [HTTP Server & Local Development](#http-server--local-development)
-  - [Docker Usage](#docker-usage)
-- [Making HTTP Requests](#making-http-requests)
-  - [Session Configuration](#session-configuration)
-  - [Request Examples](#request-examples)
+  - [HTTP Server](#http-server)
 - [Selective Tool Loading](#selective-tool-loading)
 - [Dynamic Toolset Management (BETA)](#dynamic-toolset-management-beta)
 - [Available Tools](#available-tools)
@@ -58,103 +50,6 @@ A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabl
 - **Economic Data**: Treasury rates, economic indicators, and macroeconomic information
 - **Alternative Data**: ESG scores, insider trading, congressional trading, and social sentiment
 
-## Server Architecture
-
-This MCP server uses a **stateful session-based architecture** powered by the Smithery SDK, providing isolated sessions for each client connection. The server operates as an HTTP service that handles Model Context Protocol requests with session-specific configurations.
-
-### Key Features:
-
-- **Session Isolation**: Each client gets its own isolated session with independent tool configurations
-- **Stateful Management**: Sessions maintain their state across multiple requests
-- **Mode Enforcement**: Server-level configurations can override session-level settings
-- **HTTP-based Protocol**: Communicates via HTTP with JSON-RPC formatted messages
-- **Dynamic Tool Management**: Tools can be loaded/unloaded at runtime per session
-
-### Request Flow:
-
-1. **Client Request** → HTTP POST to `/mcp` endpoint
-2. **Session Management** → Server creates or retrieves session based on config
-3. **Mode Resolution** → Server determines operational mode (Dynamic/Static/Legacy)
-4. **Tool Registration** → Session-specific tools are loaded based on resolved mode
-5. **Request Processing** → MCP request is processed with available tools
-6. **Response** → JSON-RPC response sent back to client
-
-## Configuration & Mode Enforcement
-
-The server supports multiple configuration methods with a clear precedence hierarchy to ensure predictable behavior.
-
-### Server Modes
-
-The server operates in one of three modes:
-
-1. **🔀 Dynamic Mode** (`DYNAMIC_TOOL_DISCOVERY=true`)
-   - Starts with only **3 meta-tools**: `enable_toolset`, `disable_toolset`, `get_toolset_status`
-   - Tools loaded on-demand via meta-tool calls
-   - **Best for**: Flexible, task-specific workflows where tool requirements change
-
-2. **🔧 Static Mode** (`FMP_TOOL_SETS=search,company,quotes`)
-   - Pre-loads specific toolsets at session creation
-   - All specified tools available immediately
-   - **Best for**: Known, consistent tool requirements with predictable usage patterns
-
-3. **📚 Legacy Mode** (default, no specific configuration)
-   - Loads all 253+ tools at session creation
-   - Maximum compatibility with all features available
-   - **Best for**: Full feature access without configuration complexity
-
-### Configuration Precedence
-
-The server follows a strict precedence hierarchy when determining the operational mode:
-
-```
-🥇 CLI Arguments (highest priority)
-   ↓
-🥈 Environment Variables  
-   ↓
-🥉 Session Configuration (lowest priority)
-```
-
-#### ⚠️ **Important Mode Enforcement Behavior**
-
-When **server-level** configurations are set (CLI arguments or environment variables), they **override** all session-level configurations for **ALL** sessions. This ensures consistent behavior across the entire server instance.
-
-**Example Override Scenario:**
-```bash
-# Server started with CLI argument
-npm run dev -- --dynamic-tool-discovery
-
-# ALL session requests will use Dynamic Mode, regardless of session config
-# Session config like {"FMP_TOOL_SETS": "search,company"} will be IGNORED
-```
-
-#### Configuration Methods:
-
-1. **CLI Arguments** (Server-level - overrides everything)
-   ```bash
-   npm run dev -- --fmp-token=TOKEN --dynamic-tool-discovery
-   npm run dev -- --fmp-token=TOKEN --fmp-tool-sets=search,company,quotes
-   npm run dev -- --port=4000 --fmp-token=TOKEN
-   ```
-
-2. **Environment Variables** (Server-level - overrides session configs)
-   ```bash
-   DYNAMIC_TOOL_DISCOVERY=true npm run dev
-   FMP_TOOL_SETS=search,company,quotes npm run dev
-   ```
-
-3. **Session Configuration** (Session-level - via HTTP query parameter)
-   ```bash
-   # Base64 encoded JSON config in query parameter
-   curl -X POST "http://localhost:3000/mcp?config=eyJEWU5BTUlDX1RPT0xfRElTQ09WRVJZIjoidHJ1ZSJ9"
-   ```
-
-#### ⚠️ **Configuration Warnings**
-
-- **Server-level modes are GLOBAL**: They affect all sessions on the server instance
-- **Session configs are IGNORED** when server-level modes are active
-- **No mixing**: You cannot have different modes for different sessions when server-level enforcement is active
-- **Restart required**: Changing server-level configurations requires server restart
-
 ## Selective Tool Loading
 While MCP clients can filter tools automatically, large tool sets may impact performance. To optimize your experience, you can specify which tool categories to load instead of loading all 253 tools at once:
 
@@ -195,36 +90,32 @@ The Dynamic Toolset Management feature allows you to enable and disable tool cat
 
 ### How It Works
 
-When dynamic toolset management is enabled, each session starts with only **3 meta-tools**:
+When dynamic toolset management is enabled, the server starts with only **3 meta-tools**:
 
 - `enable_toolset` - Enable a specific toolset during runtime
 - `disable_toolset` - Disable a previously enabled toolset  
 - `get_toolset_status` - Check which toolsets are currently active
 
-AI assistants can then use these meta-tools to dynamically load and unload specific tool categories as needed for different tasks within their session.
+AI assistants can then use these meta-tools to dynamically load and unload specific tool categories as needed for different tasks.
 
 ### Configuration Options
 
-#### Server-Level Configuration (Affects All Sessions)
-
-**Command Line Arguments:**
+**Command Line:**
 ```bash
-# Enable dynamic toolset management for all sessions
-npm run dev -- --fmp-token=YOUR_TOKEN --dynamic-tool-discovery
+# Enable dynamic toolset management
+node dist/index.js --dynamic-tool-discovery
 
-# Production deployment
-node dist/index.js --fmp-token=YOUR_TOKEN --dynamic-tool-discovery
+# Or use environment variable
+DYNAMIC_TOOL_DISCOVERY=true node dist/index.js
+
+# With npm
+npm start -- --dynamic-tool-discovery
 ```
 
-**Environment Variables:**
+**Environment Variable:**
 ```bash
-# Set environment variable
 export DYNAMIC_TOOL_DISCOVERY=true
-export FMP_ACCESS_TOKEN=YOUR_TOKEN
-npm run dev
-
-# Or inline
-DYNAMIC_TOOL_DISCOVERY=true FMP_ACCESS_TOKEN=YOUR_TOKEN npm start
+npm start
 ```
 
 **Docker:**
@@ -238,20 +129,27 @@ services:
       - "3000:3000"
     environment:
       - FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
-      - DYNAMIC_TOOL_DISCOVERY=true  # Enable for all sessions
+      - DYNAMIC_TOOL_DISCOVERY=true  # Enable dynamic toolsets
 ```
 
-#### Session-Level Configuration (When No Server Override)
+### Server Modes
 
-When no server-level dynamic mode is set, individual sessions can request dynamic mode:
+The server supports three operational modes:
 
-```bash
-# Base64 encode: {"DYNAMIC_TOOL_DISCOVERY":"true"}
-CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"initialize",...}'
-```
+1. **Dynamic Mode** (`DYNAMIC_TOOL_DISCOVERY=true`)
+   - Starts with 3 meta-tools only
+   - Tools are loaded on-demand via meta-tools
+   - Best for: Flexible, task-specific tool usage
+
+2. **Static Mode** (`FMP_TOOL_SETS=search,company,quotes`)
+   - Pre-loads specific toolsets at startup
+   - Tools are available immediately
+   - Best for: Known, consistent tool requirements
+
+3. **Legacy Mode** (default, no configuration)
+   - Loads all 253+ tools at startup
+   - All tools available immediately
+   - Best for: Maximum compatibility, no configuration needed
 
 ### Example Workflow
 
@@ -260,46 +158,30 @@ curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
    DYNAMIC_TOOL_DISCOVERY=true npm start
    ```
 
-2. **AI assistant initializes session and gets meta-tools:**
-   ```json
-   // Response includes only 3 meta-tools:
-   {
-     "tools": [
-       {"name": "enable_toolset", "description": "Enable a specific toolset"},
-       {"name": "disable_toolset", "description": "Disable a toolset"}, 
-       {"name": "get_toolset_status", "description": "Check active toolsets"}
-     ]
-   }
+2. **AI assistant enables needed toolsets:**
+   ```
+   AI: I need to search for companies and get quotes
+   → calls enable_toolset("search")
+   → calls enable_toolset("quotes")
    ```
 
-3. **AI assistant enables needed toolsets:**
-   ```json
-   // Enable search toolset
-   {"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"enable_toolset","arguments":{"toolset":"search"}}}
-   
-   // Enable quotes toolset  
-   {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"enable_toolset","arguments":{"toolset":"quotes"}}}
+3. **AI assistant uses the enabled tools:**
+   ```
+   → calls searchSymbol("AAPL")
+   → calls getQuote("AAPL")
    ```
 
-4. **AI assistant uses the enabled tools:**
-   ```json
-   // Now can use search and quotes tools
-   {"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"searchSymbol","arguments":{"query":"AAPL"}}}
-   {"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"getQuote","arguments":{"symbol":"AAPL"}}}
+4. **AI assistant can disable unused toolsets:**
    ```
-
-5. **AI assistant can disable unused toolsets:**
-   ```json
-   {"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"disable_toolset","arguments":{"toolset":"search"}}}
+   → calls disable_toolset("search")
    ```
 
 ### Benefits
 
-- **Performance**: Start faster with fewer tools loaded initially per session
+- **Performance**: Start faster with fewer tools loaded initially
 - **Flexibility**: Load only the tools needed for current tasks
-- **Resource Efficiency**: Reduce memory usage by disabling unused toolsets per session
+- **Resource Efficiency**: Reduce memory usage by disabling unused toolsets
 - **Task-Oriented**: Perfect for AI assistants that work on specific financial analysis tasks
-- **Session Isolation**: Each session can have different active toolsets
 
 ## Usage
 
@@ -315,137 +197,65 @@ Smithery is a platform that helps developers find and ship AI-native services de
 - Hosting and distribution for MCP servers  
 - Standardized interfaces for tool integration
 
-#### Session Configuration with Smithery
+To integrate this MCP server into your application through Smithery, follow the [Smithery documentation](https://smithery.ai/docs) for connecting MCP clients to hosted servers.
 
-When using Smithery, you can configure individual sessions by passing configuration in your MCP client. The Smithery platform handles the HTTP request formatting and session management.
 
-**Example configurations for Smithery:**
+### HTTP Server
 
-```json
-// Dynamic mode session
-{
-  "DYNAMIC_TOOL_DISCOVERY": "true"
-}
+The server now runs as an HTTP server that exposes a Model Context Protocol endpoint. To connect to it:
 
-// Static mode session  
-{
-  "FMP_TOOL_SETS": "search,company,quotes"
-}
-
-// Legacy mode (all tools)
-{}
-```
-
-For detailed integration instructions, follow the [Smithery documentation](https://smithery.ai/docs) for connecting MCP clients to hosted servers.
-
-### HTTP Server & Local Development
-
-The server runs as an HTTP server that exposes a Model Context Protocol endpoint. Each request can include session-specific configuration via query parameters.
-
-#### Basic Server Setup
-
-**Using NPX (Recommended for Quick Start):**
 ```bash
-# Install and run with API token
+# Install and run the server
 npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN
+```
 
-# With environment variable
+Or with environment variables:
+
+```bash
+# Set your API token as an environment variable
 export FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
+
+# Run the server
 npx -y fmp-mcp
+```
 
-# With custom port
+The server will start on port 3000 by default. You can change the port with the PORT environment variable:
+
+```bash
 PORT=4000 npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN
-npx -y fmp-mcp --port=4000 --fmp-token=YOUR_FMP_ACCESS_TOKEN
 ```
 
-**Local Development:**
-```bash
-# Clone and setup
-git clone https://github.com/imbenrabi/Financial-Modeling-Prep-MCP-Server
-cd Financial-Modeling-Prep-MCP-Server
-npm install
-npm run build
-
-# Run in development
-FMP_ACCESS_TOKEN=YOUR_TOKEN npm run dev
-
-# Or with CLI arguments
-npm run dev -- --fmp-token=YOUR_TOKEN
-npm run dev -- --port=4000 --fmp-token=YOUR_TOKEN
-```
-
-#### Server-Level Mode Configuration
-
-**🔐 Server-Level Dynamic Mode (All Sessions Use Dynamic Mode):**
-```bash
-# CLI argument (highest priority)
-npm run dev -- --fmp-token=YOUR_TOKEN --dynamic-tool-discovery
-
-# Environment variable
-DYNAMIC_TOOL_DISCOVERY=true FMP_ACCESS_TOKEN=YOUR_TOKEN npm run dev
-
-# NPX version
-DYNAMIC_TOOL_DISCOVERY=true npx -y fmp-mcp --fmp-token=YOUR_TOKEN
-# Or with CLI argument
-npx -y fmp-mcp --fmp-token=YOUR_TOKEN --dynamic-tool-discovery
-```
-
-**🔧 Server-Level Static Mode (All Sessions Use Specified Toolsets):**
-```bash
-# CLI argument (highest priority)
-npm run dev -- --fmp-token=YOUR_TOKEN --fmp-tool-sets=search,company,quotes
-
-# Environment variable
-FMP_TOOL_SETS=search,company,quotes FMP_ACCESS_TOKEN=YOUR_TOKEN npm run dev
-
-# NPX version
-FMP_TOOL_SETS=search,company,quotes npx -y fmp-mcp --fmp-token=YOUR_TOKEN
-# Or with CLI argument
-npx -y fmp-mcp --fmp-token=YOUR_TOKEN --fmp-tool-sets=search,company,quotes
-```
-
-**📚 Server-Level Legacy Mode (All Sessions Get All Tools):**
-```bash
-# Default behavior - no specific configuration
-npm run dev -- --fmp-token=YOUR_TOKEN
-FMP_ACCESS_TOKEN=YOUR_TOKEN npm run dev
-```
-
-#### Custom Port Configuration
+**Selective Tool Loading:**
 
 ```bash
-# Change server port via environment variable
-PORT=4000 npm run dev -- --fmp-token=YOUR_TOKEN
+# Load only specific toolsets (static mode)
+npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN --tool-sets=search,company,quotes
 
-# Change server port via CLI argument
-npm run dev -- --port=4000 --fmp-token=YOUR_TOKEN
-
-# With NPX
-PORT=4000 npx -y fmp-mcp --fmp-token=YOUR_TOKEN
-npx -y fmp-mcp --port=4000 --fmp-token=YOUR_TOKEN
+# Or with environment variable
+FMP_TOOL_SETS=search,company,quotes npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN
 ```
+
+**Dynamic Toolset Management (BETA):**
+
+```bash
+# Enable dynamic toolset management
+npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN --dynamic-tool-discovery
+
+# Or with environment variable
+DYNAMIC_TOOL_DISCOVERY=true npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN
+```
+
+To send requests to the server, use the `/mcp` endpoint with JSON-RPC formatted requests.
 
 ### Docker Usage
 
-Docker deployment supports all configuration methods with proper environment variable handling.
+You can also run the server using Docker. The server supports multiple ways to configure the FMP API token:
 
 #### Using Docker with Environment Variables
 
 ```bash
-# Basic deployment
-docker run -p 3000:3000 -e FMP_ACCESS_TOKEN=YOUR_TOKEN your-image-name
-
-# With server-level dynamic mode
-docker run -p 3000:3000 \
-  -e FMP_ACCESS_TOKEN=YOUR_TOKEN \
-  -e DYNAMIC_TOOL_DISCOVERY=true \
-  your-image-name
-
-# With server-level static mode  
-docker run -p 3000:3000 \
-  -e FMP_ACCESS_TOKEN=YOUR_TOKEN \
-  -e FMP_TOOL_SETS=search,company,quotes \
-  your-image-name
+# Run with environment variable
+docker run -p 3000:3000 -e FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN your-image-name
 ```
 
 #### Using Docker Compose
@@ -461,12 +271,9 @@ services:
       - "3000:3000"
     environment:
       - FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
+      - FMP_TOOL_SETS=COMMA_SEPARATED_TOOL_SETS # Optional
+      - DYNAMIC_TOOL_DISCOVERY=true # Optional (BETA)
       - PORT=3000
-      # Optional: Server-level mode enforcement
-      - DYNAMIC_TOOL_DISCOVERY=true           # All sessions use dynamic mode
-      # OR
-      - FMP_TOOL_SETS=search,company,quotes   # All sessions use these toolsets
-      # OR leave both unset for legacy mode (all tools)
 ```
 
 Then run:
@@ -479,15 +286,10 @@ docker-compose up
 
 Create a `.env` file:
 
-```env
+```
 FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
 PORT=3000
-
-# Optional: Choose ONE server-level mode
-DYNAMIC_TOOL_DISCOVERY=true
-# OR
-# FMP_TOOL_SETS=search,company,quotes
-# OR leave both commented for legacy mode
+DYNAMIC_TOOL_DISCOVERY=true  # Optional (BETA)
 ```
 
 And reference it in your `docker-compose.yml`:
@@ -503,261 +305,9 @@ services:
       - .env
 ```
 
-## Making HTTP Requests
-
-## Making HTTP Requests
-
-The server exposes a Model Context Protocol endpoint at `/mcp` that accepts JSON-RPC formatted requests. Each request can include optional session configuration via query parameters.
-
-### Endpoint Format
-
-```
-POST http://localhost:3000/mcp[?config=BASE64_ENCODED_CONFIG]
-```
-
-### Required Headers
-
-```http
-Content-Type: application/json
-Accept: application/json, text/event-stream
-```
-
-### Session Configuration
-
-Session configurations are passed as Base64-encoded JSON in the `config` query parameter. This allows each session to have different tool configurations when no server-level mode enforcement is active.
-
-#### Configuration Examples:
-
-1. **Dynamic Mode Session:**
-```bash
-# Configuration: {"DYNAMIC_TOOL_DISCOVERY":"true"}
-CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
-# Result: eyJEWU5BTUlDX1RPT0xfRElTQ09WRVJZIjoidHJ1ZSJ9
-```
-
-2. **Static Mode Session:**
-```bash  
-# Configuration: {"FMP_TOOL_SETS":"search,company,quotes"}
-CONFIG_BASE64=$(echo -n '{"FMP_TOOL_SETS":"search,company,quotes"}' | base64)
-# Result: eyJGTVBfVE9PTF9TRVRTIjoic2VhcmNoLGNvbXBhbnkscXVvdGVzIn0=
-```
-
-3. **Legacy Mode Session:**
-```bash
-# Configuration: {} (empty object)  
-CONFIG_BASE64=$(echo -n '{}' | base64)
-# Result: e30=
-```
-
-### Request Examples
-
-#### 1. Initialize a Dynamic Mode Session
-
-```bash
-CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "initialize",
-    "params": {
-      "protocolVersion": "2024-11-05",
-      "clientInfo": {
-        "name": "my-client",
-        "version": "1.0.0"
-      },
-      "capabilities": {}
-    }
-  }'
-```
-
-**Expected Response:**
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "result": {
-    "protocolVersion": "2024-11-05",
-    "capabilities": {
-      "tools": {
-        "listChanged": true
-      }
-    },
-    "serverInfo": {
-      "name": "fmp-mcp-server",
-      "version": "1.0.0"
-    }
-  }
-}
-```
-
-#### 2. List Available Tools
-
-```bash
-CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 2,
-    "method": "tools/list",
-    "params": {}
-  }'
-```
-
-**Expected Response (Dynamic Mode):**
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 2,
-  "result": {
-    "tools": [
-      {
-        "name": "enable_toolset",
-        "description": "Enable a specific toolset during runtime",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "toolset": {
-              "type": "string",
-              "description": "Name of the toolset to enable"
-            }
-          },
-          "required": ["toolset"]
-        }
-      },
-      {
-        "name": "disable_toolset", 
-        "description": "Disable a previously enabled toolset"
-      },
-      {
-        "name": "get_toolset_status",
-        "description": "Check which toolsets are currently active"
-      }
-    ]
-  }
-}
-```
-
-#### 3. Enable a Toolset (Dynamic Mode)
-
-```bash
-CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 3,
-    "method": "tools/call",
-    "params": {
-      "name": "enable_toolset",
-      "arguments": {
-        "toolset": "search"
-      }
-    }
-  }'
-```
-
-#### 4. Call a Financial Tool
-
-```bash  
-CONFIG_BASE64=$(echo -n '{"FMP_TOOL_SETS":"search,quotes"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 4,
-    "method": "tools/call",
-    "params": {
-      "name": "searchSymbol",
-      "arguments": {
-        "query": "Apple"
-      }
-    }
-  }'
-```
-
-#### 5. Get Stock Quote
-
-```bash
-CONFIG_BASE64=$(echo -n '{"FMP_TOOL_SETS":"quotes"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  -d '{
-    "jsonrpc": "2.0", 
-    "id": 5,
-    "method": "tools/call",
-    "params": {
-      "name": "getQuote",
-      "arguments": {
-        "symbol": "AAPL"
-      }
-    }
-  }'
-```
-
-### Session Behavior & Isolation
-
-- **Session Persistence**: Each unique `config` parameter creates a separate session
-- **Tool State**: In dynamic mode, enabled/disabled toolsets are maintained per session
-- **Isolation**: Sessions don't interfere with each other's tool configurations  
-- **Caching**: Sessions are cached for performance with TTL-based cleanup
-
-### Error Handling
-
-Common error responses:
-
-```json
-// Invalid configuration
-{
-  "jsonrpc": "2.0",
-  "error": {
-    "code": -32000,
-    "message": "Bad Request: Invalid configuration"
-  },
-  "id": null
-}
-
-// Tool not available
-{
-  "jsonrpc": "2.0",
-  "error": {
-    "code": -32601,
-    "message": "Tool not found: toolName"
-  },
-  "id": 1
-}
-
-// Missing required parameters
-{
-  "jsonrpc": "2.0", 
-  "error": {
-    "code": -32602,
-    "message": "Missing required parameter: symbol"
-  },
-  "id": 2
-}
-```
+The server will automatically detect and use the `FMP_ACCESS_TOKEN` environment variable when running in Docker.
 
 ## Available Tools
-
-> **⚠️ Important: Mode Enforcement Behavior**
-> 
-> **Server-Level Configurations Override Session Configurations:**
-> - When CLI arguments (`--dynamic-tool-discovery`, `--fmp-tool-sets`) are used, they apply to **ALL** sessions
-> - When environment variables (`DYNAMIC_TOOL_DISCOVERY`, `FMP_TOOL_SETS`) are set, they apply to **ALL** sessions  
-> - Session-level configurations via query parameters are **IGNORED** when server-level modes are active
-> - This ensures consistent behavior across all sessions on a server instance
-> 
-> **Configuration Precedence:** CLI Arguments > Environment Variables > Session Configuration
->
-> **Example:** If server started with `--dynamic-tool-discovery`, ALL sessions will use dynamic mode even if they request `{"FMP_TOOL_SETS":"search,company"}` in their session config.
 
 This MCP provides the following tools for AI assistants to access financial data:
 
@@ -1144,7 +694,7 @@ Every pull request triggers a GitHub Actions workflow that verifies the build pr
 ```bash
 # Clone the repository
 git clone https://github.com/imbenrabi/Financial-Modeling-Prep-MCP-Server
-cd Financial-Modeling-Prep-MCP-Server
+cd fmp-mcp-server
 
 # Install dependencies
 npm install
@@ -1155,7 +705,7 @@ npm run build
 # Run in development mode with your API key
 FMP_ACCESS_TOKEN=your_api_key npm run dev
 
-# Or specify the API key directly via CLI argument
+# Or specify the API key directly
 npm run dev -- --fmp-token=your_api_key
 ```
 
@@ -1165,59 +715,24 @@ The development server will start on port 3000 by default. You can configure the
 PORT=4000 FMP_ACCESS_TOKEN=your_api_key npm run dev
 ```
 
-#### Development with Server-Level Mode Enforcement
+**Selective Tool Loading in Development:**
 
-**Server-Level Static Mode (All Sessions Use Specific Toolsets):**
 ```bash
-# Environment variable approach
+# Load only specific toolsets in development (static mode)
 FMP_TOOL_SETS=search,company,quotes FMP_ACCESS_TOKEN=your_api_key npm run dev
 
-# CLI argument approach (higher precedence)
-npm run dev -- --fmp-token=your_api_key --fmp-tool-sets=search,company,quotes
+# Or with command line flag
+npm run dev -- --fmp-token=your_api_key --tool-sets=search,company,quotes
 ```
 
-**Server-Level Dynamic Mode (All Sessions Start with Meta-Tools):**
+**Dynamic Toolset Management in Development (BETA):**
+
 ```bash
-# Environment variable approach  
+# Enable dynamic toolset management in development
 DYNAMIC_TOOL_DISCOVERY=true FMP_ACCESS_TOKEN=your_api_key npm run dev
 
-# CLI argument approach (higher precedence)
+# Or with command line flag
 npm run dev -- --fmp-token=your_api_key --dynamic-tool-discovery
-```
-
-**Session-Level Configuration (Default - No Server Enforcement):**
-```bash
-# Start server without mode enforcement
-npm run dev -- --fmp-token=your_api_key
-
-# Individual sessions can then specify their own configurations via HTTP requests
-```
-
-#### Testing Different Configurations
-
-When developing, you can test different configuration scenarios:
-
-1. **Test Session-Level Configurations:**
-```bash
-# Start server without enforcement
-npm run dev -- --fmp-token=your_api_key
-
-# Test dynamic mode session
-CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" -d '...'
-
-# Test static mode session  
-CONFIG_BASE64=$(echo -n '{"FMP_TOOL_SETS":"search,quotes"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" -d '...'
-```
-
-2. **Test Server-Level Enforcement:**
-```bash
-# Start with server-level dynamic mode
-npm run dev -- --fmp-token=your_api_key --dynamic-tool-discovery
-
-# ALL sessions will use dynamic mode regardless of session config
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" -d '...'
 ```
 
 ### Running Tests
@@ -1255,4 +770,4 @@ This helps us understand and resolve issues more quickly.
 
 ## License
 
-This project is licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+This project is licensed under the [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.en)

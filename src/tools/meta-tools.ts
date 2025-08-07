@@ -1,6 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import type { DynamicToolsetManager } from "../dynamic-toolset-manager/DynamicToolsetManager.js";
+import { getDynamicToolsetManager } from "../dynamic-toolset-manager/index.js";
 import type { ToolSet } from "../constants/index.js";
 import { TOOL_SETS } from "../constants/toolSets.js";
 
@@ -8,13 +8,14 @@ import { TOOL_SETS } from "../constants/toolSets.js";
  * Register meta-tools for dynamic toolset management
  * These tools allow AI to enable and disable toolsets at runtime
  * @param server The MCP server instance
- * @param toolsetManager The DynamicToolsetManager instance for this session
+ * @param accessToken The Financial Modeling Prep API access token (optional)
  */
-export function registerMetaTools(server: McpServer, toolsetManager: DynamicToolsetManager): void {
+export function registerMetaTools(server: McpServer, accessToken?: string): void {
   console.log('Server starting in DYNAMIC mode - Registering meta-tools');
 
-  // Use the provided toolset manager instance (per-session isolation)
-  const availableToolsets = toolsetManager.getAvailableToolsets();
+  // Get the singleton DynamicToolsetManager instance
+  const dynamicToolsetManager = getDynamicToolsetManager(server, accessToken);
+  const availableToolsets = dynamicToolsetManager.getAvailableToolsets();
   
   console.log(`Available toolsets: ${availableToolsets.join(', ')}`);
 
@@ -31,8 +32,8 @@ export function registerMetaTools(server: McpServer, toolsetManager: DynamicTool
       try {
         console.log(`Meta-tool called: enable_toolset(${toolsetName})`);
         
-        // Use the per-session manager to enable the toolset
-        const result = await toolsetManager.enableToolset(toolsetName);
+        // Use the singleton manager to enable the toolset
+        const result = await dynamicToolsetManager.enableToolset(toolsetName);
         
         if (result.success) {
           console.log(`Successfully enabled toolset: ${toolsetName}`);
@@ -83,8 +84,8 @@ export function registerMetaTools(server: McpServer, toolsetManager: DynamicTool
       try {
         console.log(`Meta-tool called: disable_toolset(${toolsetName})`);
         
-        // Use the per-session manager to disable the toolset
-        const result = await toolsetManager.disableToolset(toolsetName);
+        // Use the singleton manager to disable the toolset
+        const result = await dynamicToolsetManager.disableToolset(toolsetName);
         
         if (result.success) {
           console.log(`Successfully disabled toolset: ${toolsetName}`);
@@ -131,7 +132,7 @@ export function registerMetaTools(server: McpServer, toolsetManager: DynamicTool
     {},
     async () => {
       try {
-        const status = toolsetManager.getStatus();
+        const status = dynamicToolsetManager.getStatus();
         
         const statusReport = [
           `📊 Dynamic Toolset Manager Status:`,
