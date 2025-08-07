@@ -47,7 +47,7 @@ export class McpServer {
       this.httpServer = this.app.listen(port, () => {
         console.log(`[McpServer] 🚀 MCP Server started successfully on port ${port}`);
         console.log(`[McpServer] 🧠 Session cache configured with maxSize: ${this.cache['maxSize']}, ttl: ${this.cache['ttl']}ms`);
-        console.log(`[McpServer] 🏥 Health endpoint available at http://localhost:${port}/health`);
+        console.log(`[McpServer] 🏥 Health endpoint available at http://localhost:${port}/healthcheck`);
         console.log(`[McpServer] 🔌 MCP endpoint available at http://localhost:${port}/mcp`);
       });
 
@@ -105,7 +105,7 @@ export class McpServer {
       this.app.use(mcpApp); // Mount the stateful server middleware
 
       // Add comprehensive health check endpoint
-      this.app.get('/health', (req, res) => {
+      this.app.get('/healthcheck', (req, res) => {
         try {
           const cacheSize = this.cache['cache']?.size || 0;
           const uptime = process.uptime();
