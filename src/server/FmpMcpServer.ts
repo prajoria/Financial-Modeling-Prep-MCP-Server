@@ -157,38 +157,35 @@ export class FmpMcpServer {
       // Check cache first
       const cached = this.cache.get(sessionId);
       if (cached) {
-        console.log(`[McpServer] ✅ Reusing cached resources for session: ${sessionId}`);
+        console.log(`[FmpMcpServer] ✅ Reusing cached resources for session: ${sessionId}`);
         return cached.mcpServer;
       }
 
-      // Create new server using factory's SDK-compatible method
-      console.log(`[McpServer] 🔧 Creating new resources for session: ${sessionId}`);
-      const mcpServer = this.serverFactory.createServerFromSdkArg(params);
-
-      // Get the creation result for caching (we need to recreate it for the toolManager)
+      // Create new server using factory's comprehensive method
+      console.log(`[FmpMcpServer] 🔧 Creating new resources for session: ${sessionId}`);
       const result = this.serverFactory.createServer({
         sessionId,
         config: sessionConfig,
         serverAccessToken: this.serverOptions.accessToken
       });
 
-      console.log(`[McpServer] ✅ Session ${sessionId} created successfully with mode: ${result.mode}`);
+      console.log(`[FmpMcpServer] ✅ Session ${sessionId} created successfully with mode: ${result.mode}`);
 
       // Cache the resources
       this.cache.set(sessionId, { 
-        mcpServer, 
+        mcpServer: result.mcpServer, 
         toolManager: result.toolManager 
       });
 
-      return mcpServer;
+      return result.mcpServer;
 
     } catch (error) {
-      console.error(`[McpServer] ❌ Failed to create resources for session ${sessionId}:`, error);
-      
+      console.error(`[FmpMcpServer] ❌ Failed to create resources for session ${sessionId}:`, error);
+
       // Log detailed error information for debugging
       if (error instanceof Error) {
-        console.error(`[McpServer] Error details: ${error.message}`);
-        console.error(`[McpServer] Stack trace:`, error.stack);
+        console.error(`[FmpMcpServer] Error details: ${error.message}`);
+        console.error(`[FmpMcpServer] Stack trace:`, error.stack);
       }
       
       // Re-throw to let the stateful server handle the error appropriately

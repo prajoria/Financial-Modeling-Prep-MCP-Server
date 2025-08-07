@@ -4,7 +4,6 @@ import { DynamicToolsetManager } from '../dynamic-toolset-manager/DynamicToolset
 import { registerMetaTools } from '../tools/meta-tools.js';
 import { registerAllTools, registerToolsBySet } from '../tools/index.js';
 import { getServerVersion } from '../utils/getServerVersion.js';
-import type { CreateServerArg } from "@smithery/sdk/server/stateful.js";
 
 /**
  * Server mode enumeration
@@ -77,27 +76,6 @@ export class McpServerFactory {
       toolManager,
       mode
     };
-  }
-
-  /**
-   * Creates a server from SDK's CreateServerArg - for direct SDK compatibility
-   * This method matches the SDK's CreateServerFn<SessionConfig> signature
-   * @param arg - SDK's CreateServerArg<SessionConfig>
-   * @returns McpServer instance
-   */ 
-  public createServerFromSdkArg(arg: CreateServerArg<SessionConfig>): McpServer {
-    const { config } = arg;
-    const mode = this._resolveSessionMode(config);
-    const isDynamicMode = mode === 'DYNAMIC_TOOL_DISCOVERY';
-    
-    // Create server with appropriate capabilities
-    const mcpServer = this._createMcpServerInstance(isDynamicMode);
-    
-    // Register tools based on mode
-    const accessToken = this._resolveAccessToken(undefined, config);
-    this._registerToolsForMode(mcpServer, mode, config, accessToken);
-    
-    return mcpServer;
   }
 
   /**

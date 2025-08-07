@@ -172,51 +172,6 @@ describe("McpServerFactory", () => {
     });
   });
 
-  describe("createServerFromSdkArg", () => {
-    it("should create server from SDK CreateServerArg", () => {
-      const sdkArg = {
-        sessionId: "test-session",
-        config: {
-          FMP_ACCESS_TOKEN: "test-token",
-        },
-      };
-
-      const result = factory.createServerFromSdkArg(sdkArg);
-
-      expect(result).toBeDefined();
-    });
-
-    it("should handle SDK arg with dynamic tool discovery", () => {
-      mockValidateDynamicToolDiscoveryConfig.mockReturnValue(true);
-
-      const sdkArg = {
-        sessionId: "test-session",
-        config: {
-          DYNAMIC_TOOL_DISCOVERY: "true",
-        },
-      };
-
-      const result = factory.createServerFromSdkArg(sdkArg);
-
-      expect(result).toBeDefined();
-    });
-
-    it("should handle SDK arg with static tool sets", () => {
-      mockParseCommaSeparatedToolSets.mockReturnValue(["search", "company"]);
-
-      const sdkArg = {
-        sessionId: "test-session",
-        config: {
-          FMP_TOOL_SETS: "search,company",
-        },
-      };
-
-      const result = factory.createServerFromSdkArg(sdkArg);
-
-      expect(result).toBeDefined();
-    });
-  });
-
   describe("Server Mode Resolution", () => {
     it("should prioritize DYNAMIC_TOOL_DISCOVERY over STATIC_TOOL_SETS", () => {
       mockValidateDynamicToolDiscoveryConfig.mockReturnValue(true);

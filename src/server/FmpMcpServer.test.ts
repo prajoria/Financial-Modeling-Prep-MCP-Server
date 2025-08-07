@@ -363,7 +363,7 @@ describe("FmpMcpServer", () => {
       expect(result).toBe(mockFmpMcpServer);
       expect(mockSessionCache.get).toHaveBeenCalledWith(sessionId);
       expect(mockConsoleLog).toHaveBeenCalledWith(
-        `[McpServer] ✅ Reusing cached resources for session: ${sessionId}`
+        `[FmpMcpServer] ✅ Reusing cached resources for session: ${sessionId}`
       );
     });
 
@@ -372,7 +372,6 @@ describe("FmpMcpServer", () => {
       const mockFmpMcpServer = { name: "new-server" };
       
       mockSessionCache.get.mockReturnValue(null);
-      mockServerFactory.createServerFromSdkArg.mockReturnValue(mockFmpMcpServer);
       mockServerFactory.createServer.mockReturnValue({
         mode: "DYNAMIC_TOOL_DISCOVERY",
         mcpServer: mockFmpMcpServer,
@@ -387,13 +386,17 @@ describe("FmpMcpServer", () => {
       const result = (server as any)._getSessionResources(params);
 
       expect(result).toBe(mockFmpMcpServer);
-      expect(mockServerFactory.createServerFromSdkArg).toHaveBeenCalledWith(params);
+      expect(mockServerFactory.createServer).toHaveBeenCalledWith({
+        sessionId,
+        config: { DYNAMIC_TOOL_DISCOVERY: "true" },
+        serverAccessToken: "test-token"
+      });
       expect(mockSessionCache.set).toHaveBeenCalledWith(sessionId, {
         mcpServer: mockFmpMcpServer,
         toolManager: { id: "tool-manager" }
       });
       expect(mockConsoleLog).toHaveBeenCalledWith(
-        `[McpServer] 🔧 Creating new resources for session: ${sessionId}`
+        `[FmpMcpServer] 🔧 Creating new resources for session: ${sessionId}`
       );
     });
 
@@ -402,7 +405,7 @@ describe("FmpMcpServer", () => {
       const error = new Error("Factory creation failed");
       
       mockSessionCache.get.mockReturnValue(null);
-      mockServerFactory.createServerFromSdkArg.mockImplementation(() => {
+      mockServerFactory.createServer.mockImplementation(() => {
         throw error;
       });
 
@@ -413,7 +416,7 @@ describe("FmpMcpServer", () => {
 
       expect(() => (server as any)._getSessionResources(params)).toThrow(error);
       expect(mockConsoleError).toHaveBeenCalledWith(
-        `[McpServer] ❌ Failed to create resources for session ${sessionId}:`,
+        `[FmpMcpServer] ❌ Failed to create resources for session ${sessionId}:`,
         error
       );
     });
