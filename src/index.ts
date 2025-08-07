@@ -28,8 +28,8 @@ function main() {
     {
       accessToken: fmpToken,
       cacheOptions: {
-        maxSize: 100,
-        ttl: 1000 * 60 * 60 * 24, // 24 hours
+        maxSize: 25,
+        ttl: 1000 * 60 * 60 * 2, // 2 hours
       },
     }
   )

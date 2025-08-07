@@ -113,6 +113,7 @@ export class FmpMcpServer {
         try {
           const cacheSize = this.cache['cache']?.size || 0;
           const uptime = process.uptime();
+          const memoryUsage = process.memoryUsage()
           
           res.status(200).json({ 
             status: 'ok',
@@ -128,6 +129,12 @@ export class FmpMcpServer {
             server: {
               type: 'FmpMcpServer',
               version: process.env.npm_package_version || 'unknown'
+            },
+            memoryUsage: {
+              rss: Math.round(memoryUsage.rss / 1024 / 1024) + 'MB',
+              heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024) + 'MB',
+              heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024) + 'MB',
+              external: Math.round(memoryUsage.external / 1024 / 1024) + 'MB'
             }
           });
         } catch (error) {
