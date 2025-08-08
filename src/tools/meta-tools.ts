@@ -8,14 +8,13 @@ import type { ToolSet } from "../types/index.js";
  * Register meta-tools for dynamic toolset management
  * These tools allow AI to enable and disable toolsets at runtime
  * @param server The MCP server instance
- * @param accessToken The Financial Modeling Prep API access token (optional)
+ * @param toolsetManager The DynamicToolsetManager instance for this session
  */
-export function registerMetaTools(server: McpServer, accessToken?: string): void {
+export function registerMetaTools(server: McpServer, toolsetManager: DynamicToolsetManager): void {
   console.log('Server starting in DYNAMIC mode - Registering meta-tools');
 
-  // Get the singleton DynamicToolsetManager instance
-  const dynamicToolsetManager = getDynamicToolsetManager(server, accessToken);
-  const availableToolsets = dynamicToolsetManager.getAvailableToolsets();
+  // Use the provided toolset manager instance (per-session isolation)
+  const availableToolsets = toolsetManager.getAvailableToolsets();
   
   console.log(`Available toolsets: ${availableToolsets.join(', ')}`);
 
@@ -32,8 +31,8 @@ export function registerMetaTools(server: McpServer, accessToken?: string): void
       try {
         console.log(`Meta-tool called: enable_toolset(${toolsetName})`);
         
-        // Use the singleton manager to enable the toolset
-        const result = await dynamicToolsetManager.enableToolset(toolsetName);
+        // Use the per-session manager to enable the toolset
+        const result = await toolsetManager.enableToolset(toolsetName);
         
         if (result.success) {
           console.log(`Successfully enabled toolset: ${toolsetName}`);
@@ -84,8 +83,8 @@ export function registerMetaTools(server: McpServer, accessToken?: string): void
       try {
         console.log(`Meta-tool called: disable_toolset(${toolsetName})`);
         
-        // Use the singleton manager to disable the toolset
-        const result = await dynamicToolsetManager.disableToolset(toolsetName);
+        // Use the per-session manager to disable the toolset
+        const result = await toolsetManager.disableToolset(toolsetName);
         
         if (result.success) {
           console.log(`Successfully disabled toolset: ${toolsetName}`);
@@ -132,7 +131,7 @@ export function registerMetaTools(server: McpServer, accessToken?: string): void
     {},
     async () => {
       try {
-        const status = dynamicToolsetManager.getStatus();
+        const status = toolsetManager.getStatus();
         
         const statusReport = [
           `📊 Dynamic Toolset Manager Status:`,

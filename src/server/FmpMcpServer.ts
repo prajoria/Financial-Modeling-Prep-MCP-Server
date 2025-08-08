@@ -3,7 +3,6 @@ import type { Server as HttpServer } from 'node:http';
 import { createStatefulServer, type CreateServerArg } from "@smithery/sdk/server/stateful.js";
 import { ClientStorage, type StorageOptions } from '../client-storage/index.js';
 import { McpServerFactory, type SessionConfig } from '../mcp-server-factory/index.js';
-import { legacyConfigMiddleware } from '../middleware/index.js';
 import { computeClientId } from '../utils/computeClientId.js';
 import { resolveAccessToken } from '../utils/resolveAccessToken.js';
 

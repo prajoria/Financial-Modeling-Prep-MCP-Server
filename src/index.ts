@@ -3,7 +3,8 @@
 import minimist from "minimist";
 import { getAvailableToolSets } from "./constants/index.js";
 import { showHelp } from "./utils/showHelp.js";
-import { validateDynamicToolDiscoveryConfig } from "./utils/validation.js";
+import { FmpMcpServer } from "./server/index.js";
+import { ServerModeEnforcer } from "./server-mode-enforcer/index.js";
 
 // Parse command line arguments
 const argv = minimist(process.argv.slice(2));
@@ -15,9 +16,13 @@ if (argv.help || argv.h) {
   process.exit(0);
 }
 
-// Get configuration from environment variables and command line
-const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
-const fmpToken = argv["fmp-token"] || process.env.FMP_ACCESS_TOKEN;
+function main() {
+  // Initialize the ServerModeEnforcer with env vars and CLI args
+  // This will also validate tool sets and exit if invalid ones are found
+  ServerModeEnforcer.initialize(process.env, argv);
+  
+  const PORT = argv.port || (process.env.PORT ? parseInt(process.env.PORT) : 3000);
+  const fmpToken = argv["fmp-token"] || process.env.FMP_ACCESS_TOKEN;
 
   const mcpServer = new FmpMcpServer(
     {
@@ -31,17 +36,14 @@ const fmpToken = argv["fmp-token"] || process.env.FMP_ACCESS_TOKEN;
 
   mcpServer.start(PORT);
 
-startServer({ port, toolSets, accessToken: fmpToken, dynamicToolDiscovery });
+  const handleShutdown = () => {
+    console.log('\n🔌 Shutting down server...');
+    mcpServer.stop();
+    process.exit(0);
+  };
 
-// Log startup information
-if (fmpToken) {
-  console.log(
-    "Financial Modeling Prep MCP server initialized successfully with API token"
-  );
-} else {
-  console.log("Financial Modeling Prep MCP server initialized successfully");
-  console.log("Note: API token can be provided via:");
-  console.log("  - Environment variable: FMP_ACCESS_TOKEN");
-  console.log("  - Command line argument: --fmp-token");
-  console.log("  - Smithery configuration when using with Smithery");
+  process.on("SIGINT", handleShutdown); // Catches Ctrl+C
+  process.on("SIGTERM", handleShutdown); // Catches kill signals
 }
+
+main();
