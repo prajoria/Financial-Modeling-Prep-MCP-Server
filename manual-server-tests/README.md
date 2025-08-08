@@ -69,6 +69,14 @@ Set a custom port via `PORT=4000` when running scripts.
      - No server-level enforcement message
      - Mode resolution logs like `Creating server in ... mode` and warnings for invalid toolsets when applicable
 
+5) Scenario 5: No Server Configuration (no CLI args, no env token)
+   - Start with: `unset FMP_ACCESS_TOKEN && npm run dev`
+   - Run: `./scenario5_no_server_config.sh`
+   - Expectations:
+     - A (no config): `listChanged=false`; `tools/list` is large (ALL_TOOLS legacy)
+     - B (session FMP_ACCESS_TOKEN only): `listChanged=false`; `tools/list` remains large
+     - C (session FMP_ACCESS_TOKEN + dynamic): `listChanged=true`; `tools/list` shows only meta-tools initially
+
 ## Workflow
 
 1. Start the server for the scenario exactly as specified
