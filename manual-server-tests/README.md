@@ -1,6 +1,6 @@
 # Manual Server Tests
 
-This folder contains shell scripts to manually validate server behavior across four scenarios. You start the server yourself per scenario, then run the corresponding script to send requests and verify outputs/logs.
+This folder contains shell scripts to manually validate server behavior across five scenarios. You start the server yourself per scenario, then run the corresponding script to send requests and verify outputs/logs.
 
 ## Prerequisites
 
