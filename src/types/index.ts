@@ -1,6 +1,8 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-// Define a context type for all client methods
+/**
+ * FMP Context type
+ */
 export type FMPContext = {
   config?: {
     FMP_ACCESS_TOKEN?: string;
@@ -19,3 +21,44 @@ export type ToolRegistrationFunction = (server: McpServer, accessToken?: string)
  * Each module loader returns a Promise that resolves to a registration function
  */
 export type ModuleLoader = () => Promise<ToolRegistrationFunction>;
+
+/**
+ * Tool sets configuration based on Financial Modeling Prep API categories
+ * Each set contains related functionality that users might want to access together
+ */
+
+export type ToolSet =
+  | "search"
+  | "company"
+  | "quotes"
+  | "statements"
+  | "calendar"
+  | "charts"
+  | "news"
+  | "analyst"
+  | "market-performance"
+  | "insider-trades"
+  | "institutional"
+  | "indexes"
+  | "economics"
+  | "crypto"
+  | "forex"
+  | "commodities"
+  | "etf-funds"
+  | "esg"
+  | "technical-indicators"
+  | "senate"
+  | "sec-filings"
+  | "earnings"
+  | "dcf"
+  | "bulk";
+
+/**
+ * Tool set definition
+ */
+export interface ToolSetDefinition {
+  name: string;
+  description: string;
+  decisionCriteria: string;
+  modules: string[];
+}

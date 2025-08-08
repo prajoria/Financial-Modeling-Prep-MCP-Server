@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { DynamicToolsetManager } from "./DynamicToolsetManager.js";
-import type { ToolSet } from "../constants/index.js";
+import type { ToolSet } from "../types/index.js";
 
 // Mock the MCP server with proper server interface
 const mockMcpServer = {
@@ -48,39 +48,39 @@ describe("DynamicToolsetManager", () => {
     vi.spyOn(console, "log").mockImplementation(() => {}); // Suppress console logs during tests
     vi.spyOn(console, "warn").mockImplementation(() => {}); // Suppress warnings during tests
     vi.spyOn(console, "error").mockImplementation(() => {}); // Suppress errors during tests
-    // Reset singleton instance before each test
-    DynamicToolsetManager.resetInstance();
   });
 
   afterEach(() => {
     vi.restoreAllMocks(); // Restore console methods after each test
-    DynamicToolsetManager.resetInstance();
   });
 
-  describe("Singleton Pattern", () => {
-    it("should return the same instance when called multiple times", () => {
-      const instance1 = DynamicToolsetManager.getInstance(mockMcpServer, "test-token");
-      const instance2 = DynamicToolsetManager.getInstance(mockMcpServer, "test-token");
-      
-      expect(instance1).toBe(instance2);
-    });
-
-    it("should update server and accessToken on subsequent calls", () => {
-      const mockServer2 = { ...mockMcpServer } as any;
-      
-      const instance1 = DynamicToolsetManager.getInstance(mockMcpServer, "token1");
-      const instance2 = DynamicToolsetManager.getInstance(mockServer2, "token2");
-      
-      expect(instance1).toBe(instance2);
-      // The instance should be updated with new values
-    });
-
-    it("should reset instance correctly", () => {
-      const instance1 = DynamicToolsetManager.getInstance(mockMcpServer, "test-token");
-      DynamicToolsetManager.resetInstance();
-      const instance2 = DynamicToolsetManager.getInstance(mockMcpServer, "test-token");
+  describe("Instance-Based Pattern", () => {
+    it("should create separate instances for different calls", () => {
+      const instance1 = new DynamicToolsetManager(mockMcpServer, "test-token");
+      const instance2 = new DynamicToolsetManager(mockMcpServer, "test-token");
       
       expect(instance1).not.toBe(instance2);
+    });
+
+    it("should create instances with proper isolation", () => {
+      const mockServer2 = { ...mockMcpServer } as any;
+      
+      const instance1 = new DynamicToolsetManager(mockMcpServer, "token1");
+      const instance2 = new DynamicToolsetManager(mockServer2, "token2");
+      
+      expect(instance1).not.toBe(instance2);
+      // Each instance should be independent
+      expect(instance1.getActiveToolsets()).toEqual([]);
+      expect(instance2.getActiveToolsets()).toEqual([]);
+    });
+
+    it("should maintain independent state between instances", () => {
+      const instance1 = new DynamicToolsetManager(mockMcpServer, "test-token");
+      const instance2 = new DynamicToolsetManager(mockMcpServer, "test-token");
+      
+      // Instances should have independent state
+      expect(instance1.getActiveToolsets()).toEqual([]);
+      expect(instance2.getActiveToolsets()).toEqual([]);
     });
   });
 
@@ -88,7 +88,7 @@ describe("DynamicToolsetManager", () => {
     let manager: DynamicToolsetManager;
 
     beforeEach(() => {
-      manager = DynamicToolsetManager.getInstance(mockMcpServer, "test-token");
+      manager = new DynamicToolsetManager(mockMcpServer, "test-token");
     });
 
     it("should return available toolsets", () => {
@@ -130,7 +130,7 @@ describe("DynamicToolsetManager", () => {
     let manager: DynamicToolsetManager;
 
     beforeEach(() => {
-      manager = DynamicToolsetManager.getInstance(mockMcpServer, "test-token");
+      manager = new DynamicToolsetManager(mockMcpServer, "test-token");
     });
 
     it("should reject invalid toolset names", async () => {
@@ -172,7 +172,7 @@ describe("DynamicToolsetManager", () => {
 
     beforeEach(() => {
       vi.clearAllMocks(); // Reset all mocks including the server notification mock
-      manager = DynamicToolsetManager.getInstance(mockMcpServer, "test-token");
+      manager = new DynamicToolsetManager(mockMcpServer, "test-token");
     });
 
     it("should maintain consistent internal state", () => {
@@ -229,7 +229,7 @@ describe("DynamicToolsetManager", () => {
     let manager: DynamicToolsetManager;
 
     beforeEach(() => {
-      manager = DynamicToolsetManager.getInstance(mockMcpServer, "test-token");
+      manager = new DynamicToolsetManager(mockMcpServer, "test-token");
     });
 
     it("should handle malformed toolset names gracefully", async () => {
@@ -257,7 +257,7 @@ describe("DynamicToolsetManager", () => {
 
   describe("Access Token Handling", () => {
     it("should store access token correctly", () => {
-      const manager = DynamicToolsetManager.getInstance(mockMcpServer, "custom-token");
+      const manager = new DynamicToolsetManager(mockMcpServer, "custom-token");
       
       // Access token is stored internally, this test verifies the manager
       // can be instantiated with a token without errors
@@ -266,7 +266,7 @@ describe("DynamicToolsetManager", () => {
     });
 
     it("should handle undefined access token", () => {
-      const manager = DynamicToolsetManager.getInstance(mockMcpServer);
+      const manager = new DynamicToolsetManager(mockMcpServer);
       
       // Should work without access token
       expect(manager).toBeDefined();
