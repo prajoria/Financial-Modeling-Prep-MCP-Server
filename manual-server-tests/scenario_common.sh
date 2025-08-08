@@ -73,7 +73,13 @@ post_initialize() {
   cat /tmp/mcp_init_response.json | jq . || true
 
   info "Extracting listChanged capability (fallback path aware)"
-  jq -r '(.result.serverInfo.capabilities.tools.listChanged // .serverInfo.capabilities.tools.listChanged // "unknown")' /tmp/mcp_init_response.json || true
+  jq -r '(
+    .result.serverInfo.capabilities.tools.listChanged //
+    .result.capabilities.tools.listChanged //
+    .serverInfo.capabilities.tools.listChanged //
+    .capabilities.tools.listChanged //
+    "unknown"
+  )' /tmp/mcp_init_response.json || true
 }
 
 post_tools_list() {
