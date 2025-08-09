@@ -366,8 +366,6 @@ The server runs as an HTTP server that exposes a Model Context Protocol endpoint
 
 #### Basic Server Setup
 
-
-
 **Local Development:**
 
 ```bash
