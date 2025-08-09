@@ -89,11 +89,13 @@ The server supports multiple configuration methods with a clear precedence hiera
 The server operates in one of three modes:
 
 1. **🔀 Dynamic Mode** (`DYNAMIC_TOOL_DISCOVERY=true`)
+
    - Starts with only **3 meta-tools**: `enable_toolset`, `disable_toolset`, `get_toolset_status`
    - Tools loaded on-demand via meta-tool calls
    - **Best for**: Flexible, task-specific workflows where tool requirements change
 
 2. **🔧 Static Mode** (`FMP_TOOL_SETS=search,company,quotes`)
+
    - Pre-loads specific toolsets at session creation
    - All specified tools available immediately
    - **Best for**: Known, consistent tool requirements with predictable usage patterns
@@ -110,7 +112,7 @@ The server follows a strict precedence hierarchy when determining the operationa
 ```
 🥇 CLI Arguments (highest priority)
    ↓
-🥈 Environment Variables  
+🥈 Environment Variables
    ↓
 🥉 Session Configuration (lowest priority)
 ```
@@ -120,6 +122,7 @@ The server follows a strict precedence hierarchy when determining the operationa
 When **server-level** configurations are set (CLI arguments or environment variables), they **override** all session-level configurations for **ALL** sessions. This ensures consistent behavior across the entire server instance.
 
 **Example Override Scenario:**
+
 ```bash
 # Server started with CLI argument
 npm run dev -- --dynamic-tool-discovery
@@ -131,6 +134,7 @@ npm run dev -- --dynamic-tool-discovery
 #### Configuration Methods:
 
 1. **CLI Arguments** (Server-level - overrides everything)
+
    ```bash
    npm run dev -- --fmp-token=TOKEN --dynamic-tool-discovery
    npm run dev -- --fmp-token=TOKEN --fmp-tool-sets=search,company,quotes
@@ -138,6 +142,7 @@ npm run dev -- --dynamic-tool-discovery
    ```
 
 2. **Environment Variables** (Server-level - overrides session configs)
+
    ```bash
    DYNAMIC_TOOL_DISCOVERY=true npm run dev
    FMP_TOOL_SETS=search,company,quotes npm run dev
@@ -157,36 +162,37 @@ npm run dev -- --dynamic-tool-discovery
 - **Restart required**: Changing server-level configurations requires server restart
 
 ## Selective Tool Loading
+
 While MCP clients can filter tools automatically, large tool sets may impact performance. To optimize your experience, you can specify which tool categories to load instead of loading all 253 tools at once:
 
 ### Available Tool Sets
 
-| Tool Set | Description | Example Tools |
-|----------|-------------|---------------|
-| `search` | Search & Directory | Search stocks, company lookup, symbol directories |
-| `company` | Company Profile & Info | Company profiles, executives, employee count |
-| `quotes` | Real-time Quotes | Live stock prices, market data, price changes |
-| `statements` | Financial Statements | Income statements, balance sheets, cash flow, ratios |
-| `calendar` | Financial Calendar | Earnings calendar, dividends, IPOs, stock splits |
-| `charts` | Price Charts & History | Historical prices, technical charts, market movements |
-| `news` | Financial News | Market news, press releases, financial articles |
-| `analyst` | Analyst Coverage | Price targets, ratings, analyst estimates |
-| `market-performance` | Market Performance | Sector performance, gainers, losers, most active |
-| `insider-trades` | Insider Trading | Corporate insider activity, ownership changes |
-| `institutional` | Institutional Holdings | 13F filings, fund holdings, institutional ownership |
-| `indexes` | Market Indexes | S&P 500, NASDAQ, Dow Jones, index constituents |
-| `economics` | Economic Data | Treasury rates, GDP, inflation, economic indicators |
-| `crypto` | Cryptocurrency | Crypto prices, market data, digital assets |
-| `forex` | Foreign Exchange | Currency pairs, exchange rates, forex data |
-| `commodities` | Commodities | Gold, oil, agricultural products, futures |
-| `etf-funds` | ETFs & Mutual Funds | Fund holdings, performance, fund information |
-| `esg` | ESG & Sustainability | Environmental, social, governance ratings |
-| `technical-indicators` | Technical Indicators | RSI, SMA, EMA, MACD, Bollinger Bands |
-| `senate` | Government Trading | Congressional and Senate trading disclosures |
-| `sec-filings` | SEC Filings | 10-K, 10-Q, 8-K filings, regulatory documents |
-| `earnings` | Earnings & Transcripts | Earnings reports, call transcripts |
-| `dcf` | DCF Valuation | Discounted cash flow models, valuations |
-| `bulk` | Bulk Data | Large-scale data downloads for analysis |
+| Tool Set               | Description            | Example Tools                                         |
+| ---------------------- | ---------------------- | ----------------------------------------------------- |
+| `search`               | Search & Directory     | Search stocks, company lookup, symbol directories     |
+| `company`              | Company Profile & Info | Company profiles, executives, employee count          |
+| `quotes`               | Real-time Quotes       | Live stock prices, market data, price changes         |
+| `statements`           | Financial Statements   | Income statements, balance sheets, cash flow, ratios  |
+| `calendar`             | Financial Calendar     | Earnings calendar, dividends, IPOs, stock splits      |
+| `charts`               | Price Charts & History | Historical prices, technical charts, market movements |
+| `news`                 | Financial News         | Market news, press releases, financial articles       |
+| `analyst`              | Analyst Coverage       | Price targets, ratings, analyst estimates             |
+| `market-performance`   | Market Performance     | Sector performance, gainers, losers, most active      |
+| `insider-trades`       | Insider Trading        | Corporate insider activity, ownership changes         |
+| `institutional`        | Institutional Holdings | 13F filings, fund holdings, institutional ownership   |
+| `indexes`              | Market Indexes         | S&P 500, NASDAQ, Dow Jones, index constituents        |
+| `economics`            | Economic Data          | Treasury rates, GDP, inflation, economic indicators   |
+| `crypto`               | Cryptocurrency         | Crypto prices, market data, digital assets            |
+| `forex`                | Foreign Exchange       | Currency pairs, exchange rates, forex data            |
+| `commodities`          | Commodities            | Gold, oil, agricultural products, futures             |
+| `etf-funds`            | ETFs & Mutual Funds    | Fund holdings, performance, fund information          |
+| `esg`                  | ESG & Sustainability   | Environmental, social, governance ratings             |
+| `technical-indicators` | Technical Indicators   | RSI, SMA, EMA, MACD, Bollinger Bands                  |
+| `senate`               | Government Trading     | Congressional and Senate trading disclosures          |
+| `sec-filings`          | SEC Filings            | 10-K, 10-Q, 8-K filings, regulatory documents         |
+| `earnings`             | Earnings & Transcripts | Earnings reports, call transcripts                    |
+| `dcf`                  | DCF Valuation          | Discounted cash flow models, valuations               |
+| `bulk`                 | Bulk Data              | Large-scale data downloads for analysis               |
 
 ## Dynamic Toolset Management (BETA)
 
@@ -199,7 +205,7 @@ The Dynamic Toolset Management feature allows you to enable and disable tool cat
 When dynamic toolset management is enabled, each session starts with only **3 meta-tools**:
 
 - `enable_toolset` - Enable a specific toolset during runtime
-- `disable_toolset` - Disable a previously enabled toolset  
+- `disable_toolset` - Disable a previously enabled toolset
 - `get_toolset_status` - Check which toolsets are currently active
 
 AI assistants can then use these meta-tools to dynamically load and unload specific tool categories as needed for different tasks within their session.
@@ -209,6 +215,7 @@ AI assistants can then use these meta-tools to dynamically load and unload speci
 #### Server-Level Configuration (Affects All Sessions)
 
 **Command Line Arguments:**
+
 ```bash
 # Enable dynamic toolset management for all sessions
 npm run dev -- --fmp-token=YOUR_TOKEN --dynamic-tool-discovery
@@ -218,6 +225,7 @@ node dist/index.js --fmp-token=YOUR_TOKEN --dynamic-tool-discovery
 ```
 
 **Environment Variables:**
+
 ```bash
 # Set environment variable
 export DYNAMIC_TOOL_DISCOVERY=true
@@ -229,9 +237,10 @@ DYNAMIC_TOOL_DISCOVERY=true FMP_ACCESS_TOKEN=YOUR_TOKEN npm start
 ```
 
 **Docker:**
+
 ```yaml
 # docker-compose.yml
-version: '3.8'
+version: "3.8"
 services:
   fmp-mcp:
     image: your-image-name
@@ -239,7 +248,7 @@ services:
       - "3000:3000"
     environment:
       - FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
-      - DYNAMIC_TOOL_DISCOVERY=true  # Enable for all sessions
+      - DYNAMIC_TOOL_DISCOVERY=true # Enable for all sessions
 ```
 
 #### Session-Level Configuration (When No Server Override)
@@ -257,32 +266,36 @@ curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
 ### Example Workflow
 
 1. **Start server with dynamic mode:**
+
    ```bash
    DYNAMIC_TOOL_DISCOVERY=true npm start
    ```
 
 2. **AI assistant initializes session and gets meta-tools:**
+
    ```json
    // Response includes only 3 meta-tools:
    {
      "tools": [
-       {"name": "enable_toolset", "description": "Enable a specific toolset"},
-       {"name": "disable_toolset", "description": "Disable a toolset"}, 
-       {"name": "get_toolset_status", "description": "Check active toolsets"}
+       { "name": "enable_toolset", "description": "Enable a specific toolset" },
+       { "name": "disable_toolset", "description": "Disable a toolset" },
+       { "name": "get_toolset_status", "description": "Check active toolsets" }
      ]
    }
    ```
 
 3. **AI assistant enables needed toolsets:**
+
    ```json
    // Enable search toolset
    {"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"enable_toolset","arguments":{"toolset":"search"}}}
-   
-   // Enable quotes toolset  
+
+   // Enable quotes toolset
    {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"enable_toolset","arguments":{"toolset":"quotes"}}}
    ```
 
 4. **AI assistant uses the enabled tools:**
+
    ```json
    // Now can use search and quotes tools
    {"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"searchSymbol","arguments":{"query":"AAPL"}}}
@@ -291,7 +304,15 @@ curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
 
 5. **AI assistant can disable unused toolsets:**
    ```json
-   {"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"disable_toolset","arguments":{"toolset":"search"}}}
+   {
+     "jsonrpc": "2.0",
+     "id": 6,
+     "method": "tools/call",
+     "params": {
+       "name": "disable_toolset",
+       "arguments": { "toolset": "search" }
+     }
+   }
    ```
 
 ### Benefits
@@ -313,7 +334,7 @@ For production environments, you can use this MCP server through the Smithery re
 Smithery is a platform that helps developers find and ship AI-native services designed to communicate with AI agents. All services follow the Model Context Protocol (MCP) specification and provide:
 
 - Centralized discovery of MCP servers
-- Hosting and distribution for MCP servers  
+- Hosting and distribution for MCP servers
 - Standardized interfaces for tool integration
 
 #### Session Configuration with Smithery
@@ -328,7 +349,7 @@ When using Smithery, you can configure individual sessions by passing configurat
   "DYNAMIC_TOOL_DISCOVERY": "true"
 }
 
-// Static mode session  
+// Static mode session
 {
   "FMP_TOOL_SETS": "search,company,quotes"
 }
@@ -346,6 +367,7 @@ The server runs as an HTTP server that exposes a Model Context Protocol endpoint
 #### Basic Server Setup
 
 **Using NPX (Recommended for Quick Start):**
+
 ```bash
 # Install and run with API token
 npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN
@@ -360,6 +382,7 @@ npx -y fmp-mcp --port=4000 --fmp-token=YOUR_FMP_ACCESS_TOKEN
 ```
 
 **Local Development:**
+
 ```bash
 # Clone and setup
 git clone https://github.com/imbenrabi/Financial-Modeling-Prep-MCP-Server
@@ -378,6 +401,7 @@ npm run dev -- --port=4000 --fmp-token=YOUR_TOKEN
 #### Server-Level Mode Configuration
 
 **🔐 Server-Level Dynamic Mode (All Sessions Use Dynamic Mode):**
+
 ```bash
 # CLI argument (highest priority)
 npm run dev -- --fmp-token=YOUR_TOKEN --dynamic-tool-discovery
@@ -392,6 +416,7 @@ npx -y fmp-mcp --fmp-token=YOUR_TOKEN --dynamic-tool-discovery
 ```
 
 **🔧 Server-Level Static Mode (All Sessions Use Specified Toolsets):**
+
 ```bash
 # CLI argument (highest priority)
 npm run dev -- --fmp-token=YOUR_TOKEN --fmp-tool-sets=search,company,quotes
@@ -406,6 +431,7 @@ npx -y fmp-mcp --fmp-token=YOUR_TOKEN --fmp-tool-sets=search,company,quotes
 ```
 
 **📚 Server-Level Legacy Mode (All Sessions Get All Tools):**
+
 ```bash
 # Default behavior - no specific configuration
 npm run dev -- --fmp-token=YOUR_TOKEN
@@ -442,7 +468,7 @@ docker run -p 3000:3000 \
   -e DYNAMIC_TOOL_DISCOVERY=true \
   your-image-name
 
-# With server-level static mode  
+# With server-level static mode
 docker run -p 3000:3000 \
   -e FMP_ACCESS_TOKEN=YOUR_TOKEN \
   -e FMP_TOOL_SETS=search,company,quotes \
@@ -454,7 +480,7 @@ docker run -p 3000:3000 \
 Create a `docker-compose.yml` file:
 
 ```yaml
-version: '3.8'
+version: "3.8"
 services:
   fmp-mcp:
     image: your-image-name
@@ -464,9 +490,9 @@ services:
       - FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
       - PORT=3000
       # Optional: Server-level mode enforcement
-      - DYNAMIC_TOOL_DISCOVERY=true           # All sessions use dynamic mode
+      - DYNAMIC_TOOL_DISCOVERY=true # All sessions use dynamic mode
       # OR
-      - FMP_TOOL_SETS=search,company,quotes   # All sessions use these toolsets
+      - FMP_TOOL_SETS=search,company,quotes # All sessions use these toolsets
       # OR leave both unset for legacy mode (all tools)
 ```
 
@@ -494,7 +520,7 @@ DYNAMIC_TOOL_DISCOVERY=true
 And reference it in your `docker-compose.yml`:
 
 ```yaml
-version: '3.8'
+version: "3.8"
 services:
   fmp-mcp:
     image: your-image-name
@@ -530,6 +556,7 @@ Session configurations are passed as Base64-encoded JSON in the `config` query p
 #### Configuration Examples:
 
 1. **Dynamic Mode Session:**
+
 ```bash
 # Configuration: {"DYNAMIC_TOOL_DISCOVERY":"true"}
 CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
@@ -537,15 +564,17 @@ CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
 ```
 
 2. **Static Mode Session:**
-```bash  
+
+```bash
 # Configuration: {"FMP_TOOL_SETS":"search,company,quotes"}
 CONFIG_BASE64=$(echo -n '{"FMP_TOOL_SETS":"search,company,quotes"}' | base64)
 # Result: eyJGTVBfVE9PTF9TRVRTIjoic2VhcmNoLGNvbXBhbnkscXVvdGVzIn0=
 ```
 
 3. **Legacy Mode Session:**
+
 ```bash
-# Configuration: {} (empty object)  
+# Configuration: {} (empty object)
 CONFIG_BASE64=$(echo -n '{}' | base64)
 # Result: e30=
 ```
@@ -575,6 +604,7 @@ curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
 ```
 
 **Expected Response:**
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -610,6 +640,7 @@ curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
 ```
 
 **Expected Response (Dynamic Mode):**
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -631,7 +662,7 @@ curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
         }
       },
       {
-        "name": "disable_toolset", 
+        "name": "disable_toolset",
         "description": "Disable a previously enabled toolset"
       },
       {
@@ -665,7 +696,7 @@ curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
 
 #### 4. Call a Financial Tool
 
-```bash  
+```bash
 CONFIG_BASE64=$(echo -n '{"FMP_TOOL_SETS":"search,quotes"}' | base64)
 curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
   -H "Content-Type: application/json" \
@@ -691,7 +722,7 @@ curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{
-    "jsonrpc": "2.0", 
+    "jsonrpc": "2.0",
     "id": 5,
     "method": "tools/call",
     "params": {
@@ -737,7 +768,7 @@ Common error responses:
 
 // Missing required parameters
 {
-  "jsonrpc": "2.0", 
+  "jsonrpc": "2.0",
   "error": {
     "code": -32602,
     "message": "Missing required parameter: symbol"
@@ -749,13 +780,14 @@ Common error responses:
 ## Available Tools
 
 > **⚠️ Important: Mode Enforcement Behavior**
-> 
+>
 > **Server-Level Configurations Override Session Configurations:**
+>
 > - When CLI arguments (`--dynamic-tool-discovery`, `--fmp-tool-sets`) are used, they apply to **ALL** sessions
-> - When environment variables (`DYNAMIC_TOOL_DISCOVERY`, `FMP_TOOL_SETS`) are set, they apply to **ALL** sessions  
+> - When environment variables (`DYNAMIC_TOOL_DISCOVERY`, `FMP_TOOL_SETS`) are set, they apply to **ALL** sessions
 > - Session-level configurations via query parameters are **IGNORED** when server-level modes are active
 > - This ensures consistent behavior across all sessions on a server instance
-> 
+>
 > **Configuration Precedence:** CLI Arguments > Environment Variables > Session Configuration
 >
 > **Example:** If server started with `--dynamic-tool-discovery`, ALL sessions will use dynamic mode even if they request `{"FMP_TOOL_SETS":"search,company"}` in their session config.
@@ -1169,6 +1201,7 @@ PORT=4000 FMP_ACCESS_TOKEN=your_api_key npm run dev
 #### Development with Server-Level Mode Enforcement
 
 **Server-Level Static Mode (All Sessions Use Specific Toolsets):**
+
 ```bash
 # Environment variable approach
 FMP_TOOL_SETS=search,company,quotes FMP_ACCESS_TOKEN=your_api_key npm run dev
@@ -1178,8 +1211,9 @@ npm run dev -- --fmp-token=your_api_key --fmp-tool-sets=search,company,quotes
 ```
 
 **Server-Level Dynamic Mode (All Sessions Start with Meta-Tools):**
+
 ```bash
-# Environment variable approach  
+# Environment variable approach
 DYNAMIC_TOOL_DISCOVERY=true FMP_ACCESS_TOKEN=your_api_key npm run dev
 
 # CLI argument approach (higher precedence)
@@ -1187,6 +1221,7 @@ npm run dev -- --fmp-token=your_api_key --dynamic-tool-discovery
 ```
 
 **Session-Level Configuration (Default - No Server Enforcement):**
+
 ```bash
 # Start server without mode enforcement
 npm run dev -- --fmp-token=your_api_key
@@ -1199,6 +1234,7 @@ npm run dev -- --fmp-token=your_api_key
 When developing, you can test different configuration scenarios:
 
 1. **Test Session-Level Configurations:**
+
 ```bash
 # Start server without enforcement
 npm run dev -- --fmp-token=your_api_key
@@ -1207,12 +1243,13 @@ npm run dev -- --fmp-token=your_api_key
 CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
 curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" -d '...'
 
-# Test static mode session  
+# Test static mode session
 CONFIG_BASE64=$(echo -n '{"FMP_TOOL_SETS":"search,quotes"}' | base64)
 curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" -d '...'
 ```
 
 2. **Test Server-Level Enforcement:**
+
 ```bash
 # Start with server-level dynamic mode
 npm run dev -- --fmp-token=your_api_key --dynamic-tool-discovery
@@ -1237,37 +1274,6 @@ npm run test:coverage
 ```
 
 The coverage report will be generated in the `coverage/` directory and displayed in the terminal. You can open `coverage/index.html` in your browser to view a detailed HTML coverage report.
-
-## Releases
-
-We create GitHub Releases automatically when pushing a tag that starts with `v`.
-
-Why no build in the release workflow: builds already run on `main` for pushes and PRs, so the release job only creates the release.
-
-Recommended flow:
-
-```bash
-# 1) Ensure you are on an up-to-date main
-git checkout main && git pull
-
-# 2) Bump version and create a tag (choose one)
-npm version patch -m "release: v%s"
-# or
-npm version minor -m "release: v%s"
-# or
-npm version major -m "release: v%s"
-
-# 3) Push commit and tags to trigger the Release workflow
-git push && git push --tags
-
-# Alternative (manual tag):
-# git tag -a v1.1.0 -m "Your release notes here"
-# git push origin v1.1.0
-```
-
-Notes:
-- Create tags from commits on `main` only.
-- Release notes are auto-generated from the tag message and commits since the last tag.
 
 ## Issues and Bug Reports
 
