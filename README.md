@@ -366,20 +366,7 @@ The server runs as an HTTP server that exposes a Model Context Protocol endpoint
 
 #### Basic Server Setup
 
-**Using NPX (Recommended for Quick Start):**
 
-```bash
-# Install and run with API token
-npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN
-
-# With environment variable
-export FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
-npx -y fmp-mcp
-
-# With custom port
-PORT=4000 npx -y fmp-mcp --fmp-token=YOUR_FMP_ACCESS_TOKEN
-npx -y fmp-mcp --port=4000 --fmp-token=YOUR_FMP_ACCESS_TOKEN
-```
 
 **Local Development:**
 
@@ -409,10 +396,7 @@ npm run dev -- --fmp-token=YOUR_TOKEN --dynamic-tool-discovery
 # Environment variable
 DYNAMIC_TOOL_DISCOVERY=true FMP_ACCESS_TOKEN=YOUR_TOKEN npm run dev
 
-# NPX version
-DYNAMIC_TOOL_DISCOVERY=true npx -y fmp-mcp --fmp-token=YOUR_TOKEN
-# Or with CLI argument
-npx -y fmp-mcp --fmp-token=YOUR_TOKEN --dynamic-tool-discovery
+
 ```
 
 **🔧 Server-Level Static Mode (All Sessions Use Specified Toolsets):**
@@ -424,10 +408,7 @@ npm run dev -- --fmp-token=YOUR_TOKEN --fmp-tool-sets=search,company,quotes
 # Environment variable
 FMP_TOOL_SETS=search,company,quotes FMP_ACCESS_TOKEN=YOUR_TOKEN npm run dev
 
-# NPX version
-FMP_TOOL_SETS=search,company,quotes npx -y fmp-mcp --fmp-token=YOUR_TOKEN
-# Or with CLI argument
-npx -y fmp-mcp --fmp-token=YOUR_TOKEN --fmp-tool-sets=search,company,quotes
+
 ```
 
 **📚 Server-Level Legacy Mode (All Sessions Get All Tools):**
@@ -447,9 +428,7 @@ PORT=4000 npm run dev -- --fmp-token=YOUR_TOKEN
 # Change server port via CLI argument
 npm run dev -- --port=4000 --fmp-token=YOUR_TOKEN
 
-# With NPX
-PORT=4000 npx -y fmp-mcp --fmp-token=YOUR_TOKEN
-npx -y fmp-mcp --port=4000 --fmp-token=YOUR_TOKEN
+
 ```
 
 ### Docker Usage
