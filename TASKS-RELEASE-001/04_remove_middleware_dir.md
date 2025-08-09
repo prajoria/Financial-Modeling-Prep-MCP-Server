@@ -11,8 +11,8 @@
 - Run tests to confirm green.
 
 ## Verification checklist
-- No compile errors or broken imports.
-- Tests pass after removal.
+- ✅ No compile errors or broken imports.
+- ✅ Tests pass after removal.
 
 ## Status
-- Pending
+- ✅ Completed

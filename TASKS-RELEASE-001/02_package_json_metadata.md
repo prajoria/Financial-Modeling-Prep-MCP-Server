@@ -13,8 +13,8 @@
   - scripts: `release:patch`, `release:minor`, `release:major`.
 
 ## Verification checklist
-- `npm pack --dry-run` shows updated metadata.
-- `npm run release:patch` updates version and pushes tags (if added).
+- Keywords upserted without removing existing relevant terms.
+- Description added.
 
 ## Status
-- Pending
+- ✅ Completed

@@ -17,9 +17,9 @@
 - ✅ Workflow file exists under `.github/workflows/release.yml`.
 - ✅ Workflow triggers on `v*` tags.
 - ✅ No build step executed in workflow.
-- ✅ README includes release instructions.
+- ✅ Admin-only release docs at `.github/RELEASE.md` (README has no release instructions).
 
 ## Status
-- In progress
+- ✅ Completed
 
 

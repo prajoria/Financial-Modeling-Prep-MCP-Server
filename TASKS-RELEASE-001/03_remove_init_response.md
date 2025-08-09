@@ -10,8 +10,8 @@
 - Run tests to ensure no regressions.
 
 ## Verification checklist
-- No import or file I/O referencing `init_response.json` exists.
-- Tests pass after removal.
+- ✅ No import or file I/O referencing `init_response.json` exists.
+- ✅ Tests pass after removal.
 
 ## Status
-- Pending
+- ✅ Completed
