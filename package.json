@@ -1,7 +1,7 @@
-
 {
   "name": "financial-modeling-prep-mcp-server",
   "version": "2.1.0",
+  "description": "Model Context Protocol server for Financial Modeling Prep (FMP) API, exposing 250+ tools for financial data, market insights, and analysis.",
   "main": "dist/index.js",
   "type": "module",
   "bin": {
@@ -23,7 +23,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "author": "imbenrabi",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "@smithery/sdk": "^1.5.5",
@@ -87,6 +87,24 @@
     "stock market planning",
     "stock market reporting",
     "stock market quotes",
-    "stock market symbols"
+    "stock market symbols",
+    "model context protocol",
+    "fmp api",
+    "ai tools",
+    "server",
+    "node",
+    "typescript",
+    "market data",
+    "statements",
+    "news",
+    "indexes",
+    "economics",
+    "crypto",
+    "forex",
+    "commodities",
+    "esg",
+    "technical indicators",
+    "sec-filings",
+    "earnings"
   ]
 }
