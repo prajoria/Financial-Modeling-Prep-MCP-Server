@@ -1,6 +1,6 @@
 {
   "name": "financial-modeling-prep-mcp-server",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Model Context Protocol server for Financial Modeling Prep (FMP) API, exposing 250+ tools for financial data, market insights, and analysis.",
   "main": "dist/index.js",
   "type": "module",
