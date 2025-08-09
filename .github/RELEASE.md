@@ -15,11 +15,13 @@ We create GitHub Releases automatically when pushing a tag that starts with `v`.
 Our workflow uses `softprops/action-gh-release` with `generate_release_notes: true`.
 
 This means:
+
 - GitHub auto-generates release notes from commits/PRs since the last tag.
 - Quality of notes depends on commit messages and PR titles. Prefer Conventional Commits (e.g., `feat: ...`, `fix: ...`).
 - You can edit the generated release notes in the GitHub UI after the release is created.
 
 Optional ways to influence notes:
+
 - Create an annotated tag with a meaningful message, e.g.:
   ```bash
   git tag -a v1.2.0 -m "feat: dynamic toolsets\nfix: retry token resolution\nchore: docs updates"
@@ -49,6 +51,7 @@ git push && git push --tags
 ```
 
 Notes:
+
 - Create tags from commits on `main` only.
 - Release notes are auto-generated from commits/PRs since the last tag.
 - After the release is created, you may edit the notes in the GitHub UI if needed.
@@ -56,5 +59,3 @@ Notes:
 ## NPM Publish
 
 We do not publish this package to NPM in this project lifecycle. There is no publish workflow.
-
-
