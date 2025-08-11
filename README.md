@@ -151,7 +151,7 @@ npm run dev -- --dynamic-tool-discovery
 3. **Session Configuration** (Session-level - via HTTP query parameter)
    ```bash
    # Base64 encoded JSON config in query parameter
-   curl -X POST "http://localhost:3000/mcp?config=eyJEWU5BTUlDX1RPT0xfRElTQ09WRVJZIjoidHJ1ZSJ9"
+   curl -X POST "http://localhost:8080/mcp?config=eyJEWU5BTUlDX1RPT0xfRElTQ09WRVJZIjoidHJ1ZSJ9"
    ```
 
 #### ⚠️ **Configuration Warnings**
@@ -245,7 +245,7 @@ services:
   fmp-mcp:
     image: your-image-name
     ports:
-      - "3000:3000"
+      - "8080:8080"
     environment:
       - FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
       - DYNAMIC_TOOL_DISCOVERY=true # Enable for all sessions
@@ -258,7 +258,7 @@ When no server-level dynamic mode is set, individual sessions can request dynami
 ```bash
 # Base64 encode: {"DYNAMIC_TOOL_DISCOVERY":"true"}
 CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize",...}'
 ```
@@ -437,16 +437,16 @@ Docker deployment supports all configuration methods with proper environment var
 
 ```bash
 # Basic deployment
-docker run -p 3000:3000 -e FMP_ACCESS_TOKEN=YOUR_TOKEN your-image-name
+docker run -p 8080:8080 -e FMP_ACCESS_TOKEN=YOUR_TOKEN your-image-name
 
 # With server-level dynamic mode
-docker run -p 3000:3000 \
+docker run -p 8080:8080 \
   -e FMP_ACCESS_TOKEN=YOUR_TOKEN \
   -e DYNAMIC_TOOL_DISCOVERY=true \
   your-image-name
 
 # With server-level static mode
-docker run -p 3000:3000 \
+docker run -p 8080:8080 \
   -e FMP_ACCESS_TOKEN=YOUR_TOKEN \
   -e FMP_TOOL_SETS=search,company,quotes \
   your-image-name
@@ -462,10 +462,10 @@ services:
   fmp-mcp:
     image: your-image-name
     ports:
-      - "3000:3000"
+      - "8080:8080"
     environment:
       - FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
-      - PORT=3000
+      - PORT=8080
       # Optional: Server-level mode enforcement
       - DYNAMIC_TOOL_DISCOVERY=true # All sessions use dynamic mode
       # OR
@@ -485,7 +485,7 @@ Create a `.env` file:
 
 ```env
 FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
-PORT=3000
+PORT=8080
 
 # Optional: Choose ONE server-level mode
 DYNAMIC_TOOL_DISCOVERY=true
@@ -502,7 +502,7 @@ services:
   fmp-mcp:
     image: your-image-name
     ports:
-      - "3000:3000"
+      - "8080:8080"
     env_file:
       - .env
 ```
@@ -516,7 +516,7 @@ The server exposes a Model Context Protocol endpoint at `/mcp` that accepts JSON
 ### Endpoint Format
 
 ```
-POST http://localhost:3000/mcp[?config=BASE64_ENCODED_CONFIG]
+POST http://localhost:8080/mcp[?config=BASE64_ENCODED_CONFIG]
 ```
 
 ### Required Headers
@@ -562,7 +562,7 @@ CONFIG_BASE64=$(echo -n '{}' | base64)
 
 ```bash
 CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{
@@ -605,7 +605,7 @@ curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
 
 ```bash
 CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{
@@ -655,7 +655,7 @@ curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
 
 ```bash
 CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{
@@ -675,7 +675,7 @@ curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
 
 ```bash
 CONFIG_BASE64=$(echo -n '{"FMP_TOOL_SETS":"search,quotes"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{
@@ -695,7 +695,7 @@ curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
 
 ```bash
 CONFIG_BASE64=$(echo -n '{"FMP_TOOL_SETS":"quotes"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" \
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{
@@ -1169,7 +1169,7 @@ FMP_ACCESS_TOKEN=your_api_key npm run dev
 npm run dev -- --fmp-token=your_api_key
 ```
 
-The development server will start on port 3000 by default. You can configure the port using the PORT environment variable:
+The development server will start on port 8080 by default. You can configure the port using the PORT environment variable:
 
 ```bash
 PORT=4000 FMP_ACCESS_TOKEN=your_api_key npm run dev
@@ -1218,11 +1218,11 @@ npm run dev -- --fmp-token=your_api_key
 
 # Test dynamic mode session
 CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" -d '...'
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" -d '...'
 
 # Test static mode session
 CONFIG_BASE64=$(echo -n '{"FMP_TOOL_SETS":"search,quotes"}' | base64)
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" -d '...'
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" -d '...'
 ```
 
 2. **Test Server-Level Enforcement:**
@@ -1232,7 +1232,7 @@ curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" -d '...'
 npm run dev -- --fmp-token=your_api_key --dynamic-tool-discovery
 
 # ALL sessions will use dynamic mode regardless of session config
-curl -X POST "http://localhost:3000/mcp?config=${CONFIG_BASE64}" -d '...'
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" -d '...'
 ```
 
 ### Running Tests

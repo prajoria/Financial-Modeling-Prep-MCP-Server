@@ -1,4 +1,4 @@
-FROM node:20-slim AS builder
+FROM node:lts-alpine AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ COPY . .
 RUN npm run build
 
 # Create production image
-FROM node:20-slim AS runner
+FROM node:lts-alpine AS runner
 
 WORKDIR /app
 
@@ -28,10 +28,10 @@ COPY --from=builder /app/dist ./dist
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV PORT=8000
+ENV PORT=8080
 
 # Expose the port the app runs on
-EXPOSE 8000
+EXPOSE 8080
 
 # Start the server using environment variables for configuration
 CMD ["node", "dist/index.js"] 

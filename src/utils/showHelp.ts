@@ -1,33 +1,36 @@
 import type { ToolSet, ToolSetDefinition } from "../types/index.js";
+import { DEFAULT_PORT } from "../constants/index.js";
 
 /**
  * Display help information for the Financial Modeling Prep MCP Server
- * 
+ *
  * Shows comprehensive usage information including:
  * - Command line options and their descriptions
  * - Available tool sets with names and descriptions
  * - Usage examples for different scenarios
  * - Environment variable configuration options
- * 
+ *
  * @param availableToolSets - Array of available tool sets with their definitions
- * 
+ *
  * @example
  * ```typescript
  * import { getAvailableToolSets } from "../constants/index.js";
  * import { showHelp } from "./showHelp.js";
- * 
+ *
  * const toolSets = getAvailableToolSets();
  * showHelp(toolSets);
  * ```
  */
-export function showHelp(availableToolSets: Array<{ key: ToolSet; definition: ToolSetDefinition }>): void {
+export function showHelp(
+  availableToolSets: Array<{ key: ToolSet; definition: ToolSetDefinition }>
+): void {
   console.log(`
 Financial Modeling Prep MCP Server
 
 Usage: npm start [options]
 
 Options:
-  --port <number>                   Server port (default: 3000)
+  --port <number>                   Server port (default: ${DEFAULT_PORT})
   --fmp-token <token>               FMP API access token
   --dynamic-tool-discovery          Enable dynamic toolset management mode
   --fmp-tool-sets <toolsets>        Comma-separated list of toolsets to load in static mode
@@ -56,7 +59,7 @@ Examples:
   npm start -- --fmp-token YOUR_TOKEN         # With API token
 
 Environment Variables:
-  PORT                     Server port (default: 3000)
+  PORT                     Server port (default: ${DEFAULT_PORT})
   FMP_ACCESS_TOKEN         Financial Modeling Prep API access token
   DYNAMIC_TOOL_DISCOVERY   Enable dynamic toolset management mode (true/false)
   FMP_TOOL_SETS           Comma-separated list of toolsets for static mode

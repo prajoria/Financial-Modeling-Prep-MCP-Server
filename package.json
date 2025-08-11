@@ -29,6 +29,7 @@
     "@smithery/sdk": "^1.5.5",
     "@types/axios": "0.14.4",
     "axios": "1.9.0",
+    "mcp-trace": "^0.1.0",
     "minimist": "^1.2.8",
     "zod": "^3.22.4"
   },

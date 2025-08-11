@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import minimist from "minimist";
-import { getAvailableToolSets } from "./constants/index.js";
+import { getAvailableToolSets, DEFAULT_PORT } from "./constants/index.js";
 import { showHelp } from "./utils/showHelp.js";
 import { FmpMcpServer } from "./server/index.js";
 import { ServerModeEnforcer } from "./server-mode-enforcer/index.js";
@@ -20,24 +20,23 @@ function main() {
   // Initialize the ServerModeEnforcer with env vars and CLI args
   // This will also validate tool sets and exit if invalid ones are found
   ServerModeEnforcer.initialize(process.env, argv);
-  
-  const PORT = argv.port || (process.env.PORT ? parseInt(process.env.PORT) : 3000);
+
+  const PORT =
+    argv.port || (process.env.PORT ? parseInt(process.env.PORT) : DEFAULT_PORT);
   const fmpToken = argv["fmp-token"] || process.env.FMP_ACCESS_TOKEN;
 
-  const mcpServer = new FmpMcpServer(
-    {
-      accessToken: fmpToken,
-      cacheOptions: {
-        maxSize: 25,
-        ttl: 1000 * 60 * 60 * 2, // 2 hours
-      },
-    }
-  )
+  const mcpServer = new FmpMcpServer({
+    accessToken: fmpToken,
+    cacheOptions: {
+      maxSize: 25,
+      ttl: 1000 * 60 * 60 * 2, // 2 hours
+    },
+  });
 
   mcpServer.start(PORT);
 
   const handleShutdown = () => {
-    console.log('\n🔌 Shutting down server...');
+    console.log("\n🔌 Shutting down server...");
     mcpServer.stop();
     process.exit(0);
   };
