@@ -129,6 +129,7 @@ export class FmpMcpServer {
           documentation:
             "See https://github.com/imbenrabi/Financial-Modeling-Prep-MCP-Server/blob/main/README.md for complete usage examples",
           healthCheck: "/healthcheck",
+          ping: "/ping",
         });
       });
 
@@ -138,6 +139,11 @@ export class FmpMcpServer {
         this._getSessionResources(params)
       );
       this.app.use(mcpApp); // Mount the stateful server middleware
+
+      // Add ping endpoint for deployment health checks - required by Glama.ai
+      this.app.get("/ping", (req, res) => {
+        res.status(200).json({ status: "ok" });
+      });
 
       // Add comprehensive health check endpoint
       this.app.get("/healthcheck", (req, res) => {
