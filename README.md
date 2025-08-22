@@ -11,9 +11,13 @@ A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabl
   - [Server Modes](#server-modes)
   - [Configuration Precedence](#configuration-precedence)
 - [Usage](#usage)
-  - [Production via Smithery Registry](#production-via-smithery-registry)
+  - [Registries](#registries)
+    - [Smithery.ai](#smitheryai)
+    - [Glama.ai](#glamaai)
+    - [Contexaai.com](#contexaaicom)
   - [HTTP Server & Local Development](#http-server--local-development)
   - [Docker Usage](#docker-usage)
+  - [Example System Prompts](#example-system-prompts)
 - [Making HTTP Requests](#making-http-requests)
   - [Session Configuration](#session-configuration)
   - [Request Examples](#request-examples)
@@ -325,11 +329,15 @@ curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
 
 ## Usage
 
-### Production via Smithery Registry
+### Registries
 
-For production environments, you can use this MCP server through the Smithery registry, which provides hosted and managed MCP servers:
+For production environments, you can use this MCP server through various registries that provide hosted and managed MCP servers:
 
-**[🚀 View on Smithery](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)**
+#### Smithery.ai
+
+[![smithery badge](https://smithery.ai/badge/@imbenrabi/financial-modeling-prep-mcp-server)](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)
+
+**[🚀 View on Smithery.ai](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)**
 
 Smithery is a platform that helps developers find and ship AI-native services designed to communicate with AI agents. All services follow the Model Context Protocol (MCP) specification and provide:
 
@@ -337,7 +345,7 @@ Smithery is a platform that helps developers find and ship AI-native services de
 - Hosting and distribution for MCP servers
 - Standardized interfaces for tool integration
 
-#### Session Configuration with Smithery
+##### Session Configuration with Smithery
 
 When using Smithery, you can configure individual sessions by passing configuration in your MCP client. The Smithery platform handles the HTTP request formatting and session management.
 
@@ -359,6 +367,14 @@ When using Smithery, you can configure individual sessions by passing configurat
 ```
 
 For detailed integration instructions, follow the [Smithery documentation](https://smithery.ai/docs) for connecting MCP clients to hosted servers.
+
+#### Glama.ai
+
+**[Use on Glama.ai](https://glama.ai/mcp/servers/@imbenrabi/Financial-Modeling-Prep-MCP-Server)**
+
+#### Contexaai.com
+
+**[Use on Contexaai.com](https://platform.contexaai.com/mcp/financial-modeling-typescript-imbenrabi)**
 
 ### HTTP Server & Local Development
 
@@ -507,7 +523,71 @@ services:
       - .env
 ```
 
-## Making HTTP Requests
+### Example System Prompts
+
+The following system prompts are designed to help AI assistants effectively use this MCP server for financial analysis tasks. Choose the appropriate prompt based on your server configuration mode.
+
+#### For Dynamic Toolset Mode
+
+```
+You are an expert financial analyst AI with access to comprehensive market data tools.
+
+CORE RULES:
+- Always use tools for current market data; never rely on outdated information or estimates
+- Check conversation history to avoid redundant tool calls
+- Provide concise, data-driven responses
+- Always include: "This is not financial advice"
+
+DYNAMIC TOOLSET MANAGEMENT:
+Your tools are organized into categories ("toolsets") that must be enabled before use. You have a 4-toolset maximum at any time.
+
+Available toolsets: search, company, quotes, statements, calendar, charts, news, analyst, market-performance, insider-trades, institutional, indexes, economics, crypto, forex, commodities, etf-funds, esg, technical-indicators, senate, sec-filings, earnings, dcf, bulk
+
+EXECUTION WORKFLOW:
+1. ENABLE: Use enable_toolset for required categories based on the user's query
+2. VERIFY: Call get_toolset_status to confirm active toolsets. If >4 active, use disable_toolset to remove the least relevant
+3. EXECUTE: Call specific tools from enabled toolsets
+4. CLEAN UP: Consider disabling unused toolsets when switching to different analysis types
+
+FAILURE PROTOCOL:
+If tools fail repeatedly or data is unavailable, state: "I cannot find the requested information with the available tools" and stop attempting.
+
+Begin each analysis by enabling the appropriate toolsets for the user's request.
+```
+
+#### For Static Toolset Mode
+
+```
+You are an expert financial analyst AI with access to comprehensive market data tools.
+
+CORE RULES:
+- Always use tools for current market data; never rely on outdated information or estimates
+- Check conversation history to avoid redundant tool calls
+- Provide concise, data-driven responses
+- Always include: "This is not financial advice"
+
+STATIC TOOLSET CONFIGURATION:
+Your tools are pre-loaded and immediately available. All configured toolsets remain active throughout the session.
+
+EXECUTION WORKFLOW:
+1. IDENTIFY: Determine which tools from your available toolsets best address the user's query
+2. EXECUTE: Call the appropriate tools directly - no toolset management needed
+3. ANALYZE: Process the data and provide insights based on the results
+
+TOOL CATEGORIES:
+Your available tools span multiple categories including company profiles, financial statements, market quotes, technical analysis, news sentiment, and economic indicators. Use the most relevant tools for each analysis.
+
+FAILURE PROTOCOL:
+If tools fail repeatedly or data is unavailable, state: "I cannot find the requested information with the available tools" and stop attempting.
+
+Proceed directly to analysis using your available tools based on the user's request.
+```
+
+#### Usage Tips
+
+- **Dynamic Mode**: Best for exploratory analysis where tool requirements change frequently. The AI assistant will manage toolsets based on the current task.
+- **Static Mode**: Best for consistent, predictable workflows where the same types of analysis are performed repeatedly.
+- **Legacy Mode**: Use the Static Mode prompt when all tools are pre-loaded (default configuration).
 
 ## Making HTTP Requests
 
