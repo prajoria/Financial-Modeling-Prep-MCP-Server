@@ -11,7 +11,10 @@ A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabl
   - [Server Modes](#server-modes)
   - [Configuration Precedence](#configuration-precedence)
 - [Usage](#usage)
-  - [Production via Smithery Registry](#production-via-smithery-registry)
+  - [Registries](#registries)
+    - [Smithery.ai](#smitheryai)
+    - [Glama.ai](#glamaai)
+    - [Contexaai.com](#contexaaicom)
   - [HTTP Server & Local Development](#http-server--local-development)
   - [Docker Usage](#docker-usage)
   - [Example System Prompts](#example-system-prompts)
@@ -326,11 +329,15 @@ curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
 
 ## Usage
 
-### Production via Smithery Registry
+### Registries
 
-For production environments, you can use this MCP server through the Smithery registry, which provides hosted and managed MCP servers:
+For production environments, you can use this MCP server through various registries that provide hosted and managed MCP servers:
 
-**[🚀 View on Smithery](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)**
+#### Smithery.ai
+
+[![smithery badge](https://smithery.ai/badge/@imbenrabi/financial-modeling-prep-mcp-server)](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)
+
+**[🚀 View on Smithery.ai](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)**
 
 Smithery is a platform that helps developers find and ship AI-native services designed to communicate with AI agents. All services follow the Model Context Protocol (MCP) specification and provide:
 
@@ -338,7 +345,7 @@ Smithery is a platform that helps developers find and ship AI-native services de
 - Hosting and distribution for MCP servers
 - Standardized interfaces for tool integration
 
-#### Session Configuration with Smithery
+##### Session Configuration with Smithery
 
 When using Smithery, you can configure individual sessions by passing configuration in your MCP client. The Smithery platform handles the HTTP request formatting and session management.
 
@@ -360,6 +367,14 @@ When using Smithery, you can configure individual sessions by passing configurat
 ```
 
 For detailed integration instructions, follow the [Smithery documentation](https://smithery.ai/docs) for connecting MCP clients to hosted servers.
+
+#### Glama.ai
+
+**[Use on Glama.ai](https://glama.ai/mcp/servers/@imbenrabi/Financial-Modeling-Prep-MCP-Server)**
+
+#### Contexaai.com
+
+**[Use on Contexaai.com](https://platform.contexaai.com/mcp/financial-modeling-typescript-imbenrabi)**
 
 ### HTTP Server & Local Development
 
