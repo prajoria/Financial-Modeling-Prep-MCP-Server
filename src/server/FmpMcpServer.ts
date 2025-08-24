@@ -11,6 +11,7 @@ import {
 } from "../mcp-server-factory/index.js";
 import { computeClientId } from "../utils/computeClientId.js";
 import { resolveAccessToken } from "../utils/resolveAccessToken.js";
+import { areStringSetsEqual } from "../utils/validation.js";
 
 export interface ServerOptions {
   accessToken?: string;
@@ -37,15 +38,7 @@ export class FmpMcpServer {
     this._setupRoutes();
   }
 
-  /**
-   * Compare two arrays as order-insensitive sets of strings
-   */
-  private _areStringSetsEqual(a: string[], b: string[]): boolean {
-    if (a.length !== b.length) return false;
-    const sa = [...a].sort();
-    const sb = [...b].sort();
-    return sa.every((v, i) => v === sb[i]);
-  }
+  // set equality moved to utils/validation
 
   /**
    * Starts the HTTP server on the specified port.
@@ -231,7 +224,7 @@ export class FmpMcpServer {
         const cachedSets = cached.staticToolSets || [];
 
         const shouldReuse = cachedMode === desiredMode && (
-          desiredMode !== 'STATIC_TOOL_SETS' || this._areStringSetsEqual(cachedSets, desiredStaticSets)
+          desiredMode !== 'STATIC_TOOL_SETS' || areStringSetsEqual(cachedSets, desiredStaticSets)
         );
 
         if (shouldReuse) {

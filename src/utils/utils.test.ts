@@ -14,6 +14,7 @@ import {
   parseCommaSeparatedToolSets,
   validateToolsetModules
 } from './validation.js';
+import { areStringSetsEqual } from './validation.js';
 import { computeClientId } from './computeClientId.js';
 import { resolveAccessToken } from './resolveAccessToken.js';
 
@@ -555,5 +556,33 @@ describe('validateToolsetModules', () => {
     
     expect(result.isValid).toBe(false);
     expect(result.error).toContain('Unknown error');
+  });
+});
+
+describe('areStringSetsEqual', () => {
+  it('should return true for same elements in same order', () => {
+    expect(areStringSetsEqual(['a', 'b'], ['a', 'b'])).toBe(true);
+  });
+
+  it('should return true for same elements in different order', () => {
+    expect(areStringSetsEqual(['search', 'company'], ['company', 'search'])).toBe(true);
+  });
+
+  it('should return false for different lengths', () => {
+    expect(areStringSetsEqual(['a'], ['a', 'b'])).toBe(false);
+  });
+
+  it('should return false when elements differ', () => {
+    expect(areStringSetsEqual(['a', 'b'], ['a', 'c'])).toBe(false);
+  });
+
+  it('should handle duplicates correctly (multiset equality)', () => {
+    expect(areStringSetsEqual(['a', 'a', 'b'], ['a', 'b', 'a'])).toBe(true);
+    expect(areStringSetsEqual(['a', 'a', 'b'], ['a', 'b', 'b'])).toBe(false);
+  });
+
+  it('should return false for non-arrays', () => {
+    expect(areStringSetsEqual(undefined as any, ['a'])).toBe(false);
+    expect(areStringSetsEqual(['a'], null as any)).toBe(false);
   });
 });
