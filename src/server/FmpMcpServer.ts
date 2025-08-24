@@ -39,8 +39,6 @@ export class FmpMcpServer {
     this._setupRoutes();
   }
 
-  // set equality moved to utils/validation
-
   /**
    * Starts the HTTP server on the specified port.
    * @param port - The port number to listen on
