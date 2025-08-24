@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { ClientStorage, type StorageOptions } from "./ClientStorage.js";
+import type { ServerMode } from "../types/index.js";
 
 vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
   McpServer: vi.fn(),
@@ -59,7 +60,7 @@ describe("ClientStorage", () => {
 
     it("should set and get a client entry", () => {
       const clientId = "client-1";
-      const data = { mcpServer: mockMcpServer, toolManager: mockToolManager, mode: 'ALL_TOOLS', staticToolSets: [] };
+      const data = { mcpServer: mockMcpServer, toolManager: mockToolManager, mode: 'ALL_TOOLS' as ServerMode, staticToolSets: [] };
       storage.set(clientId, data);
       const result = storage.get(clientId);
       expect(result).toEqual(data);
@@ -71,7 +72,7 @@ describe("ClientStorage", () => {
 
     it("should delete a client entry", () => {
       const clientId = "client-1";
-      const data = { mcpServer: mockMcpServer, mode: 'ALL_TOOLS', staticToolSets: [] };
+      const data = { mcpServer: mockMcpServer, mode: 'ALL_TOOLS' as ServerMode, staticToolSets: [] };
       storage.set(clientId, data);
       storage.delete(clientId);
       expect(storage.get(clientId)).toBeNull();
@@ -83,9 +84,9 @@ describe("ClientStorage", () => {
       const options: StorageOptions = { maxSize: 2 };
       storage = new ClientStorage(options);
 
-      storage.set("c1", { mcpServer: mockMcpServer, mode: 'ALL_TOOLS', staticToolSets: [] });
-      storage.set("c2", { mcpServer: mockMcpServer, mode: 'ALL_TOOLS', staticToolSets: [] });
-      storage.set("c3", { mcpServer: mockMcpServer, mode: 'ALL_TOOLS', staticToolSets: [] });
+      storage.set("c1", { mcpServer: mockMcpServer, mode: 'ALL_TOOLS' as ServerMode, staticToolSets: [] });
+      storage.set("c2", { mcpServer: mockMcpServer, mode: 'ALL_TOOLS' as ServerMode, staticToolSets: [] });
+      storage.set("c3", { mcpServer: mockMcpServer, mode: 'ALL_TOOLS' as ServerMode, staticToolSets: [] });
 
       expect(storage.get("c1")).toBeNull();
       expect(storage.get("c2")).toBeDefined();
@@ -100,7 +101,7 @@ describe("ClientStorage", () => {
       const options: StorageOptions = { ttl: 1000 * 60 * 5 };
       storage = new ClientStorage(options);
 
-      storage.set("c1", { mcpServer: mockMcpServer, mode: 'ALL_TOOLS', staticToolSets: [] });
+      storage.set("c1", { mcpServer: mockMcpServer, mode: 'ALL_TOOLS' as ServerMode, staticToolSets: [] });
       vi.advanceTimersByTime(1000 * 60 * 6);
       expect(storage.get("c1")).toBeNull();
       expect(mockConsoleLog).toHaveBeenCalledWith(
@@ -114,7 +115,7 @@ describe("ClientStorage", () => {
       const options: StorageOptions = { ttl: 1000 * 60 * 5 };
       storage = new ClientStorage(options);
 
-      storage.set("c1", { mcpServer: mockMcpServer, mode: 'ALL_TOOLS', staticToolSets: [] });
+      storage.set("c1", { mcpServer: mockMcpServer, mode: 'ALL_TOOLS' as ServerMode, staticToolSets: [] });
       vi.advanceTimersByTime(1000 * 60 * 6);
 
       // @ts-ignore access private for test via as any

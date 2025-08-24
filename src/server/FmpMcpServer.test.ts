@@ -443,21 +443,28 @@ describe("FmpMcpServer", () => {
   describe("Session-config-aware caching", () => {
     beforeEach(() => {
       server = new FmpMcpServer({ accessToken: "test-token" });
+      // capture mocks from the server instance for convenience
+      // @ts-ignore access private for test via as any
+      const s: any = server;
+      // these are defined by our earlier vi.mock
+      // expose them as local variables for readability
+      (global as any)._mockClientStorage = s.cache;
+      (global as any)._mockServerFactory = s.serverFactory;
     });
 
     it("recreates when cached ALL_TOOLS but desired DYNAMIC", () => {
       const mockFmpMcpServer = { name: "dynamic-server" };
       const clientId = computeClientId("test-token");
 
-      mockClientStorage.get.mockReturnValue({
+      (global as any)._mockClientStorage.get.mockReturnValue({
         mcpServer: { name: "legacy-server" },
         toolManager: undefined,
         mode: "ALL_TOOLS",
         staticToolSets: [],
       });
-      vi.mocked(mockServerFactory.determineMode).mockReturnValue("DYNAMIC_TOOL_DISCOVERY");
-      vi.mocked(mockServerFactory.determineStaticToolSets).mockReturnValue([]);
-      mockServerFactory.createServer.mockReturnValue({
+      vi.mocked((global as any)._mockServerFactory.determineMode).mockReturnValue("DYNAMIC_TOOL_DISCOVERY");
+      vi.mocked((global as any)._mockServerFactory.determineStaticToolSets).mockReturnValue([]);
+      (global as any)._mockServerFactory.createServer.mockReturnValue({
         mode: "DYNAMIC_TOOL_DISCOVERY",
         mcpServer: mockFmpMcpServer,
         toolManager: { id: "tool-manager" },
@@ -467,7 +474,7 @@ describe("FmpMcpServer", () => {
       const result = (server as any)._getSessionResources(params);
 
       expect(result).toBe(mockFmpMcpServer);
-      expect(mockClientStorage.set).toHaveBeenCalledWith(clientId, {
+      expect((global as any)._mockClientStorage.set).toHaveBeenCalledWith(clientId, {
         mcpServer: mockFmpMcpServer,
         toolManager: { id: "tool-manager" },
         mode: "DYNAMIC_TOOL_DISCOVERY",
@@ -479,15 +486,15 @@ describe("FmpMcpServer", () => {
       const mockFmpMcpServer = { name: "static-server" };
       const clientId = computeClientId("test-token");
 
-      mockClientStorage.get.mockReturnValue({
+      (global as any)._mockClientStorage.get.mockReturnValue({
         mcpServer: { name: "old-static" },
         toolManager: undefined,
         mode: "STATIC_TOOL_SETS",
         staticToolSets: ["search"],
       });
-      vi.mocked(mockServerFactory.determineMode).mockReturnValue("STATIC_TOOL_SETS");
-      vi.mocked(mockServerFactory.determineStaticToolSets).mockReturnValue(["search", "company"]);
-      mockServerFactory.createServer.mockReturnValue({
+      vi.mocked((global as any)._mockServerFactory.determineMode).mockReturnValue("STATIC_TOOL_SETS");
+      vi.mocked((global as any)._mockServerFactory.determineStaticToolSets).mockReturnValue(["search", "company"]);
+      (global as any)._mockServerFactory.createServer.mockReturnValue({
         mode: "STATIC_TOOL_SETS",
         mcpServer: mockFmpMcpServer,
         toolManager: undefined,
@@ -497,7 +504,7 @@ describe("FmpMcpServer", () => {
       const result = (server as any)._getSessionResources(params);
 
       expect(result).toBe(mockFmpMcpServer);
-      expect(mockClientStorage.set).toHaveBeenCalledWith(clientId, {
+      expect((global as any)._mockClientStorage.set).toHaveBeenCalledWith(clientId, {
         mcpServer: mockFmpMcpServer,
         toolManager: undefined,
         mode: "STATIC_TOOL_SETS",
@@ -509,20 +516,43 @@ describe("FmpMcpServer", () => {
       const mockFmpMcpServer = { name: "static-equal" };
       const clientId = computeClientId("test-token");
 
-      mockClientStorage.get.mockReturnValue({
+      (global as any)._mockClientStorage.get.mockReturnValue({
         mcpServer: mockFmpMcpServer,
         toolManager: undefined,
         mode: "STATIC_TOOL_SETS",
         staticToolSets: ["company", "search"],
       });
-      vi.mocked(mockServerFactory.determineMode).mockReturnValue("STATIC_TOOL_SETS");
-      vi.mocked(mockServerFactory.determineStaticToolSets).mockReturnValue(["search", "company"]);
+      vi.mocked((global as any)._mockServerFactory.determineMode).mockReturnValue("STATIC_TOOL_SETS");
+      vi.mocked((global as any)._mockServerFactory.determineStaticToolSets).mockReturnValue(["search", "company"]);
 
       const params = { config: { FMP_TOOL_SETS: "search,company" } } as any;
       const result = (server as any)._getSessionResources(params);
 
       expect(result).toBe(mockFmpMcpServer);
-      expect(mockServerFactory.createServer).not.toHaveBeenCalled();
+      expect((global as any)._mockServerFactory.createServer).not.toHaveBeenCalled();
+    });
+
+    it("reuses when enforcer override keeps mode constant despite session change", () => {
+      const mockFmpMcpServer = { name: "legacy-server" };
+      const clientId = computeClientId("test-token");
+
+      // Cached legacy
+      (global as any)._mockClientStorage.get.mockReturnValue({
+        mcpServer: mockFmpMcpServer,
+        toolManager: undefined,
+        mode: "ALL_TOOLS",
+        staticToolSets: [],
+      });
+
+      // Session attempts dynamic, but enforcer override simulated by determineMode still returning ALL_TOOLS
+      vi.mocked((global as any)._mockServerFactory.determineMode).mockReturnValue("ALL_TOOLS");
+      vi.mocked((global as any)._mockServerFactory.determineStaticToolSets).mockReturnValue([]);
+
+      const params = { config: { DYNAMIC_TOOL_DISCOVERY: "true" } } as any;
+      const result = (server as any)._getSessionResources(params);
+
+      expect(result).toBe(mockFmpMcpServer);
+      expect((global as any)._mockServerFactory.createServer).not.toHaveBeenCalled();
     });
   });
 
