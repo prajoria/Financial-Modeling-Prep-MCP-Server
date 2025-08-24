@@ -6,9 +6,9 @@ This plan adds a human-friendly prompt that summarizes server capabilities with 
 
 - [x] Declare prompts capability in `McpServerFactory`
   - Implemented `capabilities.prompts.listChanged = false` alongside existing tools capability.
-- [ ] Create prompt registration module and `list_mcp_assets` prompt
-- [ ] Wire prompt registration in server factory with mode-aware context (session/server)
-- [ ] Add optional tool alias `list_mcp_assets_tool` for compatibility
+- [x] Create prompt registration module and `list_mcp_assets` prompt
+- [x] Wire prompt registration in server factory with mode-aware context (session/server)
+- [x] Add optional tool alias `list_mcp_assets_tool` for compatibility
 - [ ] Add tests for prompt presence and mode-aware content
 - [ ] Update README to document the new prompt
 

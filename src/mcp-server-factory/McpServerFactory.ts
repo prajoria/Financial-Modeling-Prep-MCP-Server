@@ -6,6 +6,7 @@ import { registerAllTools, registerToolsBySet } from '../tools/index.js';
 import { getServerVersion } from '../utils/getServerVersion.js';
 import { ServerModeEnforcer } from '../server-mode-enforcer/index.js';
 import type { ToolSet } from "../types/index.js";
+import { registerPrompts } from "../prompts/registerPrompts.js";
 
 /**
  * Server mode enumeration
@@ -71,6 +72,15 @@ export class McpServerFactory {
 
     // Register tools based on mode
     const toolManager = this._registerToolsForMode(mcpServer, mode, config, accessToken);
+
+    // Register human-friendly prompts with mode-aware context, including session-config toolsets
+    const staticToolSets = this._resolveStaticToolsetsFromContext(mode, config);
+    registerPrompts(mcpServer, {
+      mode,
+      version: this.version,
+      listChanged: isDynamicMode,
+      staticToolSets,
+    });
 
     return {
       mcpServer,
@@ -244,5 +254,25 @@ export class McpServerFactory {
     }
 
     return toolManager;
+  }
+
+  /**
+   * Resolves static toolsets from server-level enforcement or session config for prompt context
+   */
+  private _resolveStaticToolsetsFromContext(mode: ServerMode, sessionConfig?: SessionConfig): ToolSet[] | undefined {
+    if (mode !== 'STATIC_TOOL_SETS') return undefined;
+
+    // Prefer server-level toolsets if enforced
+    try {
+      const enforcer = ServerModeEnforcer.getInstance();
+      if (enforcer.serverModeOverride === 'STATIC_TOOL_SETS') {
+        return enforcer.toolSets;
+      }
+    } catch {}
+
+    // Fallback to session-config toolsets when no server override
+    const toolSetsString = (sessionConfig?.FMP_TOOL_SETS as string) || '';
+    const toolSets = parseCommaSeparatedToolSets(toolSetsString);
+    return toolSets.length > 0 ? toolSets : [];
   }
 }
