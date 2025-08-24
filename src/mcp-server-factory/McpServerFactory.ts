@@ -96,6 +96,11 @@ export class McpServerFactory {
         tools: { 
           listChanged: isDynamicMode // Only enable dynamic tool changes in dynamic mode
         },
+        // Expose prompts capability for human-friendly prompts listing
+        // Keep listChanged false for now; this server does not dynamically change prompts
+        prompts: {
+          listChanged: false
+        }
       },
       configSchema: {
         type: "object",
