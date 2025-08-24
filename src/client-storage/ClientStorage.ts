@@ -1,9 +1,12 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { DynamicToolsetManager } from "../dynamic-toolset-manager/DynamicToolsetManager.js";
+import type { ServerMode, ToolSet } from "../types/index.js";
 
 interface StorageEntry {
   mcpServer: McpServer;
   toolManager?: DynamicToolsetManager;
+  mode: ServerMode;
+  staticToolSets?: ToolSet[];
   lastAccessed: number;
 }
 
@@ -49,7 +52,7 @@ export class ClientStorage {
     entry.lastAccessed = Date.now();
     this.storage.delete(clientId);
     this.storage.set(clientId, entry);
-    return { mcpServer: entry.mcpServer, toolManager: entry.toolManager };
+    return { mcpServer: entry.mcpServer, toolManager: entry.toolManager, mode: entry.mode, staticToolSets: entry.staticToolSets };
   }
 
   set(clientId: string, data: Omit<StorageEntry, "lastAccessed">): void {

@@ -11,6 +11,8 @@ import {
 } from "../mcp-server-factory/index.js";
 import { computeClientId } from "../utils/computeClientId.js";
 import { resolveAccessToken } from "../utils/resolveAccessToken.js";
+import { areStringSetsEqual } from "../utils/validation.js";
+import type { ServerMode, ToolSet } from "../types/index.js";
 
 export interface ServerOptions {
   accessToken?: string;
@@ -191,6 +193,22 @@ export class FmpMcpServer {
     }
   }
 
+  private _getStaticToolSets(sessionConfig: SessionConfig, desiredMode: ServerMode): ToolSet[] {
+    return desiredMode === 'STATIC_TOOL_SETS'
+      ? this.serverFactory.determineStaticToolSets(sessionConfig)
+      : [];
+  }
+
+  private _getDesiredMode(sessionConfig: SessionConfig): ServerMode {
+    return this.serverFactory.determineMode(sessionConfig);
+  }
+
+  private _shouldReuse(cached: NonNullable<ReturnType<typeof this.cache.get>>, desiredMode: ServerMode, desiredStaticSets: string[]): boolean {
+    return cached.mode === desiredMode && (
+      desiredMode !== 'STATIC_TOOL_SETS' || areStringSetsEqual(cached.staticToolSets || [], desiredStaticSets)
+    );
+  }
+
   /**
    * The core logic for getting or creating resources keyed by clientId.
    * This function is passed to the stateful server handler and is called for each request.
@@ -201,20 +219,30 @@ export class FmpMcpServer {
     const { config: sessionConfig } = params;
 
     try {
-      // Resolve access token and compute clientId
       const resolvedToken = resolveAccessToken(
         this.serverOptions.accessToken,
         sessionConfig
       );
       const clientId = computeClientId(resolvedToken);
+      const desiredMode = this._getDesiredMode(sessionConfig);
+      const desiredStaticToolSets = this._getStaticToolSets(sessionConfig, desiredMode);
 
-      // Check storage first
+      // Check storage first and compare against desired config when present
       const cached = this.cache.get(clientId);
       if (cached) {
+        const shouldReuse = this._shouldReuse(cached, desiredMode, desiredStaticToolSets);
+
+        if (shouldReuse) {
+          console.log(
+            `[FmpMcpServer] ✅ Reusing cached resources for client: ${clientId}`
+          );
+          return cached.mcpServer;
+        }
+
         console.log(
-          `[FmpMcpServer] ✅ Reusing cached resources for client: ${clientId}`
+          `[FmpMcpServer] ♻️ Recreating resources for client: ${clientId} (cached mode: ${cached.mode}, desired mode: ${desiredMode})`
         );
-        return cached.mcpServer;
+        // Fall through to create a new instance and replace cache
       }
 
       // Create new server using factory's comprehensive method
@@ -230,10 +258,14 @@ export class FmpMcpServer {
         `[FmpMcpServer] ✅ Client ${clientId} created successfully with mode: ${result.mode}`
       );
 
+      const staticToolSets = this._getStaticToolSets(sessionConfig, result.mode);
+
       // Store the resources by clientId
       this.cache.set(clientId, {
         mcpServer: result.mcpServer,
         toolManager: result.toolManager,
+        mode: result.mode,
+        staticToolSets
       });
 
       return result.mcpServer;

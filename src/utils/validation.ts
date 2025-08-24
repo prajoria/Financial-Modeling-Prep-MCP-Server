@@ -230,3 +230,15 @@ export function validateToolsetModules(
     };
   }
 }
+
+/**
+ * Compares two arrays of strings for order-insensitive equality.
+ * Treats inputs as multisets: element counts must match.
+ */
+export function areStringSetsEqual(a: string[], b: string[]): boolean {
+  if (!Array.isArray(a) || !Array.isArray(b)) return false;
+  if (a.length !== b.length) return false;
+  const sa = [...a].sort();
+  const sb = [...b].sort();
+  return sa.every((v, i) => v === sb[i]);
+}

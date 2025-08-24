@@ -5,13 +5,8 @@ import { registerMetaTools } from '../tools/meta-tools.js';
 import { registerAllTools, registerToolsBySet } from '../tools/index.js';
 import { getServerVersion } from '../utils/getServerVersion.js';
 import { ServerModeEnforcer } from '../server-mode-enforcer/index.js';
-import type { ToolSet } from "../types/index.js";
-
-/**
- * Server mode enumeration
- */
-export type ServerMode = 'DYNAMIC_TOOL_DISCOVERY' | 'STATIC_TOOL_SETS' | 'ALL_TOOLS';
-
+import { registerPrompts } from "../prompts/index.js";
+import type { ServerMode, ToolSet } from "../types/index.js";
 /**
  * Session configuration type matching the SDK's CreateServerArg config
  */
@@ -51,6 +46,36 @@ export class McpServerFactory {
   }
 
   /**
+   * Public helper: determine mode from session config with enforcer precedence
+   */
+  public determineMode(sessionConfig?: SessionConfig): ServerMode {
+    return this._resolveSessionMode(sessionConfig);
+  }
+
+  /**
+   * Public helper: determine static tool sets considering enforcer precedence
+   * Returns an empty array when none are applicable
+   */
+  public determineStaticToolSets(sessionConfig?: SessionConfig): ToolSet[] {
+    // Prefer server-level toolsets if enforced
+    try {
+      const enforcer = ServerModeEnforcer.getInstance();
+      if (enforcer.serverModeOverride === 'STATIC_TOOL_SETS') {
+        return enforcer.toolSets;
+      }
+    } catch {
+      // Enforcer not initialized – fall back to session config
+    }
+
+    if (sessionConfig?.FMP_TOOL_SETS && typeof sessionConfig.FMP_TOOL_SETS === 'string') {
+      const parsed = parseCommaSeparatedToolSets(sessionConfig.FMP_TOOL_SETS);
+      return parsed;
+    }
+
+    return [];
+  }
+
+  /**
    * Creates a new MCP server with the appropriate configuration and tools
    * Compatible with SDK's CreateServerFn<SessionConfig> signature
    * @param options - Server creation options
@@ -71,6 +96,15 @@ export class McpServerFactory {
 
     // Register tools based on mode
     const toolManager = this._registerToolsForMode(mcpServer, mode, config, accessToken);
+
+    // Register prompts with mode-aware context
+    const staticToolSets = this._resolveStaticToolsetsFromContext(mode);
+    registerPrompts(mcpServer, {
+      mode,
+      version: this.version,
+      listChanged: isDynamicMode,
+      staticToolSets,
+    });
 
     return {
       mcpServer,
@@ -96,6 +130,11 @@ export class McpServerFactory {
         tools: { 
           listChanged: isDynamicMode // Only enable dynamic tool changes in dynamic mode
         },
+        // Expose prompts capability for human-friendly prompts listing
+        // Keep listChanged false for now; this server does not dynamically change prompts
+        prompts: {
+          listChanged: false
+        }
       },
       configSchema: {
         type: "object",
@@ -239,5 +278,25 @@ export class McpServerFactory {
     }
 
     return toolManager;
+  }
+
+  /**
+   * Resolves static toolsets from server-level enforcement or session config for prompt context
+   * @param mode - The determined server mode
+   * @param sessionConfig - Configuration from session
+   * @returns Resolved static toolsets or undefined
+   */
+  private _resolveStaticToolsetsFromContext(mode: ServerMode): ToolSet[] | undefined {
+    if (mode !== 'STATIC_TOOL_SETS') return undefined;
+
+    // Prefer server-level toolsets if enforced
+    try {
+      if (mode === 'STATIC_TOOL_SETS') {
+        const enforcer = ServerModeEnforcer.getInstance();
+        return enforcer.toolSets;
+      }
+    } catch {
+      return undefined;
+    }
   }
 }

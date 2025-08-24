@@ -589,6 +589,44 @@ Proceed directly to analysis using your available tools based on the user's requ
 - **Static Mode**: Best for consistent, predictable workflows where the same types of analysis are performed repeatedly.
 - **Legacy Mode**: Use the Static Mode prompt when all tools are pre-loaded (default configuration).
 
+## Human-Friendly Capabilities Prompt
+
+This server provides a human-friendly prompt to list capabilities in one shot.
+
+- Name: `list_mcp_assets`
+- Output sections: `Server Capabilities`, `Prompts`, `Tools` (mode-aware), `Resources` (health snapshot), `Quick Start`
+- Exposed only as an MCP prompt (no tool alias)
+
+### List assets via prompts
+
+```bash
+# 1) Initialize (example: dynamic mode session)
+CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": { "protocolVersion": "2024-11-05", "clientInfo": {"name": "client", "version": "1.0.0"}, "capabilities": {} }
+  }'
+
+# 2) List prompts
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"prompts/list","params":{}}'
+
+# 3) Get the capabilities prompt
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":3,"method":"prompts/get","params":{"name":"list_mcp_assets","arguments":{}}}'
+```
+
+Notes:
+- The `Tools` section adapts to the effective mode (Dynamic/Static/Legacy). In legacy mode, it summarizes categories instead of listing all 250+ tools.
+- In Static mode, toolsets shown are the authoritative list from the server’s mode enforcer (single source of truth). Session `FMP_TOOL_SETS` may request Static mode, but server-level configuration controls the final toolsets.
+- The `Resources` section includes a lightweight health snapshot (uptime, memory summary, version, mode).
+
 ## Making HTTP Requests
 
 The server exposes a Model Context Protocol endpoint at `/mcp` that accepts JSON-RPC formatted requests. Each request can include optional session configuration via query parameters.
@@ -797,6 +835,13 @@ curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
 - **Tool State**: In dynamic mode, enabled/disabled toolsets may be reused for the same `clientId` across requests
 - **Isolation**: Sessions don't interfere with each other's tool configurations; caching is keyed by `clientId`
 - **Caching**: Client storage (LRU + TTL) maintains one `McpServer`/`DynamicToolsetManager` per `clientId`
+
+#### Cache Reuse Policy (Session-Config Aware)
+
+- For the same `clientId` (derived from token), the server compares each request’s desired mode and static tool sets against the cached instance.
+- If there is a difference and there is NO server-level mode enforcement, a new `McpServer` instance is created and the cache entry is replaced.
+- If a server-level mode is enforced (via CLI/env), session-level changes are ignored and the cached instance is reused.
+- Static tool set comparison is order-insensitive (e.g., `search,company` equals `company,search`).
 
 ### Error Handling
 

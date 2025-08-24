@@ -1,7 +1,6 @@
 import { validateDynamicToolDiscoveryConfig } from '../utils/validation.js';
 import { getAvailableToolSets } from '../constants/index.js';
-import type { ServerMode } from '../mcp-server-factory/McpServerFactory.js';
-import type { ToolSet } from '../types/index.js';
+import type { ServerMode, ToolSet } from '../types/index.js';
 
 /**
  * Simple server mode enforcer that checks environment variables and CLI arguments
