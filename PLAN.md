@@ -8,14 +8,15 @@ This plan ensures a new `McpServer` instance is created when a request's session
     - Implemented `determineMode()` delegating to existing private resolver.
 - [x] Add public `determineStaticToolSets(sessionConfig)` to `McpServerFactory` (enforcer-aware)
     - Implemented `determineStaticToolSets()` honoring enforcer precedence and parsing `FMP_TOOL_SETS`.
-- [ ] Update `FmpMcpServer._getSessionResources` to:
+- [x] Update `FmpMcpServer._getSessionResources` to:
   - [ ] Compute desired mode/tool sets before cache reuse
   - [ ] If enforcer overrides mode, always reuse cached instance (ignore session changes)
   - [ ] If no override, compare cached vs desired:
     - [ ] If mode differs → create new instance and replace cache
     - [ ] If mode is `STATIC_TOOL_SETS` and tool sets differ (order-insensitive) → create new instance and replace cache
     - [ ] Else → reuse cached instance
-  - [ ] Store `mode` and (if static) `toolSets` alongside the cached server
+  - [x] Store `mode` and (if static) `toolSets` alongside the cached server
+    - Implemented: now computes desired mode/sets, compares with cached, recreates when mismatched, and persists `mode`/`staticToolSets` in cache entries.
 - [ ] Add unit tests in `src/server/FmpMcpServer.test.ts`:
   - [ ] Reuses instance when same mode and same static sets
   - [ ] Recreates instance when cached legacy but requested dynamic

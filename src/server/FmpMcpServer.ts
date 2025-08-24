@@ -208,13 +208,39 @@ export class FmpMcpServer {
       );
       const clientId = computeClientId(resolvedToken);
 
-      // Check storage first
+      // Determine desired mode and tool sets for this request
+      const desiredMode = this.serverFactory.determineMode(sessionConfig);
+      const desiredStaticSets = desiredMode === 'STATIC_TOOL_SETS'
+        ? this.serverFactory.determineStaticToolSets(sessionConfig)
+        : [];
+
+      // Check storage first and compare against desired config when present
       const cached = this.cache.get(clientId);
       if (cached) {
+        const cachedMode = cached.mode;
+        const cachedSets = cached.staticToolSets || [];
+
+        // If modes match and, when static, sets match (order-insensitive), reuse
+        const setsEqual = (a: string[], b: string[]) => {
+          if (a.length !== b.length) return false;
+          const sa = [...a].sort();
+          const sb = [...b].sort();
+          return sa.every((v, i) => v === sb[i]);
+        };
+
+        if (cachedMode === desiredMode && (
+          desiredMode !== 'STATIC_TOOL_SETS' || setsEqual(cachedSets, desiredStaticSets)
+        )) {
+          console.log(
+            `[FmpMcpServer] ✅ Reusing cached resources for client: ${clientId}`
+          );
+          return cached.mcpServer;
+        }
+
         console.log(
-          `[FmpMcpServer] ✅ Reusing cached resources for client: ${clientId}`
+          `[FmpMcpServer] ♻️ Recreating resources for client: ${clientId} (cached mode: ${cachedMode}, desired mode: ${desiredMode})`
         );
-        return cached.mcpServer;
+        // Fall through to create a new instance and replace cache
       }
 
       // Create new server using factory's comprehensive method
@@ -234,6 +260,8 @@ export class FmpMcpServer {
       this.cache.set(clientId, {
         mcpServer: result.mcpServer,
         toolManager: result.toolManager,
+        mode: result.mode,
+        staticToolSets: result.mode === 'STATIC_TOOL_SETS' ? this.serverFactory.determineStaticToolSets(sessionConfig) : []
       });
 
       return result.mcpServer;
