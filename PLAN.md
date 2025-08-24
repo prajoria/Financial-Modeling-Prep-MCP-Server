@@ -25,7 +25,8 @@ This plan ensures a new `McpServer` instance is created when a request's session
   - [ ] Recreates instance when static sets changed
   - [ ] With enforcer override, ignores session changes and reuses
     - Implemented tests for: reuse when equal sets (order-insensitive), recreate when legacy→dynamic, recreate when static sets changed, and reuse when enforcer keeps mode constant.
-- [ ] Update README to document cache behavior and precedence for session-config changes
+- [x] Update README to document cache behavior and precedence for session-config changes
+  - Documented session-config-aware cache reuse policy, server-level enforcement precedence, and order-insensitive static set comparison.
 
 ### Notes
 

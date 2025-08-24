@@ -836,6 +836,13 @@ curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
 - **Isolation**: Sessions don't interfere with each other's tool configurations; caching is keyed by `clientId`
 - **Caching**: Client storage (LRU + TTL) maintains one `McpServer`/`DynamicToolsetManager` per `clientId`
 
+#### Cache Reuse Policy (Session-Config Aware)
+
+- For the same `clientId` (derived from token), the server compares each request’s desired mode and static tool sets against the cached instance.
+- If there is a difference and there is NO server-level mode enforcement, a new `McpServer` instance is created and the cache entry is replaced.
+- If a server-level mode is enforced (via CLI/env), session-level changes are ignored and the cached instance is reused.
+- Static tool set comparison is order-insensitive (e.g., `search,company` equals `company,search`).
+
 ### Error Handling
 
 Common error responses:
