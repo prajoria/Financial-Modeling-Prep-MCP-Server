@@ -62,3 +62,8 @@ export interface ToolSetDefinition {
   decisionCriteria: string;
   modules: string[];
 }
+
+/**
+ * Server mode enumeration
+ */
+export type ServerMode = 'DYNAMIC_TOOL_DISCOVERY' | 'STATIC_TOOL_SETS' | 'ALL_TOOLS';

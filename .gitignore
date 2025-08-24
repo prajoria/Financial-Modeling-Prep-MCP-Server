@@ -30,3 +30,6 @@ coverage/
 # Logs
 logs/
 *.log 
+
+# Local test scripts
+manual-server-tests

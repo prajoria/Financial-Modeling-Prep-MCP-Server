@@ -1,8 +1,6 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { TOOL_SETS } from "../constants/toolSets.js";
-import type { ToolSet } from "../types/index.js";
-
-type ServerMode = 'DYNAMIC_TOOL_DISCOVERY' | 'STATIC_TOOL_SETS' | 'ALL_TOOLS';
+import type { ServerMode, ToolSet } from "../types/index.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 interface PromptContext {
   mode: ServerMode;

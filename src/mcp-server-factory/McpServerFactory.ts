@@ -5,14 +5,8 @@ import { registerMetaTools } from '../tools/meta-tools.js';
 import { registerAllTools, registerToolsBySet } from '../tools/index.js';
 import { getServerVersion } from '../utils/getServerVersion.js';
 import { ServerModeEnforcer } from '../server-mode-enforcer/index.js';
-import type { ToolSet } from "../types/index.js";
 import { registerPrompts } from "../prompts/registerPrompts.js";
-
-/**
- * Server mode enumeration
- */
-export type ServerMode = 'DYNAMIC_TOOL_DISCOVERY' | 'STATIC_TOOL_SETS' | 'ALL_TOOLS';
-
+import type { ServerMode, ToolSet } from "../types/index.js";
 /**
  * Session configuration type matching the SDK's CreateServerArg config
  */
