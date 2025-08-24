@@ -5,7 +5,7 @@ import { registerMetaTools } from '../tools/meta-tools.js';
 import { registerAllTools, registerToolsBySet } from '../tools/index.js';
 import { getServerVersion } from '../utils/getServerVersion.js';
 import { ServerModeEnforcer } from '../server-mode-enforcer/index.js';
-import { registerPrompts } from "../prompts/registerPrompts.js";
+import { registerPrompts } from "../prompts/index.js";
 import type { ServerMode, ToolSet } from "../types/index.js";
 /**
  * Session configuration type matching the SDK's CreateServerArg config
@@ -67,8 +67,8 @@ export class McpServerFactory {
     // Register tools based on mode
     const toolManager = this._registerToolsForMode(mcpServer, mode, config, accessToken);
 
-    // Register human-friendly prompts with mode-aware context, including session-config toolsets
-    const staticToolSets = this._resolveStaticToolsetsFromContext(mode, config);
+    // Register prompts with mode-aware context
+    const staticToolSets = this._resolveStaticToolsetsFromContext(mode);
     registerPrompts(mcpServer, {
       mode,
       version: this.version,
@@ -252,21 +252,21 @@ export class McpServerFactory {
 
   /**
    * Resolves static toolsets from server-level enforcement or session config for prompt context
+   * @param mode - The determined server mode
+   * @param sessionConfig - Configuration from session
+   * @returns Resolved static toolsets or undefined
    */
-  private _resolveStaticToolsetsFromContext(mode: ServerMode, sessionConfig?: SessionConfig): ToolSet[] | undefined {
+  private _resolveStaticToolsetsFromContext(mode: ServerMode): ToolSet[] | undefined {
     if (mode !== 'STATIC_TOOL_SETS') return undefined;
 
     // Prefer server-level toolsets if enforced
     try {
-      const enforcer = ServerModeEnforcer.getInstance();
-      if (enforcer.serverModeOverride === 'STATIC_TOOL_SETS') {
+      if (mode === 'STATIC_TOOL_SETS') {
+        const enforcer = ServerModeEnforcer.getInstance();
         return enforcer.toolSets;
       }
-    } catch {}
-
-    // Fallback to session-config toolsets when no server override
-    const toolSetsString = (sessionConfig?.FMP_TOOL_SETS as string) || '';
-    const toolSets = parseCommaSeparatedToolSets(toolSetsString);
-    return toolSets.length > 0 ? toolSets : [];
+    } catch {
+      return undefined;
+    }
   }
 }

@@ -4,7 +4,7 @@ import * as validation from "../utils/validation.js";
 import { ServerModeEnforcer } from "../server-mode-enforcer/index.js";
 
 
-vi.mock("../prompts/registerPrompts.js", () => ({
+vi.mock("../prompts/index.js", () => ({
   registerPrompts: vi.fn(),
 }));
 

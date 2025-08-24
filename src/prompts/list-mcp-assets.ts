@@ -2,20 +2,15 @@ import { TOOL_SETS } from "../constants/toolSets.js";
 import type { ServerMode, ToolSet } from "../types/index.js";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-interface PromptContext {
+export interface PromptContext {
   mode: ServerMode;
   version: string;
   listChanged: boolean;
   staticToolSets?: ToolSet[];
 }
 
-/**
- * Register human-friendly prompts with the MCP server
- */
-export function registerPrompts(server: McpServer, context: PromptContext): void {
+export function registerListMcpAssets(server: McpServer, context: PromptContext): void {
   const contentBuilder = () => buildAssetsOverview(context);
-
-  // Prefer native prompt registration if supported by the SDK
   const maybeServer: any = server as any;
   if (typeof maybeServer.prompt === 'function') {
     try {
@@ -36,31 +31,17 @@ export function registerPrompts(server: McpServer, context: PromptContext): void
         }
       );
     } catch (err) {
-      console.warn("Failed to register native prompt, falling back to tool alias:", err);
+      console.warn("Failed to register native prompt:", err);
     }
   }
-
-  // Always provide a tool alias for broader client compatibility
-  server.tool(
-    "list_mcp_assets",
-    "Show a human-friendly overview of server capabilities, tools, resources, and quick start.",
-    {},
-    async () => {
-      const text = contentBuilder();
-      return { content: [{ type: "text", text }] };
-    }
-  );
 }
 
 function buildAssetsOverview(ctx: PromptContext): string {
   const { mode, version, listChanged, staticToolSets } = ctx;
-
   const now = new Date().toISOString();
   const uptime = process.uptime();
   const mem = process.memoryUsage();
-
-  const toolsetEntries = Object.entries(TOOL_SETS);
-  const toolsetCount = toolsetEntries.length;
+  const toolsetCount = Object.keys(TOOL_SETS).length;
 
   const header = [
     `# Server Capabilities`,
@@ -133,7 +114,6 @@ function renderToolsSection(mode: ServerMode, staticToolSets: ToolSet[] | undefi
     return lines.join('\n');
   }
 
-  // Legacy mode (ALL_TOOLS) — avoid enumerating 250+ tools
   lines.push(
     `Legacy mode loads all tools (253+ across ${toolsetCount} categories).`,
     `To avoid long lists, categories are summarized below:`,
@@ -154,7 +134,7 @@ function renderQuickStart(mode: ServerMode, staticToolSets?: ToolSet[]): string 
       `## Quick Start`,
       `1) Initialize session in dynamic mode`,
       '```bash',
-      'CONFIG_BASE64=$(echo -n "{"DYNAMIC_TOOL_DISCOVERY":"true"}" | base64)',
+      'CONFIG_BASE64=$(echo -n "{\"DYNAMIC_TOOL_DISCOVERY\":\"true\"}" | base64)',
       'curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \\ ',
       '  -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{}}"',
       '```',

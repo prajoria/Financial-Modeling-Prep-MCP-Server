@@ -595,9 +595,7 @@ This server provides a human-friendly prompt to list capabilities in one shot.
 
 - Name: `list_mcp_assets`
 - Output sections: `Server Capabilities`, `Prompts`, `Tools` (mode-aware), `Resources` (health snapshot), `Quick Start`
-- Available in two ways:
-  - As a native MCP prompt (`prompts/call`), when the client supports prompts
-  - As a compatibility tool alias (`tools/call` with name `list_mcp_assets`)
+- Exposed only as an MCP prompt (no tool alias)
 
 ### List assets via prompts
 
@@ -618,24 +616,15 @@ curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":2,"method":"prompts/list","params":{}}'
 
-# 3) Call the capabilities prompt
+# 3) Get the capabilities prompt
 curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":3,"method":"prompts/call","params":{"name":"list_mcp_assets","arguments":{}}}'
-```
-
-### List assets via tool alias
-
-```bash
-# Call as a tool for clients that do not support prompts
-CONFIG_BASE64=$(echo -n '{"FMP_TOOL_SETS":"search,quotes"}' | base64)
-curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"name":"list_mcp_assets","arguments":{}}}'
+  -d '{"jsonrpc":"2.0","id":3,"method":"prompts/get","params":{"name":"list_mcp_assets","arguments":{}}}'
 ```
 
 Notes:
 - The `Tools` section adapts to the effective mode (Dynamic/Static/Legacy). In legacy mode, it summarizes categories instead of listing all 250+ tools.
+- In Static mode, toolsets shown are the authoritative list from the server’s mode enforcer (single source of truth). Session `FMP_TOOL_SETS` may request Static mode, but server-level configuration controls the final toolsets.
 - The `Resources` section includes a lightweight health snapshot (uptime, memory summary, version, mode).
 
 ## Making HTTP Requests
