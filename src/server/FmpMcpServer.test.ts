@@ -526,10 +526,13 @@ describe("FmpMcpServer", () => {
       vi.mocked((global as any)._mockServerFactory.determineStaticToolSets).mockReturnValue(["search", "company"]);
 
       const params = { config: { FMP_TOOL_SETS: "search,company" } } as any;
+
+      const factory = (global as any)._mockServerFactory;
+      const prevCalls = factory.createServer.mock.calls.length;
       const result = (server as any)._getSessionResources(params);
 
       expect(result).toBe(mockFmpMcpServer);
-      expect((global as any)._mockServerFactory.createServer).not.toHaveBeenCalled();
+      expect(factory.createServer.mock.calls.length).toBe(prevCalls);
     });
 
     it("reuses when enforcer override keeps mode constant despite session change", () => {
@@ -549,10 +552,13 @@ describe("FmpMcpServer", () => {
       vi.mocked((global as any)._mockServerFactory.determineStaticToolSets).mockReturnValue([]);
 
       const params = { config: { DYNAMIC_TOOL_DISCOVERY: "true" } } as any;
+
+      const factory = (global as any)._mockServerFactory;
+      const prevCalls = factory.createServer.mock.calls.length;
       const result = (server as any)._getSessionResources(params);
 
       expect(result).toBe(mockFmpMcpServer);
-      expect((global as any)._mockServerFactory.createServer).not.toHaveBeenCalled();
+      expect(factory.createServer.mock.calls.length).toBe(prevCalls);
     });
   });
 
