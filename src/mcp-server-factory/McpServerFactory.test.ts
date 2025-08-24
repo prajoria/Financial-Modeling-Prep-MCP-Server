@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { McpServerFactory, type ServerMode, type SessionConfig, type McpServerOptions } from "./McpServerFactory.js";
 import * as validation from "../utils/validation.js";
 import { ServerModeEnforcer } from "../server-mode-enforcer/index.js";
+vi.mock("../prompts/registerPrompts.js", () => ({
+  registerPrompts: vi.fn(),
+}));
 
 vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
   McpServer: vi.fn().mockImplementation((config) => ({

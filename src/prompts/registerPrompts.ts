@@ -18,7 +18,7 @@ export function registerPrompts(server: McpServer, context: PromptContext): void
   const contentBuilder = () => buildAssetsOverview(context);
 
   // Prefer native prompt registration if supported by the SDK
-  const maybeServer: McpServer = server
+  const maybeServer: any = server as any;
   if (typeof maybeServer.prompt === 'function') {
     try {
       maybeServer.prompt(
@@ -156,7 +156,7 @@ function renderQuickStart(mode: ServerMode, staticToolSets?: ToolSet[]): string 
       `## Quick Start`,
       `1) Initialize session in dynamic mode`,
       '```bash',
-      'CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)',
+      'CONFIG_BASE64=$(echo -n "{"DYNAMIC_TOOL_DISCOVERY":"true"}" | base64)',
       'curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \\ ',
       '  -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{}}"',
       '```',
@@ -191,7 +191,7 @@ function renderQuickStart(mode: ServerMode, staticToolSets?: ToolSet[]): string 
     `## Quick Start`,
     `1) Initialize (legacy mode loads all tools)`,
     '```bash',
-    'CONFIG_BASE64=$(echo -n '{}' | base64)',
+    'CONFIG_BASE64=$(echo -n "{}" | base64)',
     'curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \\ ',
     '  -H "Content-Type: application/json" -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{}}"',
     '```',

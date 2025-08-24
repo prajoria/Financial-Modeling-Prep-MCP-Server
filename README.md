@@ -589,6 +589,55 @@ Proceed directly to analysis using your available tools based on the user's requ
 - **Static Mode**: Best for consistent, predictable workflows where the same types of analysis are performed repeatedly.
 - **Legacy Mode**: Use the Static Mode prompt when all tools are pre-loaded (default configuration).
 
+## Human-Friendly Capabilities Prompt
+
+This server provides a human-friendly prompt to list capabilities in one shot.
+
+- Name: `list_mcp_assets`
+- Output sections: `Server Capabilities`, `Prompts`, `Tools` (mode-aware), `Resources` (health snapshot), `Quick Start`
+- Available in two ways:
+  - As a native MCP prompt (`prompts/call`), when the client supports prompts
+  - As a compatibility tool alias (`tools/call` with name `list_mcp_assets`)
+
+### List assets via prompts
+
+```bash
+# 1) Initialize (example: dynamic mode session)
+CONFIG_BASE64=$(echo -n '{"DYNAMIC_TOOL_DISCOVERY":"true"}' | base64)
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": { "protocolVersion": "2024-11-05", "clientInfo": {"name": "client", "version": "1.0.0"}, "capabilities": {} }
+  }'
+
+# 2) List prompts
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"prompts/list","params":{}}'
+
+# 3) Call the capabilities prompt
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":3,"method":"prompts/call","params":{"name":"list_mcp_assets","arguments":{}}}'
+```
+
+### List assets via tool alias
+
+```bash
+# Call as a tool for clients that do not support prompts
+CONFIG_BASE64=$(echo -n '{"FMP_TOOL_SETS":"search,quotes"}' | base64)
+curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"name":"list_mcp_assets","arguments":{}}}'
+```
+
+Notes:
+- The `Tools` section adapts to the effective mode (Dynamic/Static/Legacy). In legacy mode, it summarizes categories instead of listing all 250+ tools.
+- The `Resources` section includes a lightweight health snapshot (uptime, memory summary, version, mode).
+
 ## Making HTTP Requests
 
 The server exposes a Model Context Protocol endpoint at `/mcp` that accepts JSON-RPC formatted requests. Each request can include optional session configuration via query parameters.
