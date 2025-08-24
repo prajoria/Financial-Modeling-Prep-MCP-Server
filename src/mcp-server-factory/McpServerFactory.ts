@@ -46,6 +46,36 @@ export class McpServerFactory {
   }
 
   /**
+   * Public helper: determine mode from session config with enforcer precedence
+   */
+  public determineMode(sessionConfig?: SessionConfig): ServerMode {
+    return this._resolveSessionMode(sessionConfig);
+  }
+
+  /**
+   * Public helper: determine static tool sets considering enforcer precedence
+   * Returns an empty array when none are applicable
+   */
+  public determineStaticToolSets(sessionConfig?: SessionConfig): ToolSet[] {
+    // Prefer server-level toolsets if enforced
+    try {
+      const enforcer = ServerModeEnforcer.getInstance();
+      if (enforcer.serverModeOverride === 'STATIC_TOOL_SETS') {
+        return enforcer.toolSets;
+      }
+    } catch {
+      // Enforcer not initialized – fall back to session config
+    }
+
+    if (sessionConfig?.FMP_TOOL_SETS && typeof sessionConfig.FMP_TOOL_SETS === 'string') {
+      const parsed = parseCommaSeparatedToolSets(sessionConfig.FMP_TOOL_SETS);
+      return parsed;
+    }
+
+    return [];
+  }
+
+  /**
    * Creates a new MCP server with the appropriate configuration and tools
    * Compatible with SDK's CreateServerFn<SessionConfig> signature
    * @param options - Server creation options
