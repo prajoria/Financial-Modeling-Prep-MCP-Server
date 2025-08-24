@@ -38,6 +38,16 @@ export class FmpMcpServer {
   }
 
   /**
+   * Compare two arrays as order-insensitive sets of strings
+   */
+  private _areStringSetsEqual(a: string[], b: string[]): boolean {
+    if (a.length !== b.length) return false;
+    const sa = [...a].sort();
+    const sb = [...b].sort();
+    return sa.every((v, i) => v === sb[i]);
+  }
+
+  /**
    * Starts the HTTP server on the specified port.
    * @param port - The port number to listen on
    */
@@ -220,17 +230,11 @@ export class FmpMcpServer {
         const cachedMode = cached.mode;
         const cachedSets = cached.staticToolSets || [];
 
-        // If modes match and, when static, sets match (order-insensitive), reuse
-        const setsEqual = (a: string[], b: string[]) => {
-          if (a.length !== b.length) return false;
-          const sa = [...a].sort();
-          const sb = [...b].sort();
-          return sa.every((v, i) => v === sb[i]);
-        };
+        const shouldReuse = cachedMode === desiredMode && (
+          desiredMode !== 'STATIC_TOOL_SETS' || this._areStringSetsEqual(cachedSets, desiredStaticSets)
+        );
 
-        if (cachedMode === desiredMode && (
-          desiredMode !== 'STATIC_TOOL_SETS' || setsEqual(cachedSets, desiredStaticSets)
-        )) {
+        if (shouldReuse) {
           console.log(
             `[FmpMcpServer] ✅ Reusing cached resources for client: ${clientId}`
           );

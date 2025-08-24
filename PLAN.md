@@ -17,6 +17,8 @@ This plan ensures a new `McpServer` instance is created when a request's session
     - [ ] Else → reuse cached instance
   - [x] Store `mode` and (if static) `toolSets` alongside the cached server
     - Implemented: now computes desired mode/sets, compares with cached, recreates when mismatched, and persists `mode`/`staticToolSets` in cache entries.
+  - [x] Refactor: extract set equality into private util and reuse condition into const
+    - Implemented `_areStringSetsEqual()` and `shouldReuse` const for clarity/testability.
 - [ ] Add unit tests in `src/server/FmpMcpServer.test.ts`:
   - [ ] Reuses instance when same mode and same static sets
   - [ ] Recreates instance when cached legacy but requested dynamic
