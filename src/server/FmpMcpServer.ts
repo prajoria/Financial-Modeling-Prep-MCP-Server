@@ -4,6 +4,7 @@ import {
   createStatefulServer,
   type CreateServerArg,
 } from "@smithery/sdk/server/stateful.js";
+import { z } from "zod";
 import { ClientStorage, type StorageOptions } from "../client-storage/index.js";
 import {
   McpServerFactory,
@@ -18,6 +19,13 @@ export interface ServerOptions {
   accessToken?: string;
   cacheOptions?: StorageOptions;
 }
+
+// Zod schema for session configuration - matches the JSON schema in McpServerFactory
+const SessionConfigSchema = z.object({
+  FMP_ACCESS_TOKEN: z.string().describe("Financial Modeling Prep API access token"),
+  FMP_TOOL_SETS: z.string().optional().describe("Comma-separated list of tool sets to load (e.g., 'search,company,quotes'). If not specified, all tools will be loaded."),
+  DYNAMIC_TOOL_DISCOVERY: z.string().optional().describe("Enable dynamic toolset management. Set to 'true' to use meta-tools for runtime toolset loading. Default is 'false'.")
+});
 
 /**
  * A stateful MCP Server service that manages isolated sessions using a dedicated cache.
@@ -138,7 +146,10 @@ export class FmpMcpServer {
       // createStatefulServer provides the middleware that handles session creation and routing.
       // We pass it our core logic function for handling session resources.
       const { app: mcpApp } = createStatefulServer((params) =>
-        this._getSessionResources(params)
+        this._getSessionResources(params),
+        {
+          schema: SessionConfigSchema // Pass the Zod schema for .well-known/mcp-config endpoint
+        }
       );
       this.app.use(mcpApp); // Mount the stateful server middleware
 
