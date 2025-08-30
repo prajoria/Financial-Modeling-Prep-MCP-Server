@@ -129,7 +129,10 @@ describe("FmpMcpServer", () => {
 
       expect(mockCreateStatefulServer).toHaveBeenCalledTimes(1);
       expect(mockCreateStatefulServer).toHaveBeenCalledWith(
-        expect.any(Function)
+        expect.any(Function),
+        expect.objectContaining({
+          schema: expect.any(Object)
+        })
       );
     });
   });
