@@ -142,7 +142,7 @@ export class McpServerFactory {
           FMP_ACCESS_TOKEN: {
             type: "string",
             title: "FMP Access Token",
-            description: "Financial Modeling Prep API access token",
+            description: "Financial Modeling Prep API access token. Optional for server initialization; required to successfully call FMP-backed tools.",
           },
           FMP_TOOL_SETS: {
             type: "string",
