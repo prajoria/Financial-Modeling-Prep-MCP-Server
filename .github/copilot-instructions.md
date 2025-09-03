@@ -87,6 +87,13 @@ Server follows strict configuration hierarchy:
 
 **Critical**: Server-level configurations (CLI args or env vars) override ALL session configurations globally.
 
+### Capabilities Prompt and Authentication Requirement
+- The server registers a human-friendly capabilities prompt `list_mcp_assets` that summarizes modes, tools, resources, and quick-start.
+- The prompt now explicitly documents authentication behavior:
+  - `FMP_ACCESS_TOKEN` is optional for server initialization.
+  - It is required to successfully call any FMP-backed tools; without a token, those calls will error.
+  - Token can be provided via CLI args/env vars or per-session config, with server-level values taking precedence.
+
 ## Critical Integration Points
 
 ### Smithery SDK Integration

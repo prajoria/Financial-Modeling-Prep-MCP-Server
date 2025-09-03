@@ -3,6 +3,7 @@ import express from "express";
 import { FmpMcpServer, type ServerOptions } from "./FmpMcpServer.js";
 import * as statefulSdk from "@smithery/sdk/server/stateful.js";
 import { computeClientId } from "../utils/computeClientId.js";
+import { SessionConfigSchema } from "../schemas/session/SessionConfigSchema.js";
 
 vi.mock("@smithery/sdk/server/stateful.js", () => ({
   createStatefulServer: vi.fn(),
@@ -134,6 +135,15 @@ describe("FmpMcpServer", () => {
           schema: expect.any(Object)
         })
       );
+    });
+
+    it("should pass the extracted SessionConfigSchema instance to the SDK", () => {
+      server = new FmpMcpServer();
+
+      expect(mockCreateStatefulServer).toHaveBeenCalledTimes(1);
+      const callArgs = mockCreateStatefulServer.mock.calls[0];
+      const sdkOptions = callArgs[1];
+      expect(sdkOptions.schema).toBe(SessionConfigSchema);
     });
   });
 
@@ -440,6 +450,45 @@ describe("FmpMcpServer", () => {
         `[FmpMcpServer] ❌ Failed to create resources for request:`,
         error
       );
+    });
+  });
+
+  describe("Tokenless Session Behavior", () => {
+    it("initializes a session without token and uses an anonymous client id", () => {
+      server = new FmpMcpServer(); // No server-level access token
+
+      // Access internal mocks
+      const s: any = server as any;
+      const mockClientStorage = s.cache;
+      const mockServerFactory = s.serverFactory;
+
+      // No cached entry
+      mockClientStorage.get.mockReturnValue(null);
+
+      // Ensure factory returns a valid result
+      mockServerFactory.createServer.mockReturnValue({
+        mode: "ALL_TOOLS",
+        mcpServer: { name: "no-token-server" },
+        toolManager: undefined,
+      });
+
+      const params = { config: {} } as any;
+      const result = (server as any)._getSessionResources(params);
+
+      expect(result).toEqual({ name: "no-token-server" });
+
+      // Verify cache.set was called with an anon client id
+      expect(mockClientStorage.set).toHaveBeenCalled();
+      const setArgs = mockClientStorage.set.mock.calls[0];
+      const clientIdArg = setArgs[0];
+      expect(typeof clientIdArg).toBe("string");
+      expect(clientIdArg.startsWith("anon:")).toBe(true);
+
+      // Factory should have been called with undefined server token
+      expect(mockServerFactory.createServer).toHaveBeenCalledWith({
+        config: {},
+        serverAccessToken: undefined,
+      });
     });
   });
 

@@ -11,10 +11,10 @@ export interface PromptContext {
 
 export function registerListMcpAssets(server: McpServer, context: PromptContext): void {
   const contentBuilder = () => buildAssetsOverview(context);
-  const maybeServer: any = server as any;
-  if (typeof maybeServer.prompt === 'function') {
+  const hasPrompt = (server as unknown as { prompt?: Function }).prompt;
+  if (typeof hasPrompt === 'function') {
     try {
-      maybeServer.prompt(
+      (server as unknown as { prompt: Function }).prompt(
         "list_mcp_assets",
         "Human-friendly overview of server capabilities: modes, prompts, tools, resources, and quick start.",
         {},
@@ -69,7 +69,15 @@ function buildAssetsOverview(ctx: PromptContext): string {
 
   const quickStart = renderQuickStart(mode, staticToolSets);
 
-  return [header, '', prompts, '', tools, '', resources, '', quickStart].join('\n');
+  const tokenNotice = [
+    ``,
+    `## Authentication Notice`,
+    `- FMP_ACCESS_TOKEN is optional for server initialization.`,
+    `- It is required when invoking any FMP-backed tools. Without a valid token, tool calls will return an error.`,
+    `- You can provide the token via server CLI/env or per-session config. Server-level values take precedence.`,
+  ].join('\n');
+
+  return [header, '', prompts, '', tools, '', resources, '', quickStart, '', tokenNotice].join('\n');
 }
 
 function renderToolsSection(mode: ServerMode, staticToolSets: ToolSet[] | undefined, toolsetCount: number): string {
