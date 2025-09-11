@@ -74,8 +74,17 @@ function main(): void {
     allChecks = false;
   }
 
-  // Check 2: Required files exist
-  console.log("\n2. Checking required files...");
+  // Check 2: Build works
+  console.log("\n2. Checking build process...");
+  if (safeExecute("npm run build")) {
+    console.log("   ✅ Build successful");
+  } else {
+    console.log("   ❌ Build failed");
+    allChecks = false;
+  }
+
+  // Check 3: Required files exist (after build)
+  console.log("\n3. Checking required files...");
   const requiredFiles = [
     "LICENSE",
     "README.md",
@@ -90,15 +99,6 @@ function main(): void {
       console.log(`   ❌ Missing: ${file}`);
       allChecks = false;
     }
-  }
-
-  // Check 3: Build works
-  console.log("\n3. Checking build process...");
-  if (safeExecute("npm run build")) {
-    console.log("   ✅ Build successful");
-  } else {
-    console.log("   ❌ Build failed");
-    allChecks = false;
   }
 
   // Check 4: Package creation works
