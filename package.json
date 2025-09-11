@@ -1,6 +1,6 @@
 {
   "name": "financial-modeling-prep-mcp-server",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "mcpName": "io.github.imbenrabi/financial-modeling-prep-mcp-server",
   "description": "Model Context Protocol server for Financial Modeling Prep (FMP) API, exposing 250+ tools for financial data, market insights, and analysis.",
   "main": "dist/index.js",
@@ -34,7 +34,8 @@
     "publish:validate": "tsx scripts/manual-publish.ts validate",
     "publish:troubleshoot": "tsx scripts/manual-publish.ts troubleshoot",
     "test:publish-workflow": "tsx scripts/test-manual-publish.ts",
-    "test:complete-workflow": "tsx scripts/test-complete-workflow.ts"
+    "test:complete-workflow": "tsx scripts/test-complete-workflow.ts",
+    "test:automated-pipeline": "tsx scripts/test-automated-pipeline.ts"
   },
   "author": "imbenrabi",
   "license": "Apache-2.0",
