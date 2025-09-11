@@ -39,7 +39,10 @@
     "test:registry-suite": "tsx scripts/test-registry-suite.ts",
     "test:registry": "vitest run src/registry-tests/",
     "test:registry-watch": "vitest src/registry-tests/",
-    "test:registry-coverage": "vitest run src/registry-tests/ --coverage"
+    "test:registry-coverage": "vitest run src/registry-tests/ --coverage",
+    "test:installation-verification": "tsx scripts/test-installation-verification.ts",
+    "test:installation-ci": "vitest run src/registry-tests/InstallationMethodVerification.ci.test.ts --reporter=verbose --testTimeout=15000",
+    "verify:installation": "tsx scripts/verify-installation-methods.ts"
   },
   "author": "imbenrabi",
   "license": "Apache-2.0",

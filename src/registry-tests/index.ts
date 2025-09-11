@@ -101,6 +101,21 @@ export const REGISTRY_TEST_SUITES = {
       'Multiple transport support',
       'Edge cases handling'
     ]
+  },
+  
+  InstallationMethodVerification: {
+    description: 'Tests all installation methods work correctly',
+    testFile: 'InstallationMethodVerification.test.ts',
+    coverage: [
+      'NPM package installation',
+      'Docker container execution',
+      'Source code installation and build',
+      'CLI entrypoint functionality',
+      'Server startup verification',
+      'Tool loading verification',
+      'Installation method consistency',
+      'Version consistency across methods'
+    ]
   }
 } as const;
 

@@ -565,6 +565,9 @@ npm test
 # Run with coverage
 npm run test:coverage
 
+# Verify installation methods
+npm run verify:installation
+
 # Type checking
 npm run typecheck
 ```
