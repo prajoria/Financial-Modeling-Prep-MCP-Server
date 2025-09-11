@@ -1,9 +1,9 @@
-name: Create Release
+name: Create Release and Publish to NPM
 
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 permissions:
   contents: write
@@ -17,15 +17,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Builds run on main already. Keep build step commented for reference.
-      # - name: Build Project
-      #   run: |
-      #     npm ci
-      #     npm run build
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
 
-      - name: Create Release
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify NPM publishing readiness and build
+        run: npm run verify:npm-ready
+
+      - name: Publish to NPM
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-
-

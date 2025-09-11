@@ -12,11 +12,20 @@ A Model Context Protocol (MCP) implementation for Financial Modeling Prep, enabl
   - [Configuration Precedence](#configuration-precedence)
 - [Usage](#usage)
   - [Registries](#registries)
+    - [MCP Registry](#mcp-registry)
+    - [Quick Start Guide for Registry Users](#quick-start-guide-for-registry-users)
+    - [AI Platform Integration](#ai-platform-integration)
     - [Smithery.ai](#smitheryai)
     - [Glama.ai](#glamaai)
     - [Contexaai.com](#contexaaicom)
+  - [Installation Methods](#installation-methods)
+    - [NPM Installation](#npm-installation)
+    - [Docker Installation](#docker-installation)
+    - [Source Installation](#source-installation)
+    - [Environment Variables](#environment-variables)
+    - [Verification](#verification)
+    - [Troubleshooting](#troubleshooting)
   - [HTTP Server & Local Development](#http-server--local-development)
-  - [Docker Usage](#docker-usage)
   - [Example System Prompts](#example-system-prompts)
 - [Making HTTP Requests](#making-http-requests)
   - [Session Configuration](#session-configuration)
@@ -333,6 +342,325 @@ curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
 
 For production environments, you can use this MCP server through various registries that provide hosted and managed MCP servers:
 
+## MCP Registry
+
+The Financial Modeling Prep MCP Server is available through the official Model Context Protocol Registry, providing standardized installation and discovery for AI platforms.
+
+### Quick Start from Registry
+
+**NPM Installation:**
+
+```bash
+npm install financial-modeling-prep-mcp-server
+npx fmp-mcp --fmp-token=YOUR_TOKEN
+```
+
+**Docker Installation:**
+
+```bash
+docker run -p 8080:8080 -e FMP_ACCESS_TOKEN=YOUR_TOKEN \
+  ghcr.io/imbenrabi/financial-modeling-prep-mcp-server:latest
+```
+
+**From Source:**
+
+```bash
+git clone https://github.com/imbenrabi/Financial-Modeling-Prep-MCP-Server
+cd Financial-Modeling-Prep-MCP-Server
+npm install && npm run build
+npm start -- --fmp-token=YOUR_TOKEN
+```
+
+### Registry Installation Methods
+
+The server supports multiple installation methods through the MCP Registry:
+
+| Method     | Command                                                           | Best For                        |
+| ---------- | ----------------------------------------------------------------- | ------------------------------- |
+| **NPM**    | `npm install financial-modeling-prep-mcp-server`                  | Development and local testing   |
+| **Docker** | `docker run ghcr.io/imbenrabi/financial-modeling-prep-mcp-server` | Production deployments          |
+| **Source** | `git clone && npm install`                                        | Customization and contributions |
+
+### Quick Start Guide for Registry Users
+
+**1. Choose Your Installation Method:**
+
+```bash
+# Option A: NPM (recommended for development)
+npm install financial-modeling-prep-mcp-server
+npx fmp-mcp --fmp-token=YOUR_TOKEN
+
+# Option B: Docker (recommended for production)
+docker run -p 8080:8080 -e FMP_ACCESS_TOKEN=YOUR_TOKEN \
+  ghcr.io/imbenrabi/financial-modeling-prep-mcp-server:latest
+
+# Option C: From source (for customization)
+git clone https://github.com/imbenrabi/Financial-Modeling-Prep-MCP-Server
+cd Financial-Modeling-Prep-MCP-Server && npm install && npm run build
+npm start -- --fmp-token=YOUR_TOKEN
+```
+
+**2. Get Your FMP API Token:**
+
+- Visit [Financial Modeling Prep](https://financialmodelingprep.com/developer/docs)
+- Sign up for a free account
+- Copy your API key from the dashboard
+
+**3. Test the Installation:**
+
+```bash
+# Health check
+curl http://localhost:8080/health
+
+# List available tools
+curl -X POST http://localhost:8080/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+```
+
+**4. Connect to Your AI Platform:**
+
+- Configure your MCP client to connect to `http://localhost:8080/mcp`
+- Use the server in your AI conversations for financial analysis
+- Refer to your platform's MCP integration documentation
+
+### AI Platform Integration
+
+This server is compatible with AI platforms that support the Model Context Protocol:
+
+- **ChatGPT** (with MCP support)
+- **Claude** (via MCP clients)
+- **Perplexity** (via MCP integration)
+- **Custom AI Applications** (using MCP SDK)
+
+For platform-specific integration instructions, refer to your AI platform's MCP documentation.
+
+## Installation Methods
+
+The Financial Modeling Prep MCP Server supports multiple installation methods to fit different deployment scenarios and development workflows.
+
+### NPM Installation
+
+**Prerequisites:**
+
+- Node.js ≥20.0.0
+- NPM or Yarn package manager
+- Financial Modeling Prep API token
+
+**Install globally:**
+
+```bash
+npm install -g financial-modeling-prep-mcp-server
+fmp-mcp --fmp-token=YOUR_TOKEN
+```
+
+**Install locally in project:**
+
+```bash
+npm install financial-modeling-prep-mcp-server
+npx fmp-mcp --fmp-token=YOUR_TOKEN
+```
+
+**With configuration options:**
+
+```bash
+# Custom port and dynamic mode
+npx fmp-mcp --fmp-token=YOUR_TOKEN --port=4000 --dynamic-tool-discovery
+
+# Static toolset mode
+npx fmp-mcp --fmp-token=YOUR_TOKEN --fmp-tool-sets=search,company,quotes
+```
+
+### Docker Installation
+
+**Prerequisites:**
+
+- Docker Engine
+- Financial Modeling Prep API token
+
+**Basic Docker run:**
+
+```bash
+docker run -p 8080:8080 \
+  -e FMP_ACCESS_TOKEN=YOUR_TOKEN \
+  ghcr.io/imbenrabi/financial-modeling-prep-mcp-server:latest
+```
+
+**With custom configuration:**
+
+```bash
+# Dynamic mode with custom port
+docker run -p 4000:4000 \
+  -e FMP_ACCESS_TOKEN=YOUR_TOKEN \
+  -e PORT=4000 \
+  -e DYNAMIC_TOOL_DISCOVERY=true \
+  ghcr.io/imbenrabi/financial-modeling-prep-mcp-server:latest
+
+# Static toolset mode
+docker run -p 8080:8080 \
+  -e FMP_ACCESS_TOKEN=YOUR_TOKEN \
+  -e FMP_TOOL_SETS=search,company,quotes \
+  ghcr.io/imbenrabi/financial-modeling-prep-mcp-server:latest
+```
+
+**Docker Compose:**
+
+```yaml
+version: "3.8"
+services:
+  fmp-mcp:
+    image: ghcr.io/imbenrabi/financial-modeling-prep-mcp-server:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
+      - PORT=8080
+      # Optional: Choose server mode
+      - DYNAMIC_TOOL_DISCOVERY=true
+      # OR: - FMP_TOOL_SETS=search,company,quotes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+### Source Installation
+
+**Prerequisites:**
+
+- Node.js ≥20.0.0
+- Git
+- NPM or Yarn package manager
+- Financial Modeling Prep API token
+
+**Clone and build:**
+
+```bash
+# Clone repository
+git clone https://github.com/imbenrabi/Financial-Modeling-Prep-MCP-Server.git
+cd Financial-Modeling-Prep-MCP-Server
+
+# Install dependencies
+npm install
+
+# Build TypeScript
+npm run build
+
+# Start server
+npm start -- --fmp-token=YOUR_TOKEN
+```
+
+**Development mode:**
+
+```bash
+# Run with hot reload
+npm run dev -- --fmp-token=YOUR_TOKEN
+
+# Run tests
+npm test
+
+# Run with coverage
+npm run test:coverage
+
+# Type checking
+npm run typecheck
+```
+
+**Custom build configuration:**
+
+```bash
+# Build with specific target
+npx tsc --target ES2022
+
+# Build and watch for changes
+npx tsc --watch
+
+# Clean build
+rm -rf dist && npm run build
+```
+
+### Environment Variables
+
+All installation methods support the same environment variables:
+
+| Variable                 | Description                       | Default       | Example                 |
+| ------------------------ | --------------------------------- | ------------- | ----------------------- |
+| `FMP_ACCESS_TOKEN`       | Financial Modeling Prep API token | Required      | `your_fmp_token_here`   |
+| `PORT`                   | Server port                       | `8080`        | `4000`                  |
+| `DYNAMIC_TOOL_DISCOVERY` | Enable dynamic toolset mode       | `false`       | `true`                  |
+| `FMP_TOOL_SETS`          | Static toolsets (comma-separated) | All tools     | `search,company,quotes` |
+| `NODE_ENV`               | Node.js environment               | `development` | `production`            |
+
+### Verification
+
+After installation, verify the server is working:
+
+**Health check:**
+
+```bash
+curl http://localhost:8080/health
+```
+
+**MCP capabilities:**
+
+```bash
+curl -X POST http://localhost:8080/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2024-11-05",
+      "clientInfo": {"name": "test", "version": "1.0.0"},
+      "capabilities": {}
+    }
+  }'
+```
+
+**List available tools:**
+
+```bash
+curl -X POST http://localhost:8080/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
+```
+
+### Troubleshooting
+
+**Common issues and solutions:**
+
+1. **Port already in use:**
+
+   ```bash
+   # Use different port
+   PORT=4000 npm start -- --fmp-token=YOUR_TOKEN
+   ```
+
+2. **Invalid API token:**
+
+   ```bash
+   # Verify token at https://financialmodelingprep.com/developer/docs
+   curl "https://financialmodelingprep.com/api/v3/profile/AAPL?apikey=YOUR_TOKEN"
+   ```
+
+3. **Memory issues with all tools:**
+
+   ```bash
+   # Use dynamic mode or specific toolsets
+   npm start -- --fmp-token=YOUR_TOKEN --dynamic-tool-discovery
+   ```
+
+4. **Docker permission issues:**
+   ```bash
+   # Run with user permissions
+   docker run --user $(id -u):$(id -g) -p 8080:8080 \
+     -e FMP_ACCESS_TOKEN=YOUR_TOKEN \
+     ghcr.io/imbenrabi/financial-modeling-prep-mcp-server:latest
+   ```
+
 #### Smithery.ai
 
 [![smithery badge](https://smithery.ai/badge/@imbenrabi/financial-modeling-prep-mcp-server)](https://smithery.ai/server/@imbenrabi/financial-modeling-prep-mcp-server)
@@ -445,84 +773,6 @@ npm run dev -- --port=4000 --fmp-token=YOUR_TOKEN
 
 ```
 
-### Docker Usage
-
-Docker deployment supports all configuration methods with proper environment variable handling.
-
-#### Using Docker with Environment Variables
-
-```bash
-# Basic deployment
-docker run -p 8080:8080 -e FMP_ACCESS_TOKEN=YOUR_TOKEN your-image-name
-
-# With server-level dynamic mode
-docker run -p 8080:8080 \
-  -e FMP_ACCESS_TOKEN=YOUR_TOKEN \
-  -e DYNAMIC_TOOL_DISCOVERY=true \
-  your-image-name
-
-# With server-level static mode
-docker run -p 8080:8080 \
-  -e FMP_ACCESS_TOKEN=YOUR_TOKEN \
-  -e FMP_TOOL_SETS=search,company,quotes \
-  your-image-name
-```
-
-#### Using Docker Compose
-
-Create a `docker-compose.yml` file:
-
-```yaml
-version: "3.8"
-services:
-  fmp-mcp:
-    image: your-image-name
-    ports:
-      - "8080:8080"
-    environment:
-      - FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
-      - PORT=8080
-      # Optional: Server-level mode enforcement
-      - DYNAMIC_TOOL_DISCOVERY=true # All sessions use dynamic mode
-      # OR
-      - FMP_TOOL_SETS=search,company,quotes # All sessions use these toolsets
-      # OR leave both unset for legacy mode (all tools)
-```
-
-Then run:
-
-```bash
-docker-compose up
-```
-
-#### Using .env File with Docker Compose
-
-Create a `.env` file:
-
-```env
-FMP_ACCESS_TOKEN=YOUR_FMP_ACCESS_TOKEN
-PORT=8080
-
-# Optional: Choose ONE server-level mode
-DYNAMIC_TOOL_DISCOVERY=true
-# OR
-# FMP_TOOL_SETS=search,company,quotes
-# OR leave both commented for legacy mode
-```
-
-And reference it in your `docker-compose.yml`:
-
-```yaml
-version: "3.8"
-services:
-  fmp-mcp:
-    image: your-image-name
-    ports:
-      - "8080:8080"
-    env_file:
-      - .env
-```
-
 ### Example System Prompts
 
 The following system prompts are designed to help AI assistants effectively use this MCP server for financial analysis tasks. Choose the appropriate prompt based on your server configuration mode.
@@ -623,6 +873,7 @@ curl -X POST "http://localhost:8080/mcp?config=${CONFIG_BASE64}" \
 ```
 
 Notes:
+
 - The `Tools` section adapts to the effective mode (Dynamic/Static/Legacy). In legacy mode, it summarizes categories instead of listing all 250+ tools.
 - In Static mode, toolsets shown are the authoritative list from the server’s mode enforcer (single source of truth). Session `FMP_TOOL_SETS` may request Static mode, but server-level configuration controls the final toolsets.
 - The `Resources` section includes a lightweight health snapshot (uptime, memory summary, version, mode).
