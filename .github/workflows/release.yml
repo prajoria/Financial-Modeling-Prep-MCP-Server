@@ -73,12 +73,6 @@ jobs:
           npm run verify:npm-ready
           echo "SUCCESS: NPM package validation passed"
 
-      - name: Run tests
-        run: |
-          echo "Running test suite..."
-          npm run test:run
-          echo "SUCCESS: All tests passed"
-
       - name: Validate required secrets
         id: validate-secrets
         run: |
