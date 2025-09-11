@@ -235,7 +235,7 @@ export async function validateServerJsonSchema(
     }
 
     // Validate description length (1-100 characters as per registry requirements)
-    if (serverJson.description) {
+    if (serverJson.description !== undefined) {
       if (
         serverJson.description.length < 1 ||
         serverJson.description.length > 100
@@ -245,6 +245,14 @@ export async function validateServerJsonSchema(
         );
         result.isValid = false;
       }
+    }
+
+    // Validate version format
+    if (serverJson.version && !isValidSemVer(serverJson.version)) {
+      result.errors.push(
+        `server.json version "${serverJson.version}" is not valid SemVer`
+      );
+      result.isValid = false;
     }
 
     // Validate packages array
@@ -398,7 +406,7 @@ async function updateChangelogVersion(
         `## [${newVersion}] - ${currentDate}`,
         "",
         "### Added",
-        "- Version ${newVersion} release",
+        `- Version ${newVersion} release`,
         ""
       );
       content = lines.join("\n");

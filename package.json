@@ -35,7 +35,11 @@
     "publish:troubleshoot": "tsx scripts/manual-publish.ts troubleshoot",
     "test:publish-workflow": "tsx scripts/test-manual-publish.ts",
     "test:complete-workflow": "tsx scripts/test-complete-workflow.ts",
-    "test:automated-pipeline": "tsx scripts/test-automated-pipeline.ts"
+    "test:automated-pipeline": "tsx scripts/test-automated-pipeline.ts",
+    "test:registry-suite": "tsx scripts/test-registry-suite.ts",
+    "test:registry": "vitest run src/registry-tests/",
+    "test:registry-watch": "vitest src/registry-tests/",
+    "test:registry-coverage": "vitest run src/registry-tests/ --coverage"
   },
   "author": "imbenrabi",
   "license": "Apache-2.0",
