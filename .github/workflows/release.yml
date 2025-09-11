@@ -1,31 +1,283 @@
-name: Create Release
+name: Automated Publishing Pipeline
 
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run in dry-run mode (skip actual publishing)'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
+  id-token: write
+
+env:
+  NODE_VERSION: "20"
+  REGISTRY_TIMEOUT: "300"
 
 jobs:
-  build_and_release:
-    name: Build and Release
+  validate:
+    name: Validate Release Prerequisites
     runs-on: ubuntu-latest
-
+    outputs:
+      version: ${{ steps.extract-version.outputs.version }}
+      should_publish: ${{ steps.validate-secrets.outputs.should_publish }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Builds run on main already. Keep build step commented for reference.
-      # - name: Build Project
-      #   run: |
-      #     npm ci
-      #     npm run build
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+          cache: "npm"
 
-      - name: Create Release
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Extract version from tag
+        id: extract-version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "Extracted version: $VERSION"
+          else
+            echo "Not a version tag, using package.json version"
+            VERSION=$(node -p "require('./package.json').version")
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validate version synchronization
+        run: |
+          echo "Validating version consistency across files..."
+          npm run version:validate
+          echo "SUCCESS: Version validation passed"
+
+      - name: Validate server.json schema
+        run: |
+          echo "Validating server.json against MCP schema..."
+          npm run verify:registry-submission
+          echo "SUCCESS: Registry metadata validation passed"
+
+      - name: Build and verify NPM readiness
+        run: |
+          echo "Building package and verifying NPM readiness..."
+          npm run verify:npm-ready
+          echo "SUCCESS: NPM package validation passed"
+
+      - name: Validate required secrets
+        id: validate-secrets
+        run: |
+          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+            echo "INFO: Dry run mode - skipping secret validation"
+          elif [[ -z "${{ secrets.NPM_TOKEN }}" ]]; then
+            echo "FAILURE: NPM_TOKEN secret is not configured"
+            echo "Please configure NPM_TOKEN in repository secrets"
+            exit 1
+          else
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "SUCCESS: Required secrets are configured"
+          fi
+
+  publish:
+    name: Publish to Registries
+    runs-on: ubuntu-latest
+    needs: validate
+    if: success()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: |
+          echo "Building TypeScript package..."
+          npm run build
+          echo "SUCCESS: Package built successfully"
+
+      - name: Install MCP Publisher CLI
+        run: |
+          echo "Installing MCP Publisher CLI..."
+          # Install Go for building from source
+          sudo apt-get update
+          sudo apt-get install -y golang-go
+          
+          # Clone and build publisher
+          git clone https://github.com/modelcontextprotocol/registry publisher-repo
+          cd publisher-repo
+          
+          # Build with timeout protection
+          timeout ${{ env.REGISTRY_TIMEOUT }} make publisher || {
+            echo "FAILURE: MCP Publisher build timed out or failed"
+            exit 1
+          }
+          
+          cp cmd/publisher/bin/mcp-publisher ../mcp-publisher
+          cd ..
+          chmod +x mcp-publisher
+          
+          # Verify installation
+          ./mcp-publisher --version
+          echo "SUCCESS: MCP Publisher CLI installed successfully"
+
+      - name: Authenticate with MCP Registry
+        run: |
+          echo "Authenticating with MCP Registry using GitHub OIDC..."
+          ./mcp-publisher login github-oidc
+          echo "SUCCESS: MCP Registry authentication successful"
+
+      - name: Publish to NPM Registry
+        if: needs.validate.outputs.should_publish == 'true'
+        run: |
+          echo "Publishing to NPM Registry..."
+          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+            echo "INFO: Dry run - npm publish --access public --dry-run"
+            npm publish --access public --dry-run
+          else
+            npm publish --access public
+            echo "SUCCESS: Successfully published to NPM Registry"
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Wait for NPM propagation
+        if: needs.validate.outputs.should_publish == 'true' && inputs.dry_run != true
+        run: |
+          echo "Waiting for NPM package to propagate..."
+          PACKAGE_NAME="financial-modeling-prep-mcp-server"
+          VERSION="${{ needs.validate.outputs.version }}"
+          
+          for i in {1..30}; do
+            if curl -s "https://registry.npmjs.org/$PACKAGE_NAME/$VERSION" | grep -q "\"version\":\"$VERSION\""; then
+              echo "SUCCESS: NPM package is available and propagated"
+              break
+            fi
+            echo "INFO: Waiting for NPM propagation... (attempt $i/30)"
+            sleep 10
+          done
+
+      - name: Publish to MCP Registry
+        run: |
+          echo "Publishing to MCP Registry..."
+          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+            echo "INFO: Dry run - ./mcp-publisher publish --dry-run"
+            echo "Would publish server.json to MCP Registry"
+          else
+            ./mcp-publisher publish
+            echo "SUCCESS: Successfully published to MCP Registry"
+          fi
+
+      - name: Verify registry publication
+        if: inputs.dry_run != true
+        run: |
+          echo "Verifying MCP Registry publication..."
+          SERVER_NAME="io.github.imbenrabi/financial-modeling-prep-mcp-server"
+          
+          # Wait for registry propagation
+          for i in {1..20}; do
+            if curl -s "https://registry.modelcontextprotocol.io/api/servers/$SERVER_NAME" | grep -q "\"name\":\"$SERVER_NAME\""; then
+              echo "SUCCESS: Server is available in MCP Registry"
+              break
+            fi
+            echo "INFO: Waiting for MCP Registry propagation... (attempt $i/20)"
+            sleep 15
+          done
+
+      - name: Test installation methods
+        if: inputs.dry_run != true
+        run: |
+          echo "Testing installation methods..."
+          
+          # Test NPM installation
+          echo "Testing NPM installation..."
+          npm install -g financial-modeling-prep-mcp-server@${{ needs.validate.outputs.version }}
+          
+          # Verify CLI is available
+          if command -v fmp-mcp >/dev/null 2>&1; then
+            echo "SUCCESS: NPM installation successful - CLI available"
+          else
+            echo "FAILURE: NPM installation failed - CLI not available"
+            exit 1
+          fi
+          
+          # Test server startup (with timeout)
+          echo "Testing server startup..."
+          timeout 30 fmp-mcp --help || {
+            echo "FAILURE: Server startup test failed"
+            exit 1
+          }
+          echo "SUCCESS: Server startup test passed"
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [validate, publish]
+    if: success() && inputs.dry_run != true
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
+          name: "Release v${{ needs.validate.outputs.version }}"
+          body: |
+            ## Release v${{ needs.validate.outputs.version }}
+            
+            This release has been automatically published to:
+            - NPM Registry: `npm install financial-modeling-prep-mcp-server@${{ needs.validate.outputs.version }}`
+            - MCP Registry: Available at https://registry.modelcontextprotocol.io/servers/io.github.imbenrabi/financial-modeling-prep-mcp-server
+            
+            ### Installation Methods
+            
+            **NPM:**
+            ```bash
+            npm install -g financial-modeling-prep-mcp-server
+            ```
+            
+            **NPX (recommended):**
+            ```bash
+            npx financial-modeling-prep-mcp-server --fmp-token=YOUR_TOKEN
+            ```
+            
+            **MCP Registry:**
+            Search for "financial-modeling-prep-mcp-server" in your MCP client.
 
-
+  notify-failure:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [validate, publish, release]
+    if: failure()
+    
+    steps:
+      - name: Report failure
+        run: |
+          echo "FAILURE: Automated publishing pipeline failed"
+          echo "Please check the workflow logs and consider manual publishing"
+          echo ""
+          echo "Manual publishing commands:"
+          echo "1. npm run publish:validate"
+          echo "2. npm run publish:manual"
+          echo "3. npm run verify:registry-submission"
+          exit 1
