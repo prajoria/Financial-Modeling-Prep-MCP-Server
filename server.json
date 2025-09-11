@@ -13,7 +13,7 @@
       "runtime_hint": "npx",
       "transport": {
         "type": "streamable-http",
-        "url": "http://localhost:{PORT}/mcp"
+        "url": "https://financial-modeling-prep-mcp-server-production.up.railway.app/mcp"
       },
       "package_arguments": [
         {
